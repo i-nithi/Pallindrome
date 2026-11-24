@@ -14,6 +14,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field, field_validator
 
+from work_data import PROJECTS, REPOSITORIES
+
 from data import (
     ADDITIONAL_CHARGES,
     CAPABILITIES,
@@ -118,6 +120,8 @@ async def home(request: Request) -> HTMLResponse:
         name="index.html",
         context={
             "company": COMPANY_CONFIG,
+            "projects": PROJECTS,
+            "repositories": REPOSITORIES,
             "services": SERVICE_PACKAGES,
             "additional_charges": ADDITIONAL_CHARGES,
             "works": PROOF_OF_WORK,

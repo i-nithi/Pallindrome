@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="/static/css/tokens.css" />
   <link rel="stylesheet" href="/static/css/layout.css" />
   <link rel="stylesheet" href="/static/css/sections.css" />
+  <link rel="stylesheet" href="/static/css/work.css" />
   <script>
     document.documentElement.classList.add("js-enhanced");
     try {
@@ -177,10 +178,33 @@
         </div>
       </div>
 
-      <a href="#services" class="hero__scroll" id="hero-scroll" aria-label="Scroll to services">
+      <a href="#work" class="hero__scroll" id="hero-scroll" aria-label="Scroll to proof of work">
         <span class="hero__scroll-label">Scroll</span>
         <span class="hero__scroll-line" aria-hidden="true"></span>
       </a>
+    </section>
+
+    <section class="proof" id="work" aria-labelledby="work-title">
+      <div class="proof-stage" data-proof-stage>
+        <div class="proof-panel" data-proof-panel>
+          <div class="proof-intro" data-proof-intro><span class="proof-kicker">02 / SELECTED WORK</span><h2 id="work-title">PROOF OF<br>WORK<span>.</span></h2><p>SCROLL TO EXPLORE <span>↓</span></p></div>
+          <div class="proof-exhibition" data-proof-exhibition>
+            <div class="proof-backgrounds" aria-hidden="true">{% for project in projects %}<div class="proof-background" style="background-image:url('/static/img/work/{{ project.image }}')"></div>{% endfor %}</div>
+            <div class="proof-shade" aria-hidden="true"></div>
+            <div class="proof-film" aria-hidden="true">{% for project in projects %}<div class="proof-frame"><img src="/static/img/work/{{ project.image }}" alt="" width="1448" height="1086" {% if not loop.first %}loading="lazy"{% endif %}></div>{% endfor %}</div>
+            <div class="proof-editorial">{% for project in projects %}<article class="proof-project" id="project-{{ project.id }}" data-project>
+              <div class="proof-project__left"><span class="proof-image-description">{{ project.alt }}</span><span class="proof-kicker">{{ '%02d'|format(loop.index) }} / {{ project.category }}</span><h3>{{ project.title }}<span>.</span></h3><span class="proof-project__type">{{ project.project_type }}</span></div>
+              <img class="proof-mobile-image" src="/static/img/work/{{ project.image }}" alt="{{ project.alt }}" loading="lazy" width="1448" height="1086">
+              <div class="proof-project__right"><p>{{ project.description }}</p><ul>{% for capability in project.capabilities %}<li>{{ capability }}</li>{% endfor %}</ul><p class="proof-status">{{ project.status }}</p>{% if project.public_link %}<a href="{{ project.url }}" target="_blank" rel="noopener noreferrer">{{ project.link_label }} <span aria-hidden="true">↗</span></a>{% else %}<span class="proof-private">Private client application</span>{% endif %}</div>
+            </article>{% endfor %}</div>
+            <div class="proof-bottom"><div class="proof-count"><span data-proof-count>01</span> <span>/ 04</span></div><div class="proof-progress"><span data-proof-progress></span></div><nav aria-label="Select a flagship project">{% for project in projects %}<button type="button" data-proof-nav="{{ loop.index0 }}"><span>{{ '%02d'|format(loop.index) }}</span> {{ project.nav }}</button>{% endfor %}</nav></div>
+          </div>
+        </div>
+      </div>
+      <div class="lab"><div class="lab-inner"><header class="lab-header"><div><span class="proof-kicker">02 / ENGINEERING LAB</span><h2>Inside the Lab<span>.</span></h2></div><p>Beyond client projects, we explore algorithms, automation and experimental software engineering.</p></header>
+        <div class="lab-grid">{% for repo in repositories %}<article class="lab-item"><div class="lab-art lab-art--{{ repo.art }}" aria-hidden="true">{% if repo.art == 'chess' %}<span class="chess-knight">♞</span><span class="chess-lines">▂ ▄ ▃ ▆ ▄ ▇</span>{% elif repo.art == 'graph' %}<svg viewBox="0 0 180 90"><path d="M90 15L42 45M90 15L138 45M42 45L20 75M42 45L65 75M138 45L115 75M138 45L160 75"/><g><circle cx="90" cy="15" r="5"/><circle cx="42" cy="45" r="5"/><circle cx="138" cy="45" r="5"/><circle cx="20" cy="75" r="4"/><circle cx="65" cy="75" r="4"/><circle cx="115" cy="75" r="4"/><circle cx="160" cy="75" r="4"/></g></svg>{% else %}<span class="terminal-prompt">&gt;_</span><span class="terminal-lines"> ━━━━━<br> ━━━<br> ━━━━━━━</span>{% endif %}</div><div class="lab-item__meta">{{ '%02d'|format(loop.index) }} / {{ repo.category }}</div><h3>{{ repo.name }}</h3><p>{{ repo.description }}</p><div class="lab-tech">{{ repo.tech }}</div><a href="{{ repo.url }}" target="_blank" rel="noopener noreferrer" aria-label="View {{ repo.name }} on GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.54v-2.12c-3.1.67-3.75-1.31-3.75-1.31-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.68.08-.68 1.11.08 1.7 1.14 1.7 1.14.99 1.69 2.59 1.2 3.22.92.1-.72.39-1.2.7-1.48-2.47-.28-5.07-1.24-5.07-5.49 0-1.21.43-2.2 1.14-2.98-.12-.28-.5-1.41.1-2.94 0 0 .93-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.43 3.04-1.14 3.04-1.14.6 1.53.22 2.66.1 2.94.71.78 1.14 1.77 1.14 2.98 0 4.26-2.6 5.2-5.08 5.48.4.35.75 1.02.75 2.06v3.1c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg> View repository <span>↗</span></a></article>{% endfor %}</div>
+        <div class="lab-cta"><div><h3>Have something in mind<span>?</span></h3><p>Let's build something beyond ordinary.</p></div><a href="#contact" class="hero-btn hero-btn--primary"><span>Start a project</span><span class="hero-btn__arrow" aria-hidden="true">↗</span></a></div>
+      </div></div>
     </section>
 
     <!-- ====================================================================
@@ -247,113 +271,6 @@
             {% endfor %}
           </ul>
         </aside>
-      </div>
-    </section>
-
-    <!-- ====================================================================
-         03 / PROOF OF WORK — INTERACTIVE CARDS
-         ==================================================================== -->
-    <section class="section section--dark" id="work" aria-labelledby="work-title">
-      <div class="container">
-        <header class="section-header" data-reveal>
-          <div>
-            <span class="eyebrow">Proof of Work</span>
-            <h2 class="section-title" id="work-title">
-              Shipped <em>Builds</em> &amp; Founder Work
-            </h2>
-          </div>
-          <span class="section-index">02 / INTERACTIVE ARCHIVE</span>
-        </header>
-
-        <div class="work-filters" role="tablist" aria-label="Filter proof of work" data-reveal>
-          {% for group in work_groups %}
-          <button
-            type="button"
-            class="filter-pill {% if loop.first %}is-active{% endif %}"
-            role="tab"
-            aria-selected="{{ 'true' if loop.first else 'false' }}"
-            data-work-filter="{{ group }}"
-          >
-            {{ group }}
-          </button>
-          {% endfor %}
-        </div>
-
-        <div class="work-cards-grid">
-          {% for item in works %}
-          <article
-            class="work-card"
-            id="project-{{ item.slug }}"
-            data-work-card
-            data-work-group="{{ item.group }}"
-            data-reveal
-          >
-            <div>
-              <div class="work-card__header">
-                <span>{{ item.index }} // {{ item.category }}</span>
-                <span class="work-card__group">{{ item.group }}</span>
-              </div>
-
-              <h3 class="work-card__title">{{ item.name }}</h3>
-              <p class="work-card__tagline">{{ item.tagline }}</p>
-              <p class="work-card__desc">{{ item.description }}</p>
-
-              <ul class="tech-tags" aria-label="Technologies in {{ item.name }}">
-                {% for tech in item.technologies %}
-                <li class="tech-tag">{{ tech }}</li>
-                {% endfor %}
-              </ul>
-            </div>
-
-            <div class="work-card__drawer" id="drawer-{{ item.slug }}" hidden>
-              <span class="work-card__deliverable">Deliverable: {{ item.deliverable }}</span>
-              <ul class="work-card__highlights">
-                {% for point in item.highlights %}
-                <li>{{ point }}</li>
-                {% endfor %}
-              </ul>
-              {% if item.disclaimer %}
-              <p class="work-card__disclaimer">{{ item.disclaimer }}</p>
-              {% endif %}
-            </div>
-
-            <div class="work-card__footer">
-              <div class="work-card__links">
-                <a
-                  href="{{ item.github_url }}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="work-link"
-                  data-cursor="CODE"
-                >
-                  GitHub ↗
-                </a>
-                {% if item.live_url %}
-                <a
-                  href="{{ item.live_url }}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="work-link work-link--live"
-                  data-cursor="LIVE"
-                >
-                  Live Site ↗
-                </a>
-                {% endif %}
-              </div>
-
-              <button
-                type="button"
-                class="work-inspect-btn"
-                aria-expanded="false"
-                aria-controls="drawer-{{ item.slug }}"
-                data-inspect-card
-              >
-                Inspect Details +
-              </button>
-            </div>
-          </article>
-          {% endfor %}
-        </div>
       </div>
     </section>
 

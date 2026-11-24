@@ -727,3 +727,46 @@ document.addEventListener("DOMContentLoaded", () => {
   initFounderTabs();
   initServicesAndContactForm();
 });
+
+function initProofOfWork(): void {
+  const section = document.querySelector<HTMLElement>('.proof');
+  const stage = document.querySelector<HTMLElement>('[data-proof-stage]');
+  const panel = document.querySelector<HTMLElement>('[data-proof-panel]');
+  const intro = document.querySelector<HTMLElement>('[data-proof-intro]');
+  const exhibition = document.querySelector<HTMLElement>('[data-proof-exhibition]');
+  if (!section || !stage || !panel || !intro || !exhibition) return;
+  const mm = gsap.matchMedia();
+  mm.add('(min-width: 901px) and (prefers-reduced-motion: no-preference)', () => {
+    section.classList.add('is-cinematic');
+    const projects = gsap.utils.toArray<HTMLElement>('[data-project]', section);
+    const frames = gsap.utils.toArray<HTMLElement>('.proof-frame', section);
+    const backgrounds = gsap.utils.toArray<HTMLElement>('.proof-background', section);
+    const buttons = gsap.utils.toArray<HTMLButtonElement>('[data-proof-nav]', section);
+    const counter = section.querySelector<HTMLElement>('[data-proof-count]');
+    const progress = section.querySelector<HTMLElement>('[data-proof-progress]');
+    let active = -1;
+    const setActive = (index: number): void => {
+      if (index === active) return;
+      active = index;
+      projects.forEach((project, i) => { project.classList.toggle('is-active', i === index); project.setAttribute('aria-hidden', String(i !== index)); project.inert = i !== index; gsap.to(project, {opacity: i === index ? 1 : 0, y: i === index ? 0 : 12, duration: .3, overwrite: true}); });
+      buttons.forEach((button, i) => {button.classList.toggle('is-active', i === index); if(i === index) button.setAttribute('aria-current','true'); else button.removeAttribute('aria-current');});
+      if(counter) counter.textContent = String(index + 1).padStart(2, '0');
+      if(progress) progress.style.width = `${(index + 1) / projects.length * 100}%`;
+    };
+    const trigger = ScrollTrigger.create({trigger: stage, start:'top top', end: () => `+=${window.innerHeight * (projects.length + 0.8)}`, pin:true, scrub:true, onUpdate(self) {
+      const opening = Math.min(1, self.progress / .18);
+      gsap.set(panel, {width:`${43 + 57 * opening}vw`, height:`${52 + 48 * opening}vh`, borderRadius:18 * (1-opening)});
+      gsap.set(intro, {opacity:Math.max(0, 1-opening*1.7), visibility: opening > .7 ? 'hidden':'visible'});
+      gsap.set(exhibition, {opacity:Math.max(0, (opening-.55)/.45)});
+      const position = Math.max(0, Math.min(projects.length-1, (self.progress-.18)/.72*(projects.length-1)));
+      const index = Math.min(projects.length-1, Math.round(position));
+      setActive(index);
+      frames.forEach((frame,i) => {const delta=i-position; gsap.set(frame,{xPercent:0,yPercent:-50,y:delta*window.innerHeight*.52,scale:Math.max(.32,1-Math.abs(delta)*.68),opacity:Math.max(0,1-Math.abs(delta)*.38),zIndex:Math.round(10-Math.abs(delta)*5),filter:`brightness(${Math.max(.48,1-Math.abs(delta)*.5)})`});});
+      backgrounds.forEach((bg,i) => gsap.set(bg,{opacity:Math.max(0,1-Math.abs(i-position))}));
+    }});
+    buttons.forEach((button,i) => {button.onclick = () => { const ratio=.18 + (i/(projects.length-1))*.72; window.scrollTo({top:trigger.start+(trigger.end-trigger.start)*ratio,behavior:'smooth'}); };});
+    setActive(0); ScrollTrigger.refresh();
+    return () => {trigger.kill(); section.classList.remove('is-cinematic'); projects.forEach(p=>{p.inert=false;p.removeAttribute('aria-hidden');p.classList.remove('is-active');gsap.set(p,{clearProps:'all'});}); buttons.forEach(b=>{b.onclick=null;}); gsap.set([panel,intro,exhibition,...frames,...backgrounds],{clearProps:'all'});};
+  });
+}
+document.addEventListener('DOMContentLoaded', initProofOfWork);

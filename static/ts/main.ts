@@ -1,6 +1,12 @@
 /* ==========================================================================
-   PALINDROME LABS — TypeScript Interaction Layer
+   PALINDROME LABS — TypeScript Interaction & Motion Layer
    ========================================================================== */
+
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { initHeroSculpture, type HeroSculptureController } from "./heroSculpture";
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface ContactPayload {
   name: string;
@@ -43,225 +49,271 @@ function markIntroSeen(): void {
   }
 }
 
-function initIntroSplash(): void {
+/**
+ * Coordinates the optional first-visit intro video handoff, WebGL sculpture
+ * materialization, staggered masked headline reveal, and scroll exit.
+ */
+function initHeroAndIntroExperience(): void {
   const root = document.documentElement;
   const splash = document.getElementById("intro-splash");
   const video = document.getElementById("intro-video") as HTMLVideoElement | null;
+  const hero = document.getElementById("hero");
+  const heroCanvas = document.getElementById("hero-canvas") as HTMLCanvasElement | null;
+  const masthead = document.getElementById("masthead");
+  const heroScroll = document.getElementById("hero-scroll");
+  const heroContent = document.getElementById("hero-content");
+  const headlineLines = Array.from(document.querySelectorAll<HTMLElement>(".hero__line-inner"));
+  const staggerEls = Array.from(document.querySelectorAll<HTMLElement>("[data-hero-stagger]"));
 
-  if (!root.classList.contains("intro-active") || !splash || !video) {
-    root.classList.remove("intro-active");
-    return;
+  const reduced = prefersReducedMotion();
+
+  // Initialize WebGL sculpture immediately so it is ready before the video ends
+  let sculpture: HeroSculptureController | null = null;
+  if (hero && heroCanvas) {
+    sculpture = initHeroSculpture(heroCanvas, hero, {
+      reducedMotion: reduced,
+      onFallback: () => {
+        hero.classList.add("is-webgl-fallback");
+      },
+    });
+  } else if (hero) {
+    hero.classList.add("is-webgl-fallback");
   }
 
-  // Persist first-visit flag immediately so refreshes do not replay the intro.
-  markIntroSeen();
+  if (!reduced) {
+    gsap.set(headlineLines, { yPercent: 112, opacity: 0 });
+    gsap.set(staggerEls, { y: 20, opacity: 0 });
+    if (masthead) gsap.set(masthead, { y: -14, opacity: 0 });
+    if (heroScroll) gsap.set(heroScroll, { opacity: 0, y: 10 });
+  }
 
-  let dismissed = false;
-  let safetyTimer = 0;
+  let entrancePlayed = false;
 
-  const finishIntro = (): void => {
-    if (dismissed) return;
-    dismissed = true;
-    if (safetyTimer) window.clearTimeout(safetyTimer);
+  const playHeroEntrance = (fromVideo: boolean): void => {
+    if (entrancePlayed) return;
+    entrancePlayed = true;
 
-    splash.classList.add("is-leaving");
-    window.setTimeout(() => {
-      video.pause();
+    if (reduced) {
+      sculpture?.setReveal(1);
       root.classList.remove("intro-active");
-      splash.classList.remove("is-leaving");
-    }, 650);
+      return;
+    }
+
+    const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+    const revealState = { value: 0 };
+
+    if (fromVideo && splash) {
+      tl.to(
+        splash,
+        {
+          opacity: 0,
+          duration: 0.78,
+          ease: "power3.inOut",
+          onComplete: () => {
+            video?.pause();
+            root.classList.remove("intro-active");
+            splash.style.opacity = "";
+          },
+        },
+        0,
+      );
+    } else {
+      root.classList.remove("intro-active");
+    }
+
+    // Materialize 3D sculpture & residual particles seamlessly from black
+    tl.to(
+      revealState,
+      {
+        value: 1,
+        duration: fromVideo ? 1.35 : 1.05,
+        ease: "power3.out",
+        onUpdate: () => {
+          sculpture?.setReveal(revealState.value);
+        },
+      },
+      fromVideo ? 0.1 : 0.0,
+    );
+
+    const textStart = fromVideo ? 0.24 : 0.04;
+
+    if (staggerEls[0]) {
+      tl.to(staggerEls[0], { y: 0, opacity: 1, duration: 0.62, ease: "power3.out" }, textStart);
+    }
+
+    if (headlineLines.length) {
+      tl.to(
+        headlineLines,
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 0.85,
+          stagger: 0.08,
+          ease: "power4.out",
+        },
+        textStart + 0.06,
+      );
+    }
+
+    const lowerEls = staggerEls.slice(1);
+    if (lowerEls.length) {
+      tl.to(
+        lowerEls,
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.68,
+          stagger: 0.08,
+          ease: "power3.out",
+        },
+        textStart + 0.28,
+      );
+    }
+
+    if (masthead) {
+      tl.to(
+        masthead,
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.65,
+          ease: "power3.out",
+          clearProps: "transform",
+        },
+        textStart + 0.18,
+      );
+    }
+
+    if (heroScroll) {
+      tl.to(
+        heroScroll,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: "power2.out",
+        },
+        textStart + 0.45,
+      );
+    }
   };
 
-  const src = video.dataset.src;
-  if (src && !video.getAttribute("src")) {
-    video.src = src;
+  // Subtle ScrollTrigger exit transformation leaving the hero into Services
+  if (hero && !reduced) {
+    ScrollTrigger.create({
+      trigger: hero,
+      start: "top top",
+      end: "bottom top",
+      scrub: true,
+      onUpdate: (self) => {
+        sculpture?.setScrollProgress(self.progress);
+        if (heroContent) {
+          gsap.set(heroContent, {
+            y: self.progress * -48,
+            opacity: Math.max(0.18, 1 - self.progress * 1.15),
+          });
+        }
+        if (heroScroll) {
+          gsap.set(heroScroll, {
+            opacity: Math.max(0, 1 - self.progress * 3.5),
+          });
+        }
+      },
+    });
   }
-  video.muted = true;
-  video.playsInline = true;
 
-  video.addEventListener("ended", finishIntro, { once: true });
-  video.addEventListener("error", finishIntro, { once: true });
-  video.addEventListener("loadedmetadata", () => {
-    const durationMs =
-      Number.isFinite(video.duration) && video.duration > 0
-        ? Math.ceil(video.duration * 1000) + 1500
-        : 8000;
-    if (safetyTimer) window.clearTimeout(safetyTimer);
-    safetyTimer = window.setTimeout(finishIntro, durationMs);
-  });
+  // First-visit video handoff vs immediate return-visit entrance
+  if (!reduced && root.classList.contains("intro-active") && splash && video) {
+    markIntroSeen();
 
-  safetyTimer = window.setTimeout(finishIntro, 8000);
+    let finished = false;
+    let safetyTimer = 0;
 
-  const playPromise = video.play();
-  if (playPromise && typeof playPromise.catch === "function") {
-    playPromise.catch(() => {
-      finishIntro();
+    const completeVideo = (): void => {
+      if (finished) return;
+      finished = true;
+      if (safetyTimer) window.clearTimeout(safetyTimer);
+      playHeroEntrance(true);
+    };
+
+    const src = video.dataset.src;
+    if (src && !video.getAttribute("src")) {
+      video.src = src;
+    }
+    video.muted = true;
+    video.playsInline = true;
+
+    video.addEventListener("ended", completeVideo, { once: true });
+    video.addEventListener("error", completeVideo, { once: true });
+    video.addEventListener("loadedmetadata", () => {
+      const durationMs =
+        Number.isFinite(video.duration) && video.duration > 0
+          ? Math.ceil(video.duration * 1000) + 1500
+          : 8000;
+      if (safetyTimer) window.clearTimeout(safetyTimer);
+      safetyTimer = window.setTimeout(completeVideo, durationMs);
+    });
+
+    safetyTimer = window.setTimeout(completeVideo, 8000);
+
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {
+        completeVideo();
+      });
+    }
+  } else {
+    playHeroEntrance(false);
+  }
+}
+
+/**
+ * Refined magnetic attraction on key studio buttons and brand mark.
+ */
+function initMagneticControls(): void {
+  if (prefersReducedMotion()) return;
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
+  const targets = Array.from(document.querySelectorAll<HTMLElement>("[data-magnetic]"));
+  for (const el of targets) {
+    const moveX = gsap.quickTo(el, "x", { duration: 0.42, ease: "power3.out" });
+    const moveY = gsap.quickTo(el, "y", { duration: 0.42, ease: "power3.out" });
+
+    el.addEventListener("pointermove", (event: PointerEvent) => {
+      const rect = el.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const offsetX = ((event.clientX - rect.left) / rect.width - 0.5) * 14;
+      const offsetY = ((event.clientY - rect.top) / rect.height - 0.5) * 10;
+      moveX(offsetX);
+      moveY(offsetY);
+    });
+
+    el.addEventListener("pointerleave", () => {
+      moveX(0);
+      moveY(0);
     });
   }
 }
 
-function initHeroCanvas(): void {
-  const canvas = document.getElementById("hero-canvas") as HTMLCanvasElement | null;
-  if (!canvas || prefersReducedMotion()) return;
-
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  let width = 0;
-  let height = 0;
-  let pointerX = 0.5;
-  let pointerY = 0.5;
-  let targetX = 0.5;
-  let targetY = 0.5;
-  let rafId = 0;
-
-  const resize = (): void => {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    width = canvas.clientWidth;
-    height = canvas.clientHeight;
-    canvas.width = Math.floor(width * dpr);
-    canvas.height = Math.floor(height * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  };
-
-  const draw = (): void => {
-    pointerX += (targetX - pointerX) * 0.06;
-    pointerY += (targetY - pointerY) * 0.06;
-
-    ctx.clearRect(0, 0, width, height);
-
-    const spacing = width < 700 ? 48 : 68;
-    const cols = Math.ceil(width / spacing);
-    const rows = Math.ceil(height / spacing);
-    const px = pointerX * width;
-    const py = pointerY * height;
-
-    // Subtle rose coordinate hairlines
-    ctx.strokeStyle = "rgba(247, 167, 193, 0.08)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let c = 1; c < cols; c++) {
-      const x = c * spacing;
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
-    }
-    for (let r = 1; r < rows; r++) {
-      const y = r * spacing;
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-    }
-    ctx.stroke();
-
-    // Pointer-reactive berry & rose crosshairs
-    for (let c = 1; c < cols; c++) {
-      for (let r = 1; r < rows; r++) {
-        const x = c * spacing;
-        const y = r * spacing;
-        const dist = Math.hypot(x - px, y - py);
-        const influence = Math.max(0, 1 - dist / 240);
-
-        if (influence > 0.05) {
-          const arm = 3 + influence * 7;
-          ctx.strokeStyle = `rgba(227, 74, 131, ${(influence * 0.72).toFixed(3)})`;
-          ctx.beginPath();
-          ctx.moveTo(x - arm, y);
-          ctx.lineTo(x + arm, y);
-          ctx.moveTo(x, y - arm);
-          ctx.lineTo(x, y + arm);
-          ctx.stroke();
-        }
-      }
-    }
-
-    rafId = window.requestAnimationFrame(draw);
-  };
-
-  const onMove = (event: PointerEvent): void => {
-    const rect = canvas.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
-    targetX = (event.clientX - rect.left) / rect.width;
-    targetY = (event.clientY - rect.top) / rect.height;
-  };
-
-  resize();
-  window.addEventListener("resize", resize, { passive: true });
-  window.addEventListener("pointermove", onMove, { passive: true });
-  rafId = window.requestAnimationFrame(draw);
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden && rafId) {
-      window.cancelAnimationFrame(rafId);
-      rafId = 0;
-    } else if (!document.hidden && !rafId) {
-      rafId = window.requestAnimationFrame(draw);
-    }
-  });
-}
-
-function initCustomCursor(): void {
-  if (prefersReducedMotion()) return;
-  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-
-  const reticle = document.getElementById("cursor-reticle");
-  const label = document.getElementById("cursor-label");
-  if (!reticle || !label) return;
-
-  let x = -100;
-  let y = -100;
-  let tx = -100;
-  let ty = -100;
-  let active = false;
-
-  const loop = (): void => {
-    x += (tx - x) * 0.22;
-    y += (ty - y) * 0.22;
-    reticle.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
-    window.requestAnimationFrame(loop);
-  };
-
-  window.addEventListener(
-    "pointermove",
-    (e: PointerEvent) => {
-      tx = e.clientX;
-      ty = e.clientY;
-      if (!active) {
-        active = true;
-        reticle.classList.add("is-visible");
-      }
-
-      const target = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-cursor]");
-      if (target) {
-        label.textContent = target.dataset.cursor || "VIEW";
-        reticle.classList.add("is-active");
-      } else {
-        reticle.classList.remove("is-active");
-      }
-    },
-    { passive: true },
-  );
-
-  document.addEventListener("pointerleave", () => {
-    active = false;
-    reticle.classList.remove("is-visible", "is-active");
-  });
-
-  window.requestAnimationFrame(loop);
-}
-
 function initScrollProgressAndNav(): void {
   const progressBar = document.getElementById("scroll-progress");
+  const masthead = document.getElementById("masthead");
   const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-nav-link]"));
   const sections = Array.from(document.querySelectorAll<HTMLElement>("main section[id]"));
 
-  const updateProgress = (): void => {
-    if (!progressBar) return;
-    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    const ratio = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
-    progressBar.style.transform = `scaleX(${ratio.toFixed(4)})`;
+  const updateScrollUI = (): void => {
+    if (masthead) {
+      masthead.classList.toggle("is-scrolled", window.scrollY > 24);
+    }
+    if (progressBar) {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
+      progressBar.style.transform = `scaleX(${ratio.toFixed(4)})`;
+    }
   };
 
-  updateProgress();
-  window.addEventListener("scroll", updateProgress, { passive: true });
+  updateScrollUI();
+  window.addEventListener("scroll", updateScrollUI, { passive: true });
 
   if (sections.length && navLinks.length && "IntersectionObserver" in window) {
     const observer = new IntersectionObserver(
@@ -621,9 +673,8 @@ function initServicesAndContactForm(): void {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  initIntroSplash();
-  initHeroCanvas();
-  initCustomCursor();
+  initHeroAndIntroExperience();
+  initMagneticControls();
   initScrollProgressAndNav();
   initScrollReveals();
   initMobileMenu();

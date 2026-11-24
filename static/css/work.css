@@ -52,3 +52,4 @@
   .proof--light-background .proof-bottom button.is-active,
   .proof--light-background .proof-bottom button.is-active span { color: #654900; }
 }
+.proof-frame, .proof-mobile-image { border-radius: 14px; }

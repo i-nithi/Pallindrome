@@ -171,9 +171,9 @@ html.intro-active .intro-splash {
 .hero__title {
   font-family: var(--font-hero);
   font-weight: 700;
-  font-size: clamp(3.35rem, 1.85rem + 6vw, 7.35rem);
-  line-height: 0.91;
-  letter-spacing: -0.045em;
+  font-size: clamp(2.85rem, 1.45rem + 4.75vw, 6.1rem);
+  line-height: 0.94;
+  letter-spacing: -0.042em;
   color: var(--off-white);
 }
 
@@ -1252,7 +1252,7 @@ html.intro-active .intro-splash {
 
 @media (max-width: 640px) {
   .hero__title {
-    font-size: clamp(2.85rem, 12.8vw, 3.85rem);
+    font-size: clamp(2.35rem, 10.6vw, 3.25rem);
   }
 
   .hero__actions {

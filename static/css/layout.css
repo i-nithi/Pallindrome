@@ -294,46 +294,12 @@ ol {
 .brand-mark {
   display: inline-flex;
   align-items: center;
-  gap: 0.72rem;
   font-family: var(--font-hero);
-  font-weight: 600;
-  font-size: 1.02rem;
+  font-weight: 700;
+  font-size: 1.08rem;
   letter-spacing: -0.025em;
   color: var(--off-white);
   will-change: transform;
-}
-
-.brand-mark__emblem {
-  position: relative;
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-.brand-mark__emblem::before,
-.brand-mark__emblem::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1.5px solid transparent;
-}
-
-.brand-mark__emblem::before {
-  border-left-color: var(--vibrant-magenta);
-  border-top-color: var(--electric-purple);
-  transform: rotate(-18deg);
-}
-
-.brand-mark__emblem::after {
-  border-right-color: var(--electric-cyan);
-  border-bottom-color: #2855ff;
-  transform: rotate(-18deg);
-}
-
-.brand-mark__accent {
-  color: var(--off-white-muted);
-  font-weight: 400;
 }
 
 .nav-links {
@@ -437,6 +403,30 @@ ol {
 
 .nav-cta:hover .nav-cta__arrow {
   transform: translate(2px, -2px);
+}
+
+.nav-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  will-change: transform;
+}
+
+.nav-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition:
+    transform 280ms var(--ease-expo),
+    filter 280ms ease;
+}
+
+.nav-logo:hover img {
+  transform: scale(1.06);
+  filter: drop-shadow(0 0 12px rgba(239, 0, 207, 0.38));
 }
 
 @keyframes pulseBeacon {
@@ -615,6 +605,15 @@ ol {
   .nav-links,
   .availability-indicator {
     display: none;
+  }
+
+  .masthead__actions {
+    gap: 0.75rem;
+  }
+
+  .nav-logo {
+    width: 36px;
+    height: 36px;
   }
 
   .menu-toggle {

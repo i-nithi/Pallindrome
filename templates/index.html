@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ company.brand_name }} — Build Your Digital Presence</title>
+  <title>Pallindrome — Build Your Digital Presence</title>
   <meta
     name="description"
-    content="{{ company.brand_name }} — Freelancing company in {{ company.location }} building custom websites, full-stack web applications, and Android apps. Founded by {{ company.founder_name }}."
+    content="Pallindrome — Freelancing company in {{ company.location }} building custom websites, full-stack web applications, and Android apps. Founded by {{ company.founder_name }}."
   />
   <meta name="theme-color" content="#050507" />
+  <link rel="icon" type="image/svg+xml" href="/static/img/pallindrome-logo.svg" />
+  <link rel="apple-touch-icon" href="/static/img/pallindrome-logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -37,7 +39,7 @@
     id="intro-splash"
     role="dialog"
     aria-modal="true"
-    aria-label="Palindrome Labs intro"
+    aria-label="Pallindrome intro"
   >
     <video
       class="intro-splash__video"
@@ -57,8 +59,7 @@
   <header class="masthead" id="masthead">
     <div class="masthead__inner">
       <a href="#hero" class="brand-mark" data-magnetic>
-        <span class="brand-mark__emblem" aria-hidden="true"></span>
-        <span class="brand-mark__text">palindrome <span class="brand-mark__accent">labs</span></span>
+        <span class="brand-mark__text">Pallindrome</span>
       </a>
 
       <nav class="nav-links" aria-label="Primary navigation">
@@ -89,6 +90,14 @@
           <span></span>
           <span></span>
         </button>
+        <a href="#hero" class="nav-logo" data-magnetic aria-label="Pallindrome home">
+          <img
+            src="/static/img/pallindrome-logo.svg"
+            alt="Pallindrome logo"
+            width="42"
+            height="42"
+          />
+        </a>
       </div>
     </div>
   </header>

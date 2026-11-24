@@ -1,0 +1,19 @@
+{
+  "name": "palindrome-labs",
+  "private": true,
+  "version": "4.0.0",
+  "description": "Frontend interaction & WebGL build toolchain for Palindrome Labs",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "esbuild static/ts/main.ts --bundle --minify --format=iife --target=es2022 --outfile=static/js/main.js"
+  },
+  "dependencies": {
+    "gsap": "^3.12.7",
+    "three": "^0.174.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.174.0",
+    "esbuild": "^0.25.1",
+    "typescript": "^5.8.2"
+  }
+}

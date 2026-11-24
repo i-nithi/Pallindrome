@@ -30,8 +30,75 @@ const PROJECT_DISPLAY_NAMES: Record<string, string> = {
   "mfalmion": "Mfalmion",
 };
 
+const INTRO_SEEN_KEY = "palindrome_intro_seen";
+
 const prefersReducedMotion = (): boolean =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function markIntroSeen(): void {
+  try {
+    window.localStorage.setItem(INTRO_SEEN_KEY, "1");
+  } catch {
+    // Storage unavailable
+  }
+}
+
+function initIntroSplash(): void {
+  const root = document.documentElement;
+  const splash = document.getElementById("intro-splash");
+  const video = document.getElementById("intro-video") as HTMLVideoElement | null;
+
+  if (!root.classList.contains("intro-active") || !splash || !video) {
+    root.classList.remove("intro-active");
+    return;
+  }
+
+  // Persist first-visit flag immediately so refreshes do not replay the intro.
+  markIntroSeen();
+
+  let dismissed = false;
+  let safetyTimer = 0;
+
+  const finishIntro = (): void => {
+    if (dismissed) return;
+    dismissed = true;
+    if (safetyTimer) window.clearTimeout(safetyTimer);
+
+    splash.classList.add("is-leaving");
+    window.setTimeout(() => {
+      video.pause();
+      root.classList.remove("intro-active");
+      splash.classList.remove("is-leaving");
+    }, 650);
+  };
+
+  const src = video.dataset.src;
+  if (src && !video.getAttribute("src")) {
+    video.src = src;
+  }
+  video.muted = true;
+  video.playsInline = true;
+
+  video.addEventListener("ended", finishIntro, { once: true });
+  video.addEventListener("error", finishIntro, { once: true });
+  video.addEventListener("loadedmetadata", () => {
+    const durationMs =
+      Number.isFinite(video.duration) && video.duration > 0
+        ? Math.ceil(video.duration * 1000) + 1500
+        : 8000;
+    if (safetyTimer) window.clearTimeout(safetyTimer);
+    safetyTimer = window.setTimeout(finishIntro, durationMs);
+  });
+
+  safetyTimer = window.setTimeout(finishIntro, 8000);
+
+  const playPromise = video.play();
+  if (playPromise && typeof playPromise.catch === "function") {
+    playPromise.catch(() => {
+      finishIntro();
+    });
+  }
+}
 
 function initHeroCanvas(): void {
   const canvas = document.getElementById("hero-canvas") as HTMLCanvasElement | null;
@@ -554,6 +621,7 @@ function initServicesAndContactForm(): void {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  initIntroSplash();
   initHeroCanvas();
   initCustomCursor();
   initScrollProgressAndNav();

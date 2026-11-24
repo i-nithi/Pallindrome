@@ -20,9 +20,35 @@
   <link rel="stylesheet" href="/static/css/sections.css" />
   <script>
     document.documentElement.classList.add("js-enhanced");
+    try {
+      var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduceMotion && !window.localStorage.getItem("palindrome_intro_seen")) {
+        document.documentElement.classList.add("intro-active");
+      }
+    } catch (e) {
+      // Storage unavailable; skip intro splash
+    }
   </script>
 </head>
 <body>
+  <!-- First-visit Intro Video Splash -->
+  <div
+    class="intro-splash"
+    id="intro-splash"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Palindrome Labs intro"
+  >
+    <video
+      class="intro-splash__video"
+      id="intro-video"
+      data-src="/static/video/palindrome-logo-reveal.mp4"
+      muted
+      playsinline
+      preload="none"
+    ></video>
+  </div>
+
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>

@@ -32,3 +32,23 @@
 @media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
   .proof.is-cinematic #project-rajamanickam-chit-fund h3 { font-size: clamp(1.65rem, 2.65vw, 3.55rem); overflow-wrap: normal; }
 }
+.proof-intro { isolation: isolate; }
+.proof-intro::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url('/static/img/work/campion.webp') center/cover; filter: blur(14px) brightness(.5); transform: scale(1.08); }
+.proof-intro::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(120deg, rgba(5,5,7,.48), rgba(5,5,7,.7)), radial-gradient(circle at 15% 80%, rgba(139,0,255,.28), transparent 45%), radial-gradient(circle at 85% 20%, rgba(0,217,255,.18), transparent 40%); }
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .proof.is-cinematic .proof-intro { background: transparent; }
+  .proof-intro h2 { font-size: clamp(3.5rem, 5.8vw, 7rem); text-align: center; }
+}
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .proof--light-background #project-rajamanickam-chit-fund h3,
+  .proof--light-background #project-rajamanickam-chit-fund .proof-project__right p,
+  .proof--light-background #project-rajamanickam-chit-fund .proof-kicker,
+  .proof--light-background #project-rajamanickam-chit-fund .proof-project__type,
+  .proof--light-background #project-rajamanickam-chit-fund .proof-private { color: #11141a; }
+  .proof--light-background #project-rajamanickam-chit-fund .proof-project__right li { color: #11141a; border-color: rgba(17,20,26,.45); }
+  .proof--light-background .proof-bottom button:not(.is-active),
+  .proof--light-background .proof-bottom button:not(.is-active) span,
+  .proof--light-background .proof-count { color: #16191e; }
+  .proof--light-background .proof-bottom button.is-active,
+  .proof--light-background .proof-bottom button.is-active span { color: #654900; }
+}

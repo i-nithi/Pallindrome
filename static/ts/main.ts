@@ -748,6 +748,7 @@ function initProofOfWork(): void {
     const setActive = (index: number): void => {
       if (index === active) return;
       active = index;
+      section.classList.toggle('proof--light-background', projects[index]?.id === 'project-rajamanickam-chit-fund');
       projects.forEach((project, i) => { project.classList.toggle('is-active', i === index); project.setAttribute('aria-hidden', String(i !== index)); project.inert = i !== index; gsap.to(project, {opacity: i === index ? 1 : 0, y: i === index ? 0 : 12, duration: .3, overwrite: true}); });
       buttons.forEach((button, i) => {button.classList.toggle('is-active', i === index); if(i === index) button.setAttribute('aria-current','true'); else button.removeAttribute('aria-current');});
       if(counter) counter.textContent = String(index + 1).padStart(2, '0');
@@ -756,8 +757,8 @@ function initProofOfWork(): void {
     const trigger = ScrollTrigger.create({trigger: stage, start:'top top', end: () => `+=${window.innerHeight * (projects.length + 0.8)}`, pin:true, scrub:true, onUpdate(self) {
       const opening = Math.min(1, self.progress / .18);
       gsap.set(panel, {width:`${43 + 57 * opening}vw`, height:`${52 + 48 * opening}vh`, borderRadius:18 * (1-opening)});
-      gsap.set(intro, {opacity:Math.max(0, 1-opening*1.7), visibility: opening > .7 ? 'hidden':'visible'});
-      gsap.set(exhibition, {opacity:Math.max(0, (opening-.55)/.45)});
+      gsap.set(intro, {opacity:Math.max(0, 1-opening*1.35), visibility: opening > .75 ? 'hidden':'visible'});
+      gsap.set(exhibition, {opacity:Math.max(0, (opening-.3)/.7)});
       const position = Math.max(0, Math.min(projects.length-1, (self.progress-.18)/.72*(projects.length-1)));
       const index = Math.min(projects.length-1, Math.round(position));
       setActive(index);
@@ -766,7 +767,7 @@ function initProofOfWork(): void {
     }});
     buttons.forEach((button,i) => {button.onclick = () => { const ratio=.18 + (i/(projects.length-1))*.72; window.scrollTo({top:trigger.start+(trigger.end-trigger.start)*ratio,behavior:'smooth'}); };});
     setActive(0); ScrollTrigger.refresh();
-    return () => {trigger.kill(); section.classList.remove('is-cinematic'); projects.forEach(p=>{p.inert=false;p.removeAttribute('aria-hidden');p.classList.remove('is-active');gsap.set(p,{clearProps:'all'});}); buttons.forEach(b=>{b.onclick=null;}); gsap.set([panel,intro,exhibition,...frames,...backgrounds],{clearProps:'all'});};
+    return () => {trigger.kill(); section.classList.remove('is-cinematic', 'proof--light-background'); projects.forEach(p=>{p.inert=false;p.removeAttribute('aria-hidden');p.classList.remove('is-active');gsap.set(p,{clearProps:'all'});}); buttons.forEach(b=>{b.onclick=null;}); gsap.set([panel,intro,exhibition,...frames,...backgrounds],{clearProps:'all'});};
   });
 }
 document.addEventListener('DOMContentLoaded', initProofOfWork);

@@ -761,7 +761,7 @@ function initProofOfWork(): void {
       const position = Math.max(0, Math.min(projects.length-1, (self.progress-.18)/.72*(projects.length-1)));
       const index = Math.min(projects.length-1, Math.round(position));
       setActive(index);
-      frames.forEach((frame,i) => {const delta=i-position; gsap.set(frame,{xPercent:0,yPercent:-50,y:delta*window.innerHeight*.52,scale:Math.max(.32,1-Math.abs(delta)*.68),opacity:Math.max(0,1-Math.abs(delta)*.38),zIndex:Math.round(10-Math.abs(delta)*5),filter:`brightness(${Math.max(.48,1-Math.abs(delta)*.5)})`});});
+      frames.forEach((frame,i) => {const delta=i-position; gsap.set(frame,{xPercent:0,yPercent:-50,y:delta*window.innerHeight*.37,scale:Math.max(.33,1-Math.abs(delta)*.67),opacity:Math.max(0,1-Math.abs(delta)*.38),zIndex:Math.round(10-Math.abs(delta)*5),filter:`brightness(${Math.max(.48,1-Math.abs(delta)*.5)})`});});
       backgrounds.forEach((bg,i) => gsap.set(bg,{opacity:Math.max(0,1-Math.abs(i-position))}));
     }});
     buttons.forEach((button,i) => {button.onclick = () => { const ratio=.18 + (i/(projects.length-1))*.72; window.scrollTo({top:trigger.start+(trigger.end-trigger.start)*ratio,behavior:'smooth'}); };});

@@ -24,3 +24,8 @@
   .proof.is-cinematic .proof-project { grid-template-columns: 21% 48% 21%; }
   .proof.is-cinematic .proof-bottom { border-top: 1px solid #ffffff35; padding-top: 12px; }
 }
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .proof.is-cinematic .proof-frame { left: 50%; margin-left: -24%; top: 50%; }
+  .proof.is-cinematic .proof-background { filter: blur(20px) brightness(1) saturate(1); }
+  .proof.is-cinematic .proof-shade { background: linear-gradient(90deg, rgba(0,0,0,.36), rgba(0,0,0,.08) 50%, rgba(0,0,0,.42)), linear-gradient(0deg, rgba(0,0,0,.6), transparent 30%, transparent 72%, rgba(0,0,0,.3)); }
+}

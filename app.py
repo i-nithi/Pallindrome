@@ -1,4 +1,4 @@
-"""Primary Python backend for Antonius Jairus R's portfolio and freelance studio."""
+"""Primary Python backend for Palindrome Labs — Freelance Software Studio."""
 
 from __future__ import annotations
 
@@ -14,13 +14,21 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field, field_validator
 
-from data import DISCIPLINES, FREELANCE_TRACKS, PROJECTS, SITE_CONFIG, SKILLS
+from data import (
+    ADDITIONAL_CHARGES,
+    CAPABILITIES,
+    COMPANY_CONFIG,
+    FOUNDER_HONORS,
+    PROOF_OF_WORK,
+    SERVICE_PACKAGES,
+)
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "inquiries.db"
 
-ALLOWED_PROJECT_TYPES = tuple(track.title for track in FREELANCE_TRACKS) + (
-    "General inquiry / Collaboration",
+ALLOWED_PROJECT_TYPES = tuple(pkg.title for pkg in SERVICE_PACKAGES) + (
+    "Custom Startup / Tech Team Collaboration",
+    "General Inquiry",
 )
 EMAIL_PATTERN = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 
@@ -46,7 +54,7 @@ def init_db() -> None:
 class ContactInquiry(BaseModel):
     name: str = Field(..., min_length=2, max_length=100)
     email: str = Field(..., min_length=5, max_length=160)
-    project_type: str = Field(..., min_length=2, max_length=100)
+    project_type: str = Field(..., min_length=2, max_length=120)
     description: str = Field(..., min_length=15, max_length=2500)
 
     @field_validator("name", "project_type", "description", mode="before")
@@ -73,14 +81,14 @@ class ContactInquiry(BaseModel):
     @classmethod
     def validate_project_type(cls, value: str) -> str:
         if value not in ALLOWED_PROJECT_TYPES:
-            raise ValueError("Please choose one of the listed project types.")
+            raise ValueError("Please select a valid service or project type.")
         return value
 
 
 app = FastAPI(
-    title="Antonius Jairus — Developer Portfolio & Palindrome Studio",
-    description="Custom Python-powered portfolio and inquiry backend for Antonius Jairus R.",
-    version="2.0.0",
+    title="Palindrome Labs — Build Your Digital Presence",
+    description="Freelancing company & software engineering studio founded by Antonius Jairus R.",
+    version="3.0.0",
 )
 
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
@@ -94,22 +102,29 @@ def on_startup() -> None:
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request) -> HTMLResponse:
-    """Render the main portfolio experience."""
-    skill_categories = []
-    for skill in SKILLS:
-        if skill.category not in skill_categories:
-            skill_categories.append(skill.category)
+    """Render the Palindrome Labs landing page."""
+    work_groups = ["All"]
+    for item in PROOF_OF_WORK:
+        if item.group not in work_groups:
+            work_groups.append(item.group)
+
+    capability_categories = []
+    for cap in CAPABILITIES:
+        if cap.category not in capability_categories:
+            capability_categories.append(cap.category)
 
     return templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
-            "site": SITE_CONFIG,
-            "projects": PROJECTS,
-            "skills": SKILLS,
-            "skill_categories": skill_categories,
-            "disciplines": DISCIPLINES,
-            "freelance_tracks": FREELANCE_TRACKS,
+            "company": COMPANY_CONFIG,
+            "services": SERVICE_PACKAGES,
+            "additional_charges": ADDITIONAL_CHARGES,
+            "works": PROOF_OF_WORK,
+            "work_groups": work_groups,
+            "capabilities": CAPABILITIES,
+            "capability_categories": capability_categories,
+            "founder_honors": FOUNDER_HONORS,
             "project_types": ALLOWED_PROJECT_TYPES,
         },
     )
@@ -117,7 +132,7 @@ async def home(request: Request) -> HTMLResponse:
 
 @app.post("/api/contact")
 async def submit_contact(inquiry: ContactInquiry) -> JSONResponse:
-    """Validate and persist a project inquiry in SQLite."""
+    """Validate and persist a client inquiry in SQLite."""
     init_db()
     created_at = datetime.now(timezone.utc).isoformat()
     with sqlite3.connect(DB_PATH) as conn:
@@ -143,8 +158,8 @@ async def submit_contact(inquiry: ContactInquiry) -> JSONResponse:
             "status": "received",
             "id": inquiry_id,
             "message": (
-                f"Thank you, {inquiry.name}. Your inquiry for \"{inquiry.project_type}\" "
-                "has been recorded."
+                f"Thanks, {inquiry.name}. Your brief for \"{inquiry.project_type}\" has been "
+                "logged with Palindrome Labs."
             ),
         },
     )

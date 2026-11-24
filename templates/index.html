@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ site.owner_name }} — Developer, Freelancer &amp; Founder of Palindrome</title>
+  <title>{{ company.brand_name }} — Build Your Digital Presence</title>
   <meta
     name="description"
-    content="Portfolio of {{ site.full_name }} (@{{ site.handle }}) — Developer, Freelancer, Engineering Student, and Founder of Palindrome in {{ site.location }}."
+    content="{{ company.brand_name }} — Freelancing company in {{ company.location }} building custom websites, full-stack web applications, and Android apps. Founded by {{ company.founder_name }}."
   />
-  <meta name="theme-color" content="#F3EFE6" />
+  <meta name="theme-color" content="#403F50" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -33,27 +33,26 @@
     </div>
   </div>
 
-  <!-- Fixed Editorial Masthead -->
+  <!-- Fixed Company Masthead -->
   <header class="masthead" id="masthead">
     <div class="container masthead__inner">
       <a href="#hero" class="brand-mark" data-cursor="TOP">
-        <span>{{ site.owner_name }}</span>
-        <span class="brand-mark__tag">Palindrome / 2026</span>
+        <span>palindrome <span class="brand-mark__accent">labs</span></span>
+        <span class="brand-mark__tag">Coimbatore</span>
       </a>
 
       <nav class="nav-links" aria-label="Primary navigation">
-        <a href="#projects" data-nav-link>Work</a>
-        <a href="#about" data-nav-link>About</a>
-        <a href="#skills" data-nav-link>Stack</a>
-        <a href="#beyond" data-nav-link>Beyond</a>
-        <a href="#freelance" data-nav-link>Freelance</a>
-        <a href="#contact" data-nav-link>Contact</a>
+        <a href="#services" data-nav-link>Services</a>
+        <a href="#work" data-nav-link>Proof of Work</a>
+        <a href="#capabilities" data-nav-link>Stack</a>
+        <a href="#founder" data-nav-link>Founder</a>
+        <a href="#contact" data-nav-link>Connect</a>
       </nav>
 
       <div class="masthead__actions">
         <a href="#contact" class="availability-pill" data-cursor="HIRE">
           <span class="availability-dot" aria-hidden="true"></span>
-          <span>Available for Freelance</span>
+          <span>{{ company.availability }}</span>
         </a>
         <button
           type="button"
@@ -74,270 +73,248 @@
   <div class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
     <nav aria-label="Mobile navigation">
       <ul class="mobile-drawer__list">
-        <li><a href="#projects" data-drawer-link>Selected Work <span>01</span></a></li>
-        <li><a href="#about" data-drawer-link>About &amp; Identity <span>02</span></a></li>
-        <li><a href="#skills" data-drawer-link>Capability Stack <span>03</span></a></li>
-        <li><a href="#beyond" data-drawer-link>Beyond the Code <span>04</span></a></li>
-        <li><a href="#freelance" data-drawer-link>Freelance &amp; Team <span>05</span></a></li>
-        <li><a href="#contact" data-drawer-link>Contact <span>06</span></a></li>
+        <li><a href="#services" data-drawer-link>Services &amp; Pricing <span>01</span></a></li>
+        <li><a href="#work" data-drawer-link>Proof of Work <span>02</span></a></li>
+        <li><a href="#capabilities" data-drawer-link>Technical Stack <span>03</span></a></li>
+        <li><a href="#founder" data-drawer-link>Founder <span>04</span></a></li>
+        <li><a href="#contact" data-drawer-link>Let's Connect <span>05</span></a></li>
       </ul>
     </nav>
     <div>
-      <p class="eyebrow">{{ site.availability }}</p>
+      <p class="eyebrow">{{ company.brand_name }} · {{ company.location }}</p>
     </div>
   </div>
 
   <main id="main-content">
     <!-- ====================================================================
-         01 / HERO SECTION
+         01 / HERO SECTION — PALINDROME LABS
          ==================================================================== -->
-    <section class="hero" id="hero" aria-labelledby="hero-name">
+    <section class="hero" id="hero" aria-labelledby="hero-headline">
       <canvas class="hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
 
       <div class="container hero__container">
         <div class="hero__meta-bar" data-reveal>
-          <span>{{ site.role_title }}</span>
+          <span>{{ company.brand_name }} · Freelance Software Studio</span>
           <span class="hero__status-inline">
             <span class="availability-dot" aria-hidden="true"></span>
-            {{ site.availability }}
+            {{ company.availability }}
           </span>
-          <span>{{ site.location }} · @{{ site.handle }}</span>
+          <span>{{ company.location }}</span>
         </div>
 
         <div class="hero__grid">
           <div data-reveal>
-            <p class="hero__kicker">Student · Freelancer · Entrepreneur</p>
-            <h1 class="hero__name" id="hero-name">{{ site.owner_name }}</h1>
-            <p class="hero__headline">
-              Founder of <em>Palindrome</em> — engineering full-stack products,
-              interactive web experiences, and applied ML systems.
+            <span class="hero__kicker">Websites · Web Apps · Android</span>
+            <h1 class="hero__title" id="hero-headline">
+              Build Your <em>Digital</em> Presence.
+            </h1>
+            <p class="hero__brand-line">
+              with <span class="hero__brand-pill">{{ company.brand_short }}</span>
             </p>
           </div>
 
           <div class="hero__aside" data-reveal>
             <p class="hero__intro">
-              Building consumer fintech concepts like Palindrome, sports analytics at KaiForge,
-              Alzheimer's ML research at NeuroShield, Rust engines, and bespoke client software.
+              {{ company.subheadline }} Led by <strong>{{ company.founder_name }}</strong>
+              ({{ company.founder_role }}), we partner with businesses, startups, and creators to
+              ship fast, reliable software.
             </p>
             <div class="hero__cta-group">
-              <a href="#projects" class="btn btn--primary" data-cursor="EXPLORE">
-                <span>Explore My Work</span>
+              <a href="#services" class="btn btn--primary" data-cursor="PLANS">
+                <span>View Services &amp; Pricing</span>
                 <span class="btn__arrow" aria-hidden="true">↗</span>
               </a>
-              <a href="#contact" class="btn btn--secondary" data-cursor="BUILD">
-                <span>Let's Work Together</span>
+              <a href="#work" class="btn btn--on-dark" data-cursor="WORK">
+                <span>Proof of Work</span>
               </a>
             </div>
           </div>
         </div>
 
-        <!-- Integrated Portfolio & Palindrome Colophon -->
-        <aside class="colophon" aria-label="Portfolio and Palindrome statement" data-reveal>
+        <aside class="colophon" aria-label="Company summary" data-reveal>
           <div class="colophon__badge">
-            <strong>Palindrome Edition</strong>
-            <span>14 Public Repos · GitHub</span>
+            <strong>{{ company.brand_name }}</strong>
+            <span>Founded by {{ company.founder_name }}</span>
           </div>
           <div class="colophon__copy">
-            <p class="colophon__lead">{{ site.intro_statement }}</p>
-            <p class="colophon__awwwards">{{ site.awwwards_statement }}</p>
+            <p class="colophon__lead">{{ company.colophon_lead }}</p>
+            <p class="colophon__sub">{{ company.colophon_sub }}</p>
           </div>
           <div class="colophon__meta">
-            <span>Python · TypeScript · Rust</span>
-            <a href="{{ site.github_url }}" target="_blank" rel="noopener noreferrer">
-              github.com/{{ site.handle }} ↗
-            </a>
+            <span>Websites from ₹6,000 · Apps from ₹12,000</span>
+            <a href="#contact">Start a Project Brief →</a>
           </div>
         </aside>
       </div>
     </section>
 
     <!-- ====================================================================
-         02 / SELECTED PROJECTS
+         02 / SERVICES & PRICING
          ==================================================================== -->
-    <section class="section section--dark" id="projects" aria-labelledby="projects-title">
+    <section class="section" id="services" aria-labelledby="services-title">
       <div class="container">
         <header class="section-header" data-reveal>
           <div>
-            <span class="eyebrow">Selected Work &amp; Repositories</span>
-            <h2 class="section-title" id="projects-title">
-              Shipped <em>Systems</em> &amp; Research
+            <span class="eyebrow">Packages &amp; Transparent Pricing</span>
+            <h2 class="section-title" id="services-title">
+              Services Built to <em>Ship</em>
             </h2>
           </div>
-          <span class="section-index">01 — 06 / BUILDS</span>
+          <span class="section-index">01 / SERVICES</span>
         </header>
 
-        <div class="projects-list">
-          {% for project in projects %}
-          <article class="project-spread" id="project-{{ project.slug }}" data-reveal>
+        <div class="services-grid">
+          {% for svc in services %}
+          <article
+            class="service-card {% if svc.featured %}service-card--featured{% endif %}"
+            data-reveal
+          >
             <div>
-              <div class="project-spread__meta">
-                <span class="project-spread__index">{{ project.index }}</span>
-                <span>/</span>
-                <span>{{ project.category }}</span>
+              <div class="service-card__top">
+                <span class="service-card__code">{{ svc.code }} / SERVICE</span>
+                {% if svc.featured %}
+                <span class="service-card__badge">Popular</span>
+                {% endif %}
+              </div>
+              <h3 class="service-card__title">{{ svc.title }}</h3>
+              <p class="service-card__tagline">{{ svc.tagline }}</p>
+
+              <div class="service-card__price-wrap">
+                <span class="service-card__price-label">Starting from</span>
+                <span class="service-card__price">{{ svc.price_from }}</span>
               </div>
 
-              <h3 class="project-spread__title">{{ project.name }}</h3>
-              <p class="project-spread__tagline">{{ project.tagline }}</p>
-              <p class="project-spread__desc">{{ project.description }}</p>
+              <ul class="service-card__features">
+                {% for feat in svc.features %}
+                <li>{{ feat }}</li>
+                {% endfor %}
+              </ul>
+            </div>
 
-              <div class="project-spread__contribution">
-                <span class="project-spread__sublabel">Role &amp; Contribution</span>
-                <p>{{ project.contribution }}</p>
+            <a
+              href="#contact"
+              class="btn {% if svc.featured %}btn--primary{% else %}btn--secondary{% endif %}"
+              data-select-service="{{ svc.title }}"
+              data-cursor="BOOK"
+            >
+              <span>Start {{ svc.title }}</span>
+              <span class="btn__arrow" aria-hidden="true">→</span>
+            </a>
+          </article>
+          {% endfor %}
+        </div>
+
+        <aside class="charges-note" aria-label="Additional charges" data-reveal>
+          <h3 class="charges-note__title">Additional charges (billed separately)</h3>
+          <ul class="charges-note__list">
+            {% for charge in additional_charges %}
+            <li>{{ charge }}</li>
+            {% endfor %}
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         03 / PROOF OF WORK — INTERACTIVE CARDS
+         ==================================================================== -->
+    <section class="section section--dark" id="work" aria-labelledby="work-title">
+      <div class="container">
+        <header class="section-header" data-reveal>
+          <div>
+            <span class="eyebrow">Proof of Work</span>
+            <h2 class="section-title" id="work-title">
+              Shipped <em>Builds</em> &amp; Founder Work
+            </h2>
+          </div>
+          <span class="section-index">02 / INTERACTIVE ARCHIVE</span>
+        </header>
+
+        <div class="work-filters" role="tablist" aria-label="Filter proof of work" data-reveal>
+          {% for group in work_groups %}
+          <button
+            type="button"
+            class="filter-pill {% if loop.first %}is-active{% endif %}"
+            role="tab"
+            aria-selected="{{ 'true' if loop.first else 'false' }}"
+            data-work-filter="{{ group }}"
+          >
+            {{ group }}
+          </button>
+          {% endfor %}
+        </div>
+
+        <div class="work-cards-grid">
+          {% for item in works %}
+          <article
+            class="work-card"
+            id="project-{{ item.slug }}"
+            data-work-card
+            data-work-group="{{ item.group }}"
+            data-reveal
+          >
+            <div>
+              <div class="work-card__header">
+                <span>{{ item.index }} // {{ item.category }}</span>
+                <span class="work-card__group">{{ item.group }}</span>
               </div>
 
-              {% if project.disclaimer %}
-              <p class="project-spread__disclaimer">{{ project.disclaimer }}</p>
-              {% endif %}
+              <h3 class="work-card__title">{{ item.name }}</h3>
+              <p class="work-card__tagline">{{ item.tagline }}</p>
+              <p class="work-card__desc">{{ item.description }}</p>
 
-              <ul class="tech-tags" aria-label="Technologies used in {{ project.name }}">
-                {% for tech in project.technologies %}
+              <ul class="tech-tags" aria-label="Technologies in {{ item.name }}">
+                {% for tech in item.technologies %}
                 <li class="tech-tag">{{ tech }}</li>
                 {% endfor %}
               </ul>
-
-              <div class="project-spread__actions">
-                <a
-                  href="{{ project.github_url }}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn btn--on-dark"
-                  data-cursor="CODE"
-                >
-                  <span>GitHub</span>
-                  <span class="btn__arrow" aria-hidden="true">↗</span>
-                </a>
-
-                {% if project.live_url %}
-                <a
-                  href="{{ project.live_url }}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn btn--on-dark"
-                  data-cursor="LIVE"
-                >
-                  <span>Live Site</span>
-                  <span class="btn__arrow" aria-hidden="true">↗</span>
-                </a>
-                {% endif %}
-
-                <button
-                  type="button"
-                  class="project-arch-toggle"
-                  aria-expanded="false"
-                  aria-controls="arch-{{ project.slug }}"
-                  data-arch-toggle
-                >
-                  <span>Architecture</span>
-                  <span aria-hidden="true">+</span>
-                </button>
-              </div>
-
-              <div class="project-arch-panel" id="arch-{{ project.slug }}" hidden>
-                <ul>
-                  {% for note in project.architecture_notes %}
-                  <li>{{ note }}</li>
-                  {% endfor %}
-                </ul>
-              </div>
             </div>
 
-            <!-- Custom Interactive Architectural Preview -->
-            <div class="project-preview" aria-label="{{ project.name }} preview">
-              <div class="project-preview__chrome">
-                <span>BUILD // {{ project.slug | upper }}</span>
-                <span class="project-preview__badge">{{ project.accent_label }}</span>
+            <div class="work-card__drawer" id="drawer-{{ item.slug }}" hidden>
+              <span class="work-card__deliverable">Deliverable: {{ item.deliverable }}</span>
+              <ul class="work-card__highlights">
+                {% for point in item.highlights %}
+                <li>{{ point }}</li>
+                {% endfor %}
+              </ul>
+              {% if item.disclaimer %}
+              <p class="work-card__disclaimer">{{ item.disclaimer }}</p>
+              {% endif %}
+            </div>
+
+            <div class="work-card__footer">
+              <div class="work-card__links">
+                <a
+                  href="{{ item.github_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="work-link"
+                  data-cursor="CODE"
+                >
+                  GitHub ↗
+                </a>
+                {% if item.live_url %}
+                <a
+                  href="{{ item.live_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="work-link work-link--live"
+                  data-cursor="LIVE"
+                >
+                  Live Site ↗
+                </a>
+                {% endif %}
               </div>
 
-              {% if project.slug == "palindrome" %}
-              <div class="preview-stage">
-                <div class="preview-match-row">
-                  <div class="preview-node">
-                    <span class="preview-node__label">Item Context</span>
-                    <span class="preview-node__value">Everyday purchase relationships</span>
-                  </div>
-                  <div class="preview-vector-pulse">
-                    <span>FLOW</span>
-                    <span>⇄</span>
-                    <span>CLARITY</span>
-                  </div>
-                  <div class="preview-node">
-                    <span class="preview-node__label">Pattern Layer</span>
-                    <span class="preview-node__value">Recurring spending signals</span>
-                  </div>
-                </div>
-                <div class="preview-node">
-                  <span class="preview-node__label">Palindrome Financial Intelligence</span>
-                  <div class="preview-bar-track" style="margin-top: 0.5rem;">
-                    <div class="preview-bar-fill"></div>
-                  </div>
-                </div>
-              </div>
-              {% elif project.slug == "kaiforge" %}
-              <div class="preview-stage">
-                <div class="preview-gigs-grid">
-                  <div class="preview-gig-card preview-gig-card--active">
-                    <span class="preview-gig-card__tag">Web · Analytics</span>
-                    <div class="preview-gig-card__title">Performance Dashboard</div>
-                    <div class="preview-gig-card__meta">TypeScript · Live</div>
-                  </div>
-                  <div class="preview-gig-card">
-                    <span class="preview-gig-card__tag">Mobile · Companion</span>
-                    <div class="preview-gig-card__title">Session Telemetry</div>
-                    <div class="preview-gig-card__meta">Cross-Platform Sync</div>
-                  </div>
-                  <div class="preview-gig-card">
-                    <span class="preview-gig-card__tag">Data · Metrics</span>
-                    <div class="preview-gig-card__title">Match Comparison</div>
-                    <div class="preview-gig-card__meta">Structured Views</div>
-                  </div>
-                  <div class="preview-gig-card">
-                    <span class="preview-gig-card__tag">Platform</span>
-                    <div class="preview-gig-card__title">kaiforge.antoniusjairus.in</div>
-                    <div class="preview-gig-card__meta">Deployed Build</div>
-                  </div>
-                </div>
-              </div>
-              {% elif project.slug == "neuroshield" %}
-              <div class="preview-stage">
-                <div class="preview-doc-frame">
-                  <div class="preview-doc-sheet">
-                    <span class="preview-node__label">Research Loop · ADNI</span>
-                    <div class="preview-line preview-line--accent"></div>
-                    <div class="preview-line"></div>
-                    <div class="preview-line preview-line--short"></div>
-                    <div class="preview-line"></div>
-                    <div class="preview-line preview-line--short"></div>
-                  </div>
-                  <div class="preview-doc-insights">
-                    <div>
-                      <span class="preview-node__label">Observe · Test · Revise</span>
-                      <p style="margin-top: 0.35rem;">Experimental ML runs, graphs &amp; team evidence.</p>
-                    </div>
-                    <span style="color: var(--accent);">6-PERSON RESEARCH TEAM</span>
-                  </div>
-                </div>
-              </div>
-              {% else %}
-              <div class="preview-stage">
-                <div class="preview-storefront">
-                  <div class="preview-storefront__hero">
-                    <div>
-                      <span class="preview-node__label">{{ project.category }}</span>
-                      <div class="preview-node__value">{{ project.name }}</div>
-                    </div>
-                    <span class="tech-tag">{{ project.technologies[0] }}</span>
-                  </div>
-                  <div class="preview-storefront__row">
-                    {% for tech in project.technologies[:3] %}
-                    <div class="preview-swatch">
-                      <div class="preview-swatch__box"></div>
-                      <span>{{ tech }}</span>
-                    </div>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
-              {% endif %}
+              <button
+                type="button"
+                class="work-inspect-btn"
+                aria-expanded="false"
+                aria-controls="drawer-{{ item.slug }}"
+                data-inspect-card
+              >
+                Inspect Details +
+              </button>
             </div>
           </article>
           {% endfor %}
@@ -346,100 +323,21 @@
     </section>
 
     <!-- ====================================================================
-         03 / ABOUT SECTION
+         04 / TECHNICAL CAPABILITIES
          ==================================================================== -->
-    <section class="section" id="about" aria-labelledby="about-title">
+    <section class="section" id="capabilities" aria-labelledby="capabilities-title">
       <div class="container">
         <header class="section-header" data-reveal>
           <div>
-            <span class="eyebrow">01 / Identity</span>
-            <h2 class="section-title" id="about-title">
-              About <em>Antonius Jairus</em>
+            <span class="eyebrow">Engineering Stack</span>
+            <h2 class="section-title" id="capabilities-title">
+              Capabilities &amp; <em>Technologies</em>
             </h2>
           </div>
-          <span class="section-index">02 / BACKGROUND</span>
+          <span class="section-index">03 / TECH MATRIX</span>
         </header>
 
-        <div class="about-grid">
-          <dl class="about-specs" data-reveal>
-            <div class="about-specs__row">
-              <dt>Name</dt>
-              <dd>{{ site.full_name }}</dd>
-            </div>
-            <div class="about-specs__row">
-              <dt>Base</dt>
-              <dd>{{ site.location }}</dd>
-            </div>
-            <div class="about-specs__row">
-              <dt>Venture</dt>
-              <dd>Founder of Palindrome</dd>
-            </div>
-            <div class="about-specs__row">
-              <dt>Disciplines</dt>
-              <dd>Full-Stack · 3D Web · Android · ML</dd>
-            </div>
-            <div class="about-specs__row">
-              <dt>Security</dt>
-              <dd>CDAC BOSS-OS Bug Bounty Team</dd>
-            </div>
-          </dl>
-
-          <div data-reveal>
-            <p class="about-editorial__lead">
-              Engineering student, freelancer, and builder turning ambitious product ideas into
-              live, custom-crafted software.
-            </p>
-
-            <div class="about-editorial__body">
-              <p>
-                Based in Coimbatore, I build across the full stack — from interactive 3D and
-                TypeScript web experiences to custom client operations software, Android tools,
-                Rust chess engines, and machine-learning research with ADNI neuroimaging datasets.
-              </p>
-              <p>
-                Through Palindrome, I focus both on consumer financial intelligence and on partnering
-                with startups that need a sharp, hands-on engineering team ready to ship real code.
-              </p>
-            </div>
-
-            <div class="about-pillars">
-              <div class="about-pillar">
-                <span class="about-pillar__num">01</span>
-                <h3>Product &amp; Client Builds</h3>
-                <p>Shipped bespoke systems for businesses, scientists, and sports analytics platforms.</p>
-              </div>
-              <div class="about-pillar">
-                <span class="about-pillar__num">02</span>
-                <h3>Systems &amp; Research</h3>
-                <p>From Rust chess analysis (Mfalmion) to Python ML experimentation (NeuroShield).</p>
-              </div>
-              <div class="about-pillar">
-                <span class="about-pillar__num">03</span>
-                <h3>Competitive Discipline</h3>
-                <p>State-level athletics, 2198 Bullet chess, and national stages shape how I execute.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================================================================
-         04 / SKILLS & CAPABILITY LANDSCAPE
-         ==================================================================== -->
-    <section class="section" id="skills" aria-labelledby="skills-title">
-      <div class="container">
-        <header class="section-header" data-reveal>
-          <div>
-            <span class="eyebrow">Capability Landscape</span>
-            <h2 class="section-title" id="skills-title">
-              Different disciplines. <em>One system.</em>
-            </h2>
-          </div>
-          <span class="section-index">03 / INTERACTIVE STACK</span>
-        </header>
-
-        <div class="skills-filters" role="tablist" aria-label="Filter skills by category" data-reveal>
+        <div class="work-filters" role="tablist" aria-label="Filter capabilities" data-reveal>
           <button
             type="button"
             class="filter-pill is-active"
@@ -447,54 +345,54 @@
             aria-selected="true"
             data-skill-filter="all"
           >
-            All ({{ skills | length }})
+            All ({{ capabilities | length }})
           </button>
-          {% for category in skill_categories %}
+          {% for cat in capability_categories %}
           <button
             type="button"
             class="filter-pill"
             role="tab"
             aria-selected="false"
-            data-skill-filter="{{ category }}"
+            data-skill-filter="{{ cat }}"
           >
-            {{ category }}
+            {{ cat }}
           </button>
           {% endfor %}
         </div>
 
         <div class="skills-workbench">
-          <div class="skills-matrix" role="listbox" aria-label="Technology index" data-reveal>
-            {% for skill in skills %}
+          <div class="skills-matrix" role="listbox" aria-label="Studio capabilities" data-reveal>
+            {% for cap in capabilities %}
             <button
               type="button"
               class="skill-row {% if loop.first %}is-selected{% endif %}"
               role="option"
               aria-selected="{{ 'true' if loop.first else 'false' }}"
               data-skill-item
-              data-skill-name="{{ skill.name }}"
-              data-skill-category="{{ skill.category }}"
-              data-skill-focus="{{ skill.focus }}"
-              data-skill-summary="{{ skill.summary }}"
-              data-skill-projects="{{ skill.projects | join(',') }}"
+              data-skill-name="{{ cap.name }}"
+              data-skill-category="{{ cap.category }}"
+              data-skill-focus="{{ cap.focus }}"
+              data-skill-summary="{{ cap.summary }}"
+              data-skill-projects="{{ cap.projects | join(',') }}"
             >
-              <span class="skill-row__name">{{ skill.name }}</span>
-              <span class="skill-row__cat">{{ skill.category }}</span>
+              <span class="skill-row__name">{{ cap.name }}</span>
+              <span class="skill-row__cat">{{ cap.category }}</span>
               <span class="skill-row__arrow" aria-hidden="true">→</span>
             </button>
             {% endfor %}
           </div>
 
           <aside class="skill-inspector" id="skill-inspector" aria-live="polite" data-reveal>
-            {% set first_skill = skills[0] %}
-            <span class="skill-inspector__kicker" id="inspector-category">{{ first_skill.category }}</span>
-            <h3 class="skill-inspector__name" id="inspector-name">{{ first_skill.name }}</h3>
-            <p class="skill-inspector__focus" id="inspector-focus">{{ first_skill.focus }}</p>
-            <p class="skill-inspector__summary" id="inspector-summary">{{ first_skill.summary }}</p>
+            {% set first_cap = capabilities[0] %}
+            <span class="skill-inspector__kicker" id="inspector-category">{{ first_cap.category }}</span>
+            <h3 class="skill-inspector__name" id="inspector-name">{{ first_cap.name }}</h3>
+            <p class="skill-inspector__focus" id="inspector-focus">{{ first_cap.focus }}</p>
+            <p class="skill-inspector__summary" id="inspector-summary">{{ first_cap.summary }}</p>
 
             <div class="skill-inspector__projects">
-              <span class="skill-inspector__projects-label">Applied in Builds</span>
+              <span class="skill-inspector__projects-label">Proven in Projects</span>
               <div class="skill-project-links" id="inspector-projects">
-                {% for slug in first_skill.projects %}
+                {% for slug in first_cap.projects %}
                 <a href="#project-{{ slug }}" class="skill-project-chip">{{ slug | replace('-', ' ') }}</a>
                 {% endfor %}
               </div>
@@ -505,144 +403,133 @@
     </section>
 
     <!-- ====================================================================
-         05 / BEYOND THE CODE — ACHIEVEMENTS
+         05 / FOUNDER SPOTLIGHT — ANTONIUS JAIRUS R
          ==================================================================== -->
-    <section class="section" id="beyond" aria-labelledby="beyond-title">
+    <section class="section section--deep" id="founder" aria-labelledby="founder-title">
       <div class="container">
         <header class="section-header" data-reveal>
           <div>
-            <span class="eyebrow">The Performance Archive</span>
-            <h2 class="section-title" id="beyond-title">
-              Beyond <em>the Code</em>
+            <span class="eyebrow">Studio Leadership</span>
+            <h2 class="section-title" id="founder-title">
+              Led by the <em>Founder</em>
             </h2>
           </div>
-          <span class="section-index">04 / ACHIEVEMENTS</span>
+          <span class="section-index">04 / LEADERSHIP</span>
         </header>
 
-        <div class="disciplines-grid" data-reveal>
-          {% for item in disciplines %}
-          <article class="discipline-card">
-            <div class="discipline-card__top">
-              <span>{{ item.code }}</span>
-              <span class="discipline-card__metric">{{ item.metric }}</span>
-            </div>
-            <h3 class="discipline-card__title">{{ item.title }}</h3>
-            <p class="discipline-card__sub">{{ item.subtitle }}</p>
-            <ul class="discipline-card__list">
-              {% for line in item.highlights %}
-              <li>{{ line }}</li>
-              {% endfor %}
-            </ul>
-          </article>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================================================================
-         06 / FREELANCE & PALINDROME STUDIO
-         ==================================================================== -->
-    <section class="section section--dark" id="freelance" aria-labelledby="freelance-title">
-      <div class="container">
-        <header class="section-header" data-reveal>
-          <div>
-            <span class="eyebrow">Work With Me · Palindrome</span>
-            <h2 class="section-title" id="freelance-title">
-              Have an idea? <em>Let's build it.</em>
-            </h2>
-          </div>
-          <span class="section-index">05 / SERVICES</span>
-        </header>
-
-        <div class="freelance-intro" data-reveal>
-          <p class="freelance-intro__lead">
-            Get custom software and full-stack web applications — or partner with Palindrome
-            when your startup needs a dedicated technical team to build and ship.
-          </p>
-          <p class="freelance-intro__note">
-            Select any capability track below to pre-fill the inquiry form with your project scope.
-          </p>
-        </div>
-
-        <div class="freelance-grid" data-reveal>
-          {% for track in freelance_tracks %}
-          <article class="freelance-card">
-            <div>
-              <span class="freelance-card__code">{{ track.code }} / TRACK</span>
-              <h3 class="freelance-card__title">{{ track.title }}</h3>
-              <p class="freelance-card__desc">{{ track.description }}</p>
-            </div>
-
-            <div>
-              <div class="freelance-card__deliverables" style="margin-bottom: 1.15rem;">
-                {% for item in track.deliverables %}
-                <span>{{ item }}</span>
-                {% endfor %}
-              </div>
+        <div class="founder-layout">
+          <article class="founder-card" data-reveal>
+            <span class="founder-card__role">{{ company.founder_role }}</span>
+            <h3 class="founder-card__name">{{ company.founder_name }}</h3>
+            <p class="founder-card__meta">{{ company.location }} · {{ company.founder_specialty }}</p>
+            <p class="founder-card__bio">
+              Antonius Jairus R founded Palindrome Labs to bring clean software architecture,
+              interactive web craft, and dependable full-stack &amp; Android execution to founders,
+              local enterprises, and research teams.
+            </p>
+            <div class="founder-card__links">
               <a
-                href="#contact"
-                class="freelance-card__cta"
-                data-select-track="{{ track.title }}"
-                data-cursor="SELECT"
+                href="{{ company.github_url }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="work-link"
               >
-                Scope this build →
+                GitHub ↗
+              </a>
+              <a
+                href="{{ company.linkedin_url }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="work-link"
+              >
+                LinkedIn ↗
+              </a>
+              <a
+                href="{{ company.website_url }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="work-link"
+              >
+                Personal Archive ↗
               </a>
             </div>
           </article>
-          {% endfor %}
-        </div>
 
-        <div class="freelance-banner-cta" data-reveal>
-          <div>
-            <span class="eyebrow">Your startup needs a tech team?</span>
-            <p style="margin-top: 0.45rem; color: var(--ink-on-dark);">
-              Reach out directly to discuss custom web apps, interactive launches, or collaborations.
-            </p>
+          <div data-reveal>
+            <div class="honor-tabs" role="tablist" aria-label="Founder track record">
+              {% for honor in founder_honors %}
+              <button
+                type="button"
+                class="honor-tab {% if loop.first %}is-active{% endif %}"
+                role="tab"
+                aria-selected="{{ 'true' if loop.first else 'false' }}"
+                aria-controls="honor-{{ honor.slug }}"
+                data-honor-tab="{{ honor.slug }}"
+              >
+                {{ honor.title }}
+              </button>
+              {% endfor %}
+            </div>
+
+            {% for honor in founder_honors %}
+            <div
+              class="honor-panel"
+              id="honor-{{ honor.slug }}"
+              role="tabpanel"
+              data-honor-panel="{{ honor.slug }}"
+              {% if not loop.first %}hidden{% endif %}
+            >
+              <span class="honor-panel__metric">{{ honor.metric }}</span>
+              <h4 class="honor-panel__title">{{ honor.title }}</h4>
+              <p class="honor-panel__sub">{{ honor.subtitle }}</p>
+              <ul class="honor-panel__list">
+                {% for detail in honor.details %}
+                <li>{{ detail }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% endfor %}
           </div>
-          <a href="#contact" class="btn btn--on-dark" data-cursor="START">
-            <span>Start a Conversation</span>
-            <span class="btn__arrow" aria-hidden="true">→</span>
-          </a>
         </div>
       </div>
     </section>
 
     <!-- ====================================================================
-         07 / CONTACT SECTION
+         06 / LET'S CONNECT & PROJECT INQUIRY
          ==================================================================== -->
     <section class="section" id="contact" aria-labelledby="contact-title">
       <div class="container">
         <header class="section-header" data-reveal>
           <div>
-            <span class="eyebrow">Let's Collaborate</span>
+            <span class="eyebrow">Let's Connect · {{ company.brand_short }}</span>
             <h2 class="section-title" id="contact-title">
-              Connect with <em>Antonius</em>
+              Start Your <em>Project</em>
             </h2>
           </div>
-          <span class="section-index">06 / CONTACT</span>
+          <span class="section-index">05 / CONTACT</span>
         </header>
 
         <div class="contact-layout">
           <div data-reveal>
             <p class="contact-copy">
-              Find my repos interesting or want to build something ambitious together? Let's talk.
+              Need a website, full-stack web application, or Android app? Reach Palindrome Labs directly.
             </p>
 
             <div class="contact-channels">
               <div class="contact-channel">
                 <div>
                   <span class="contact-channel__label">Email</span>
-                  <span class="contact-channel__value">{{ site.contact_email }}</span>
+                  <span class="contact-channel__value">{{ company.email }}</span>
                 </div>
                 <div class="contact-channel__actions">
                   <button
                     type="button"
                     class="contact-channel__action"
-                    data-copy-email="{{ site.contact_email }}"
+                    data-copy-text="{{ company.email }}"
                   >
                     Copy
                   </button>
-                  <a href="mailto:{{ site.contact_email }}" class="contact-channel__action">
+                  <a href="mailto:{{ company.email }}" class="contact-channel__action">
                     Mail ↗
                   </a>
                 </div>
@@ -650,34 +537,52 @@
 
               <div class="contact-channel">
                 <div>
-                  <span class="contact-channel__label">GitHub</span>
-                  <span class="contact-channel__value">github.com/{{ site.handle }}</span>
+                  <span class="contact-channel__label">Phone / WhatsApp</span>
+                  <span class="contact-channel__value">{{ company.phone_e164 }}</span>
                 </div>
                 <div class="contact-channel__actions">
+                  <button
+                    type="button"
+                    class="contact-channel__action"
+                    data-copy-text="{{ company.phone_display }}"
+                  >
+                    Copy
+                  </button>
                   <a
-                    href="{{ site.github_url }}"
+                    href="{{ company.whatsapp_url }}"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="contact-channel__action"
                   >
-                    Profile ↗
+                    WhatsApp ↗
+                  </a>
+                  <a href="tel:{{ company.phone_e164 }}" class="contact-channel__action">
+                    Call ↗
                   </a>
                 </div>
               </div>
 
               <div class="contact-channel">
                 <div>
-                  <span class="contact-channel__label">LinkedIn</span>
-                  <span class="contact-channel__value">linkedin.com/in/{{ site.handle }}</span>
+                  <span class="contact-channel__label">Proof of Work</span>
+                  <span class="contact-channel__value">GitHub &amp; LinkedIn</span>
                 </div>
                 <div class="contact-channel__actions">
                   <a
-                    href="{{ site.linkedin_url }}"
+                    href="{{ company.github_url }}"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="contact-channel__action"
                   >
-                    Connect ↗
+                    GitHub ↗
+                  </a>
+                  <a
+                    href="{{ company.linkedin_url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="contact-channel__action"
+                  >
+                    LinkedIn ↗
                   </a>
                 </div>
               </div>
@@ -687,7 +592,7 @@
           <form class="contact-form" id="contact-form" novalidate data-reveal>
             <div class="form-grid">
               <div class="form-field">
-                <label for="contact-name">Name</label>
+                <label for="contact-name">Your Name</label>
                 <input
                   id="contact-name"
                   name="name"
@@ -696,7 +601,7 @@
                   minlength="2"
                   maxlength="100"
                   autocomplete="name"
-                  placeholder="Your name"
+                  placeholder="Name or company"
                 />
                 <div class="form-field__meta">
                   <span class="form-field__error" id="error-name"></span>
@@ -712,7 +617,7 @@
                   required
                   maxlength="160"
                   autocomplete="email"
-                  placeholder="you@domain.com"
+                  placeholder="you@company.com"
                 />
                 <div class="form-field__meta">
                   <span class="form-field__error" id="error-email"></span>
@@ -720,7 +625,7 @@
               </div>
 
               <div class="form-field form-field--full">
-                <label for="contact-type">Project Type</label>
+                <label for="contact-type">Service / Package</label>
                 <select id="contact-type" name="project_type" required>
                   {% for option in project_types %}
                   <option value="{{ option }}">{{ option }}</option>
@@ -732,14 +637,14 @@
               </div>
 
               <div class="form-field form-field--full">
-                <label for="contact-description">Project Description</label>
+                <label for="contact-description">Project Brief</label>
                 <textarea
                   id="contact-description"
                   name="description"
                   required
                   minlength="15"
                   maxlength="2500"
-                  placeholder="Share what you're building, scope, and timeline..."
+                  placeholder="Describe your website, web app, or Android goals and timeline..."
                 ></textarea>
                 <div class="form-field__meta">
                   <span class="form-field__error" id="error-description"></span>
@@ -751,7 +656,7 @@
             <div class="form-footer">
               <span class="eyebrow">Validated &amp; stored by Python API</span>
               <button type="submit" class="btn btn--primary" id="contact-submit" data-cursor="SEND">
-                <span>Send Inquiry</span>
+                <span>Send Project Inquiry</span>
                 <span class="btn__arrow" aria-hidden="true">↗</span>
               </button>
             </div>
@@ -765,12 +670,11 @@
 
   <footer class="site-footer">
     <div class="container site-footer__inner">
-      <span>© 2026 {{ site.full_name }} · Founder of Palindrome · {{ site.location }}.</span>
+      <span>© 2026 {{ company.brand_name }} · Founded by {{ company.founder_name }} · {{ company.location }}.</span>
       <div class="site-footer__links">
-        <a href="{{ site.github_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a href="{{ site.linkedin_url }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-        <a href="{{ site.x_url }}" target="_blank" rel="noopener noreferrer">X</a>
-        <a href="{{ site.website_url }}" target="_blank" rel="noopener noreferrer">antoniusjairus.in</a>
+        <a href="{{ company.github_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="{{ company.linkedin_url }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="{{ company.whatsapp_url }}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
         <a href="#hero">Top ↑</a>
       </div>
     </div>

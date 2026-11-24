@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ANTONIUS JAIRUS PORTFOLIO — TypeScript Interaction Layer
+   PALINDROME LABS — TypeScript Interaction Layer
    ========================================================================== */
 
 interface ContactPayload {
@@ -22,11 +22,11 @@ interface ContactApiResponse {
 }
 
 const PROJECT_DISPLAY_NAMES: Record<string, string> = {
-  "palindrome": "Palindrome",
-  "kaiforge": "KaiForge",
-  "neuroshield": "NeuroShield",
   "rajamanickam-chit-fund": "Rajamanickam Chit Funds",
   "zsi-yogesh": "ZSI Portfolio",
+  "kaiforge": "KaiForge",
+  "palindrome": "Palindrome",
+  "neuroshield": "NeuroShield",
   "mfalmion": "Mfalmion",
 };
 
@@ -69,7 +69,8 @@ function initHeroCanvas(): void {
     const px = pointerX * width;
     const py = pointerY * height;
 
-    ctx.strokeStyle = "rgba(20, 20, 19, 0.055)";
+    // Subtle rose coordinate hairlines
+    ctx.strokeStyle = "rgba(247, 167, 193, 0.08)";
     ctx.lineWidth = 1;
     ctx.beginPath();
     for (let c = 1; c < cols; c++) {
@@ -84,16 +85,17 @@ function initHeroCanvas(): void {
     }
     ctx.stroke();
 
+    // Pointer-reactive berry & rose crosshairs
     for (let c = 1; c < cols; c++) {
       for (let r = 1; r < rows; r++) {
         const x = c * spacing;
         const y = r * spacing;
         const dist = Math.hypot(x - px, y - py);
-        const influence = Math.max(0, 1 - dist / 220);
+        const influence = Math.max(0, 1 - dist / 240);
 
         if (influence > 0.05) {
           const arm = 3 + influence * 7;
-          ctx.strokeStyle = `rgba(230, 59, 46, ${(influence * 0.55).toFixed(3)})`;
+          ctx.strokeStyle = `rgba(227, 74, 131, ${(influence * 0.72).toFixed(3)})`;
           ctx.beginPath();
           ctx.moveTo(x - arm, y);
           ctx.lineTo(x + arm, y);
@@ -231,12 +233,12 @@ function initScrollReveals(): void {
         obs.unobserve(entry.target);
       }
     },
-    { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+    { threshold: 0.1, rootMargin: "0px 0px -30px 0px" },
   );
 
   for (const el of targets) {
     const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight * 0.92) {
+    if (rect.top < window.innerHeight * 0.94) {
       el.classList.add("is-revealed");
     } else {
       observer.observe(el);
@@ -274,20 +276,40 @@ function initMobileMenu(): void {
   });
 }
 
-function initProjectInteractions(): void {
-  const archButtons = document.querySelectorAll<HTMLButtonElement>("[data-arch-toggle]");
-  for (const btn of archButtons) {
+function initInteractiveWorkCards(): void {
+  const filterTabs = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-work-filter]"));
+  const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-work-card]"));
+  const inspectButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-inspect-card]"));
+
+  for (const tab of filterTabs) {
+    tab.addEventListener("click", () => {
+      const selectedGroup = tab.dataset.workFilter || "All";
+      for (const btn of filterTabs) {
+        const active = btn === tab;
+        btn.classList.toggle("is-active", active);
+        btn.setAttribute("aria-selected", String(active));
+      }
+
+      for (const card of cards) {
+        const matches = selectedGroup === "All" || card.dataset.workGroup === selectedGroup;
+        card.hidden = !matches;
+      }
+    });
+  }
+
+  for (const btn of inspectButtons) {
     btn.addEventListener("click", () => {
-      const panelId = btn.getAttribute("aria-controls");
-      if (!panelId) return;
-      const panel = document.getElementById(panelId);
-      if (!panel) return;
+      const drawerId = btn.getAttribute("aria-controls");
+      if (!drawerId) return;
+      const drawer = document.getElementById(drawerId);
+      const card = btn.closest<HTMLElement>("[data-work-card]");
+      if (!drawer) return;
 
       const expanded = btn.getAttribute("aria-expanded") === "true";
       btn.setAttribute("aria-expanded", String(!expanded));
-      panel.hidden = expanded;
-      const indicator = btn.querySelector("span:last-child");
-      if (indicator) indicator.textContent = expanded ? "+" : "−";
+      drawer.hidden = expanded;
+      card?.classList.toggle("is-expanded", !expanded);
+      btn.textContent = expanded ? "Inspect Details +" : "Hide Details −";
     });
   }
 }
@@ -358,7 +380,27 @@ function initSkillsWorkbench(): void {
   }
 }
 
-function initFreelanceAndContactForm(): void {
+function initFounderTabs(): void {
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-honor-tab]"));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>("[data-honor-panel]"));
+  if (!tabs.length || !panels.length) return;
+
+  for (const tab of tabs) {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.honorTab;
+      for (const t of tabs) {
+        const active = t === tab;
+        t.classList.toggle("is-active", active);
+        t.setAttribute("aria-selected", String(active));
+      }
+      for (const p of panels) {
+        p.hidden = p.dataset.honorPanel !== target;
+      }
+    });
+  }
+}
+
+function initServicesAndContactForm(): void {
   const form = document.getElementById("contact-form") as HTMLFormElement | null;
   const nameInput = document.getElementById("contact-name") as HTMLInputElement | null;
   const emailInput = document.getElementById("contact-email") as HTMLInputElement | null;
@@ -368,13 +410,13 @@ function initFreelanceAndContactForm(): void {
   const submitBtn = document.getElementById("contact-submit") as HTMLButtonElement | null;
   const statusBanner = document.getElementById("form-status");
 
-  // Freelance card pre-fill
-  const trackLinks = document.querySelectorAll<HTMLElement>("[data-select-track]");
-  for (const link of trackLinks) {
-    link.addEventListener("click", () => {
-      const track = link.dataset.selectTrack;
-      if (track && typeSelect) {
-        typeSelect.value = track;
+  // Service tier pre-fill
+  const serviceTriggers = document.querySelectorAll<HTMLElement>("[data-select-service]");
+  for (const trigger of serviceTriggers) {
+    trigger.addEventListener("click", () => {
+      const serviceTitle = trigger.dataset.selectService;
+      if (serviceTitle && typeSelect) {
+        typeSelect.value = serviceTitle;
       }
       if (nameInput) {
         window.setTimeout(() => nameInput.focus(), 350);
@@ -382,21 +424,21 @@ function initFreelanceAndContactForm(): void {
     });
   }
 
-  // Copy email button
-  const copyButtons = document.querySelectorAll<HTMLButtonElement>("[data-copy-email]");
+  // Copy contact value buttons
+  const copyButtons = document.querySelectorAll<HTMLButtonElement>("[data-copy-text]");
   for (const btn of copyButtons) {
     btn.addEventListener("click", async () => {
-      const email = btn.dataset.copyEmail;
-      if (!email) return;
+      const text = btn.dataset.copyText;
+      if (!text) return;
       try {
-        await navigator.clipboard.writeText(email);
+        await navigator.clipboard.writeText(text);
         const orig = btn.textContent;
         btn.textContent = "Copied";
         window.setTimeout(() => {
           btn.textContent = orig;
         }, 1600);
       } catch {
-        // Clipboard permission denied; fall back silently
+        // Clipboard access unavailable
       }
     });
   }
@@ -444,7 +486,7 @@ function initFreelanceAndContactForm(): void {
       valid = false;
     }
     if (!payload.project_type) {
-      setFieldError("project_type", "Please choose a project type.");
+      setFieldError("project_type", "Please select a service package.");
       valid = false;
     }
     if (payload.description.length < 15) {
@@ -500,13 +542,13 @@ function initFreelanceAndContactForm(): void {
       updateCounter();
       showBanner(
         "success",
-        data.message || "Inquiry received. Thank you for reaching out!",
+        data.message || "Project inquiry received by Palindrome Labs.",
       );
     } catch {
       showBanner("error", "Network error while contacting the Python backend. Please try again.");
     } finally {
       submitBtn.disabled = false;
-      if (labelSpan) labelSpan.textContent = "Send Inquiry";
+      if (labelSpan) labelSpan.textContent = "Send Project Inquiry";
     }
   });
 }
@@ -517,7 +559,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initScrollProgressAndNav();
   initScrollReveals();
   initMobileMenu();
-  initProjectInteractions();
+  initInteractiveWorkCards();
   initSkillsWorkbench();
-  initFreelanceAndContactForm();
+  initFounderTabs();
+  initServicesAndContactForm();
 });

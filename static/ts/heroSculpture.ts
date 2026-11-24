@@ -18,6 +18,7 @@ export interface HeroSculptureController {
 interface RibbonConfig {
   points: THREE.Vector3[];
   colorStart: THREE.Color;
+  colorMid: THREE.Color;
   colorEnd: THREE.Color;
   emissiveTint: THREE.Color;
   phaseOffset: number;
@@ -33,10 +34,21 @@ interface RibbonUniforms {
   uPhase: { value: number };
 }
 
+interface ParticleLayerHandle {
+  points: THREE.Points;
+  uniforms: {
+    uTime: { value: number };
+    uReveal: { value: number };
+    uPointer: { value: THREE.Vector2 };
+    uScroll: { value: number };
+    uPixelRatio: { value: number };
+  };
+  dispose: () => void;
+}
+
 /**
- * Generate a dark studio environment map with controlled purple, magenta, cyan,
- * crisp white, and subtle gold softbox strips so clearcoat ribbons show realistic
- * reflections without external HDRI assets.
+ * Procedural dark-studio environment map with sculptural light strips so glossy
+ * clearcoat/iridescent surfaces exhibit rich, controlled reflections.
  */
 function createStudioEnvironment(renderer: THREE.WebGLRenderer): THREE.Texture {
   const pmrem = new THREE.PMREMGenerator(renderer);
@@ -63,15 +75,16 @@ function createStudioEnvironment(renderer: THREE.WebGLRenderer): THREE.Texture {
     envScene.add(mesh);
   };
 
-  // Sculpted studio softboxes matching the Pallindrome palette
-  addPanel(0xf5f5f7, 3.6, [6, 1.4], [-4.5, 5.5, 4.0]);
-  addPanel(0xef00cf, 4.2, [5.5, 2.2], [-6.5, 1.2, 2.5]);
-  addPanel(0x8b00ff, 3.8, [4.5, 3.0], [-4.0, -4.5, -2.5]);
-  addPanel(0x00d9ff, 4.4, [5.5, 2.2], [6.5, -0.8, 2.8]);
-  addPanel(0x2855ff, 3.4, [4.5, 2.8], [4.5, 4.5, -2.5]);
-  addPanel(0xffc900, 1.9, [1.6, 1.6], [0.0, 0.2, -5.5]);
+  // High-contrast dark studio softboxes
+  addPanel(0xf5f5f7, 4.4, [7.0, 1.1, ], [-3.5, 6.0, 4.2]);
+  addPanel(0xf5f5f7, 2.2, [5.0, 0.7], [4.5, -5.2, 3.8]);
+  addPanel(0xef00cf, 4.6, [6.0, 2.0], [-6.8, 1.4, 2.2]);
+  addPanel(0x8b00ff, 4.0, [5.0, 2.8], [-3.8, -4.8, -2.6]);
+  addPanel(0x00d9ff, 4.8, [6.0, 2.0], [6.8, -0.6, 2.4]);
+  addPanel(0x1f4bff, 3.6, [4.8, 2.6], [4.0, 4.8, -2.6]);
+  addPanel(0xffc900, 2.6, [1.4, 1.4], [0.0, 0.0, -5.2]);
 
-  const rt = pmrem.fromScene(envScene, 0.04);
+  const rt = pmrem.fromScene(envScene, 0.035);
   envScene.traverse((obj) => {
     if (obj instanceof THREE.Mesh) {
       obj.geometry.dispose();
@@ -83,28 +96,27 @@ function createStudioEnvironment(renderer: THREE.WebGLRenderer): THREE.Texture {
 }
 
 /**
- * Build a sculptural, double-tapered, beveled 3D ribbon mesh using Bishop
- * parallel-transport frames so twisting never introduces Frenet-Serret kinks.
+ * Build a fluted, double-tapered sculptural ribbon with a subtle center ridge
+ * and knife-edge wings using Bishop parallel-transport frames.
  */
-function createPalindromeRibbonGeometry(cfg: RibbonConfig): THREE.BufferGeometry {
+function createSculptedRibbonGeometry(cfg: RibbonConfig): THREE.BufferGeometry {
   const curve = new THREE.CatmullRomCurve3(cfg.points, false, "centripetal", 0.5);
-  const lengthSegments = 180;
-  const profileSegments = 22;
+  const lengthSegments = 220;
+  const profileSegments = 28;
 
   const positions: number[] = [];
   const colors: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
 
-  const tangents: THREE.Vector3[] = [];
   const centers: THREE.Vector3[] = [];
+  const tangents: THREE.Vector3[] = [];
   for (let i = 0; i <= lengthSegments; i++) {
     const t = i / lengthSegments;
     centers.push(curve.getPointAt(t));
     tangents.push(curve.getTangentAt(t).normalize());
   }
 
-  // Parallel transport initial normal
   const normals: THREE.Vector3[] = [];
   const binormals: THREE.Vector3[] = [];
   const seed = new THREE.Vector3(0, 0, 1);
@@ -137,13 +149,12 @@ function createPalindromeRibbonGeometry(cfg: RibbonConfig): THREE.BufferGeometry
     const t = i / lengthSegments;
     const center = centers[i];
 
-    // Smooth calligraphic width taper to fine points at both ends
-    const endTaper = Math.pow(Math.sin(Math.PI * t), 0.92);
-    const ribbonSculpt = 0.72 + 0.28 * Math.sin(Math.PI * t * 2.0);
-    const halfWidth = cfg.maxHalfWidth * endTaper * ribbonSculpt;
-    const halfThick = cfg.maxHalfThickness * Math.pow(Math.sin(Math.PI * t), 1.05);
+    // Architectural width modulation: broad sculptural arcs tapering cleanly to sharp tips
+    const tipTaper = Math.pow(Math.sin(Math.PI * t), 0.88);
+    const waistSculpt = 0.78 + 0.24 * Math.sin(Math.PI * t * 3.0);
+    const halfWidth = cfg.maxHalfWidth * tipTaper * waistSculpt;
+    const halfThick = cfg.maxHalfThickness * Math.pow(Math.sin(Math.PI * t), 0.95);
 
-    // Intentional smooth sculptural twist along the ribbon arc
     const twistAngle = (t - 0.5) * Math.PI * cfg.twistTurns;
     const cosT = Math.cos(twistAngle);
     const sinT = Math.sin(twistAngle);
@@ -159,16 +170,22 @@ function createPalindromeRibbonGeometry(cfg: RibbonConfig): THREE.BufferGeometry
       .addScaledVector(b, cosT)
       .normalize();
 
-    color.copy(cfg.colorStart).lerp(cfg.colorEnd, t);
+    if (t < 0.5) {
+      color.copy(cfg.colorStart).lerp(cfg.colorMid, t * 2);
+    } else {
+      color.copy(cfg.colorMid).lerp(cfg.colorEnd, (t - 0.5) * 2);
+    }
 
     for (let j = 0; j <= profileSegments; j++) {
       const phi = (j / profileSegments) * Math.PI * 2;
       const cosP = Math.cos(phi);
       const sinP = Math.sin(phi);
 
-      // Lenticular sculptural cross-section: wide glossy face, knife-edge bevels
-      const u = Math.sign(cosP) * Math.pow(Math.abs(cosP), 0.78) * halfWidth;
-      const v = Math.sign(sinP) * Math.pow(Math.abs(sinP), 1.35) * halfThick;
+      // Fluted diamond-lenticular airfoil profile for crisp dual-edge specular ribbons
+      const u = Math.sign(cosP) * Math.pow(Math.abs(cosP), 0.74) * halfWidth;
+      const ridge = 1.0 + 0.22 * Math.exp(-Math.pow(cosP * 2.4, 2));
+      const camber = 0.18 * (cosP * cosP) * halfThick;
+      const v = Math.sign(sinP) * Math.pow(Math.abs(sinP), 1.45) * halfThick * ridge + camber;
 
       offset
         .copy(center)
@@ -203,8 +220,8 @@ function createPalindromeRibbonGeometry(cfg: RibbonConfig): THREE.BufferGeometry
 }
 
 /**
- * Create a glossy, iridescent physical material with organic GLSL undulation
- * and controlled reveal energy.
+ * Glossy dark-anodized / liquid-glass physical material with subtle iridescence,
+ * calm breathing vertex wave, and controlled Fresnel rim energy.
  */
 function createRibbonMaterial(
   cfg: RibbonConfig,
@@ -219,20 +236,20 @@ function createRibbonMaterial(
 
   const material = new THREE.MeshPhysicalMaterial({
     vertexColors: true,
-    metalness: 0.34,
-    roughness: 0.14,
+    metalness: 0.42,
+    roughness: 0.11,
     clearcoat: 1.0,
-    clearcoatRoughness: 0.06,
-    iridescence: 0.92,
-    iridescenceIOR: 1.44,
-    iridescenceThicknessRange: [180, 560],
-    sheen: 0.55,
-    sheenRoughness: 0.3,
+    clearcoatRoughness: 0.04,
+    iridescence: 0.96,
+    iridescenceIOR: 1.48,
+    iridescenceThicknessRange: [190, 580],
+    sheen: 0.6,
+    sheenRoughness: 0.25,
     sheenColor: cfg.colorEnd,
     envMap,
-    envMapIntensity: 1.45,
+    envMapIntensity: 1.65,
     emissive: cfg.emissiveTint,
-    emissiveIntensity: 0.24,
+    emissiveIntensity: 0.16,
     transparent: true,
     opacity: 1,
   });
@@ -258,11 +275,11 @@ function createRibbonMaterial(
         `#include <begin_vertex>
         vRibbonT = uv.x;
         float envelope = sin(uv.x * 3.14159265);
-        float breathe = sin(uv.x * 5.2 - uTime * 0.85 + uPhase) * 0.085;
-        float secondary = cos(uv.x * 3.1 + uTime * 0.55 - uPhase) * 0.045;
-        transformed += normal * (breathe + secondary) * envelope;
-        transformed.xy += uPointer * (0.09 * envelope);
-        float revealScale = mix(0.68, 1.0, smoothstep(0.0, 1.0, uReveal));
+        float breathe = sin(uv.x * 4.4 - uTime * 0.58 + uPhase) * 0.055;
+        float harmonic = cos(uv.x * 2.6 + uTime * 0.36 - uPhase) * 0.032;
+        transformed += normal * (breathe + harmonic) * envelope;
+        transformed.xy += uPointer * (0.065 * envelope);
+        float revealScale = mix(0.72, 1.0, smoothstep(0.0, 1.0, uReveal));
         transformed *= revealScale;`,
       );
 
@@ -278,78 +295,267 @@ function createRibbonMaterial(
       .replace(
         "#include <emissivemap_fragment>",
         `#include <emissivemap_fragment>
-        float energyPulse = 0.5 + 0.5 * sin(vRibbonT * 6.2831 - uTime * 1.15 + uPhase);
-        float edgeGlow = pow(1.0 - abs(dot(normalize(vNormal), normalize(vViewPosition))), 2.6);
-        totalEmissiveRadiance += diffuseColor.rgb * (edgeGlow * 0.55 + energyPulse * 0.14);
+        float lightWave = 0.5 + 0.5 * sin(vRibbonT * 6.2831 - uTime * 0.72 + uPhase);
+        float rimFresnel = pow(1.0 - abs(dot(normalize(vNormal), normalize(vViewPosition))), 3.0);
+        totalEmissiveRadiance += diffuseColor.rgb * (rimFresnel * 0.42 + lightWave * 0.09);
         totalEmissiveRadiance *= smoothstep(0.0, 0.85, uReveal);`,
       )
       .replace(
         "#include <dithering_fragment>",
         `#include <dithering_fragment>
-        gl_FragColor.a *= smoothstep(0.0, 0.9, uReveal);`,
+        gl_FragColor.a *= smoothstep(0.0, 0.88, uReveal);`,
       );
   };
 
-  material.customProgramCacheKey = () => `palindrome-ribbon-${cfg.phaseOffset}`;
+  material.customProgramCacheKey = () => `pallindrome-artefact-${cfg.phaseOffset}`;
 
   return { material, uniforms };
 }
 
 /**
- * Create a restrained, silk-like residual particle wake inspired by the intro
- * reveal video's purple, magenta, and cyan particles.
+ * Create the molten-gold center core and orbiting liquid micro-droplets.
  */
-function createHeroParticles(isMobile: boolean): {
-  points: THREE.Points;
-  uniforms: {
-    uTime: { value: number };
-    uReveal: { value: number };
-    uPointer: { value: THREE.Vector2 };
-    uPixelRatio: { value: number };
-  };
+function createMoltenGoldCore(envMap: THREE.Texture): {
+  group: THREE.Group;
+  uniforms: { uTime: { value: number }; uReveal: { value: number } };
+  droplets: THREE.Mesh[];
   dispose: () => void;
 } {
-  const count = isMobile ? 120 : 240;
+  const group = new THREE.Group();
+  const uniforms = {
+    uTime: { value: 0 },
+    uReveal: { value: 0 },
+  };
+
+  const coreGeo = new THREE.IcosahedronGeometry(0.19, 5);
+  const coreMat = new THREE.MeshPhysicalMaterial({
+    color: 0xffc900,
+    emissive: 0xff9d00,
+    emissiveIntensity: 0.48,
+    metalness: 0.92,
+    roughness: 0.08,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.04,
+    iridescence: 0.35,
+    envMap,
+    envMapIntensity: 1.85,
+    transparent: true,
+    opacity: 1,
+  });
+
+  coreMat.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = uniforms.uTime;
+    shader.uniforms.uReveal = uniforms.uReveal;
+
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        "#include <common>",
+        `#include <common>
+        uniform float uTime;
+        uniform float uReveal;`,
+      )
+      .replace(
+        "#include <begin_vertex>",
+        `#include <begin_vertex>
+        float molten =
+          sin(position.x * 9.0 + uTime * 1.1) *
+          cos(position.y * 8.0 - uTime * 0.85) * 0.014 +
+          sin(position.z * 11.0 + uTime * 0.7) * 0.010;
+        transformed += normal * molten;
+        transformed *= mix(0.25, 1.0, smoothstep(0.08, 0.95, uReveal));`,
+      );
+
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        `#include <common>
+        uniform float uReveal;`,
+      )
+      .replace(
+        "#include <dithering_fragment>",
+        `#include <dithering_fragment>
+        gl_FragColor.a *= smoothstep(0.08, 0.92, uReveal);`,
+      );
+  };
+  coreMat.customProgramCacheKey = () => "pallindrome-molten-gold-core";
+
+  const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+  group.add(coreMesh);
+
+  // Subtle orbiting molten droplet cluster inside the inner aperture
+  const dropletGeo = new THREE.SphereGeometry(1, 20, 20);
+  const dropletMat = new THREE.MeshPhysicalMaterial({
+    color: 0xffd22b,
+    emissive: 0xffa600,
+    emissiveIntensity: 0.55,
+    metalness: 0.88,
+    roughness: 0.1,
+    clearcoat: 1.0,
+    envMap,
+    envMapIntensity: 1.7,
+    transparent: true,
+    opacity: 0,
+  });
+
+  const dropletSpecs = [
+    { scale: 0.036, orbit: [0.34, 0.24, 0.12] },
+    { scale: 0.025, orbit: [-0.30, -0.28, -0.14] },
+    { scale: 0.022, orbit: [0.22, -0.36, 0.16] },
+    { scale: 0.018, orbit: [-0.26, 0.33, -0.08] },
+  ];
+
+  const droplets: THREE.Mesh[] = dropletSpecs.map((spec) => {
+    const mesh = new THREE.Mesh(dropletGeo, dropletMat);
+    mesh.scale.setScalar(spec.scale);
+    mesh.userData.baseOrbit = new THREE.Vector3(spec.orbit[0], spec.orbit[1], spec.orbit[2]);
+    group.add(mesh);
+    return mesh;
+  });
+
+  return {
+    group,
+    uniforms,
+    droplets,
+    dispose: () => {
+      coreGeo.dispose();
+      coreMat.dispose();
+      dropletGeo.dispose();
+      dropletMat.dispose();
+    },
+  };
+}
+
+/**
+ * Subtle studio rim-glow plane behind the sculpture so light spills naturally
+ * into the surrounding obsidian darkness without creating a background gradient box.
+ */
+function createAmbientSpillMesh(): {
+  mesh: THREE.Mesh;
+  uniforms: { uReveal: { value: number }; uTime: { value: number } };
+  dispose: () => void;
+} {
+  const geometry = new THREE.PlaneGeometry(6.8, 6.8);
+  const uniforms = {
+    uReveal: { value: 0 },
+    uTime: { value: 0 },
+  };
+
+  const material = new THREE.ShaderMaterial({
+    uniforms,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform float uReveal;
+      uniform float uTime;
+      varying vec2 vUv;
+
+      void main() {
+        vec2 centered = vUv - 0.5;
+        float dist = length(centered);
+        float falloff = exp(-dist * dist * 13.5);
+
+        vec2 pMagenta = centered - vec2(-0.08, 0.05);
+        vec2 pCyan = centered - vec2(0.08, -0.05);
+        float mWeight = exp(-dot(pMagenta, pMagenta) * 18.0);
+        float cWeight = exp(-dot(pCyan, pCyan) * 18.0);
+
+        vec3 purple = vec3(0.545, 0.0, 1.0);
+        vec3 magenta = vec3(0.937, 0.0, 0.812);
+        vec3 cyan = vec3(0.0, 0.851, 1.0);
+
+        vec3 col = mix(purple, magenta, mWeight) * 0.55 + cyan * cWeight * 0.52;
+        float breathe = 0.92 + 0.08 * sin(uTime * 0.45);
+        float alpha = falloff * 0.18 * breathe * smoothstep(0.0, 0.9, uReveal);
+        gl_FragColor = vec4(col, alpha);
+      }
+    `,
+  });
+
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.position.set(0, 0, -1.6);
+
+  return {
+    mesh,
+    uniforms,
+    dispose: () => {
+      geometry.dispose();
+      material.dispose();
+    },
+  };
+}
+
+/**
+ * Create a single depth-stratified particle layer spanning the full hero field.
+ */
+function createParticleLayer(config: {
+  count: number;
+  xSpread: number;
+  ySpread: number;
+  zMin: number;
+  zMax: number;
+  sculptureBias: number;
+  sculptureCenterX: number;
+  sizeMin: number;
+  sizeMax: number;
+  alphaBase: number;
+  driftSpeed: number;
+  parallaxStrength: number;
+  streakAspect: number;
+  goldRatio: number;
+  pixelRatio: number;
+}): ParticleLayerHandle {
+  const { count } = config;
   const positions = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
   const scales = new Float32Array(count);
   const seeds = new Float32Array(count);
 
-  const palette = [
-    new THREE.Color(0x8b00ff), // Electric Purple
-    new THREE.Color(0xef00cf), // Vibrant Magenta
-    new THREE.Color(0x00d9ff), // Electric Cyan
-    new THREE.Color(0x2855ff), // Deep Electric Blue
-    new THREE.Color(0xffc900), // Rare Signature Gold
-  ];
+  const cPurple = new THREE.Color(0x8b00ff);
+  const cMagenta = new THREE.Color(0xef00cf);
+  const cCyan = new THREE.Color(0x00d9ff);
+  const cBlue = new THREE.Color(0x2855ff);
+  const cGold = new THREE.Color(0xffc900);
 
   for (let i = 0; i < count; i++) {
-    // Cluster organically along an elliptic ribbon field rather than a uniform box
-    const t = Math.random() * Math.PI * 2;
-    const radius = 0.75 + Math.pow(Math.random(), 0.75) * 2.15;
-    const spread = (Math.random() - 0.5) * 1.1;
-
-    positions[i * 3] = Math.cos(t) * radius * 0.72 + spread * 0.45;
-    positions[i * 3 + 1] = Math.sin(t) * radius * 1.18 + (Math.random() - 0.5) * 0.65;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 2.1;
+    const biased = Math.random() < config.sculptureBias;
+    if (biased) {
+      // Flow organically around the sculpture zone with radial falloff
+      const angle = Math.random() * Math.PI * 2;
+      const rad = 0.75 + Math.pow(Math.random(), 0.75) * 2.55;
+      positions[i * 3] = config.sculptureCenterX + Math.cos(angle) * rad * 0.85;
+      positions[i * 3 + 1] = Math.sin(angle) * rad * 1.15;
+    } else {
+      // Full-hero atmospheric coverage (avoiding rigid grid uniformity)
+      positions[i * 3] = (Math.random() - 0.5) * 2.0 * config.xSpread;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 2.0 * config.ySpread;
+    }
+    positions[i * 3 + 2] = config.zMin + Math.random() * (config.zMax - config.zMin);
 
     const roll = Math.random();
-    const color =
-      roll < 0.34
-        ? palette[0]
-        : roll < 0.64
-          ? palette[1]
-          : roll < 0.90
-            ? palette[2]
-            : roll < 0.96
-              ? palette[3]
-              : palette[4];
+    const col =
+      roll < config.goldRatio
+        ? cGold
+        : roll < config.goldRatio + 0.34
+          ? cPurple
+          : roll < config.goldRatio + 0.62
+            ? cMagenta
+            : roll < config.goldRatio + 0.88
+              ? cCyan
+              : cBlue;
 
-    colors[i * 3] = color.r;
-    colors[i * 3 + 1] = color.g;
-    colors[i * 3 + 2] = color.b;
+    colors[i * 3] = col.r;
+    colors[i * 3 + 1] = col.g;
+    colors[i * 3 + 2] = col.b;
 
-    scales[i] = 0.55 + Math.random() * 1.35;
+    scales[i] = config.sizeMin + Math.random() * (config.sizeMax - config.sizeMin);
     seeds[i] = Math.random() * Math.PI * 2;
   }
 
@@ -363,7 +569,12 @@ function createHeroParticles(isMobile: boolean): {
     uTime: { value: 0 },
     uReveal: { value: 0 },
     uPointer: { value: new THREE.Vector2(0, 0) },
-    uPixelRatio: { value: Math.min(window.devicePixelRatio || 1, 1.75) },
+    uScroll: { value: 0 },
+    uPixelRatio: { value: config.pixelRatio },
+    uDriftSpeed: { value: config.driftSpeed },
+    uParallax: { value: config.parallaxStrength },
+    uAlphaBase: { value: config.alphaBase },
+    uStreakAspect: { value: config.streakAspect },
   };
 
   const material = new THREE.ShaderMaterial({
@@ -378,48 +589,69 @@ function createHeroParticles(isMobile: boolean): {
       uniform float uTime;
       uniform float uReveal;
       uniform vec2 uPointer;
+      uniform float uScroll;
       uniform float uPixelRatio;
+      uniform float uDriftSpeed;
+      uniform float uParallax;
       varying vec3 vColor;
       varying float vAlpha;
+      varying float vSeed;
 
       void main() {
         vColor = aColor;
+        vSeed = aSeed;
         vec3 pos = position;
 
-        // Gentle orbital drift
-        float angle = uTime * 0.16 + aSeed;
-        pos.x += cos(angle) * 0.14;
-        pos.y += sin(angle * 0.85) * 0.18;
-        pos.z += sin(uTime * 0.25 + aSeed) * 0.12;
+        // Slow, fluid deep-space laminar drift
+        float t = uTime * uDriftSpeed;
+        pos.x += sin(t + aSeed) * 0.24 + cos(t * 0.6 + aSeed * 1.7) * 0.11;
+        pos.y += cos(t * 0.85 + aSeed * 1.3) * 0.20 + sin(t * 0.5 + aSeed) * 0.08;
+        pos.z += sin(t * 0.45 + aSeed * 2.1) * 0.14;
 
-        // Subtle cursor parallax weighted by depth
-        pos.xy += uPointer * (0.18 + pos.z * 0.06);
+        // Gentle cursor parallax & scroll exit lift
+        pos.xy += uPointer * uParallax;
+        pos.y += uScroll * (0.45 + uParallax * 1.6);
 
-        // Expand gently outward during intro-to-hero handoff
-        float burst = mix(0.42, 1.0, smoothstep(0.0, 1.0, uReveal));
-        pos *= burst;
+        // Subtle intro expansion continuity
+        float settle = mix(0.86, 1.0, smoothstep(0.0, 1.0, uReveal));
+        pos.xy *= settle;
 
         vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
         gl_Position = projectionMatrix * mvPosition;
-        gl_PointSize = aScale * 18.0 * uPixelRatio * (1.0 / max(1.2, -mvPosition.z));
-        vAlpha = smoothstep(0.05, 0.95, uReveal) * (0.42 + 0.35 * sin(uTime * 0.9 + aSeed));
+        gl_PointSize = aScale * 22.0 * uPixelRatio * (1.0 / max(1.6, -mvPosition.z));
+
+        float shimmer = 0.72 + 0.28 * sin(uTime * 0.42 + aSeed * 3.0);
+        // Keep left-side editorial text zone calmer on mid/far layers
+        float leftCalm = smoothstep(-5.8, -0.5, pos.x) * 0.42 + 0.58;
+        vAlpha = smoothstep(0.04, 0.92, uReveal) * shimmer * leftCalm;
       }
     `,
     fragmentShader: `
+      uniform float uAlphaBase;
+      uniform float uStreakAspect;
       varying vec3 vColor;
       varying float vAlpha;
+      varying float vSeed;
 
       void main() {
-        float dist = length(gl_PointCoord - vec2(0.5));
+        vec2 uv = gl_PointCoord - vec2(0.5);
+        // Optional subtle diagonal wisp stretch for foreground accent particles
+        float angle = vSeed;
+        float ca = cos(angle);
+        float sa = sin(angle);
+        vec2 rotUv = vec2(uv.x * ca - uv.y * sa, uv.x * sa + uv.y * ca);
+        rotUv.x *= uStreakAspect;
+
+        float dist = length(rotUv);
         if (dist > 0.5) discard;
-        float glow = pow(1.0 - dist * 2.0, 2.2);
-        gl_FragColor = vec4(vColor, glow * vAlpha * 0.65);
+        float radialMask = smoothstep(0.5, 0.0, dist);
+        float glow = pow(radialMask, 2.1);
+        gl_FragColor = vec4(vColor, glow * vAlpha * uAlphaBase);
       }
     `,
   });
 
   const points = new THREE.Points(geometry, material);
-
   return {
     points,
     uniforms,
@@ -457,60 +689,128 @@ export function initHeroSculpture(
   }
 
   const isMobile = window.innerWidth < 960;
-  const maxDpr = isMobile ? 1.5 : 1.75;
+  const lowPower = (navigator.hardwareConcurrency || 8) <= 4;
+  const maxDpr = isMobile || lowPower ? 1.5 : 1.75;
   const pixelRatio = Math.min(window.devicePixelRatio || 1, maxDpr);
 
   renderer.setPixelRatio(pixelRatio);
   renderer.setClearColor(0x000000, 1);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.12;
+  renderer.toneMappingExposure = 1.15;
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
 
-  const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 40);
+  const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 45);
   camera.position.set(0, 0, 7.6);
 
   const envTexture = createStudioEnvironment(renderer);
   scene.environment = envTexture;
 
-  // Root sculpture group positioned asymmetrically to balance left-aligned headline
+  // ------------------------------------------------------------------------
+  // 1. THREE-LAYER FULL-SCENE PARTICLE ATMOSPHERE
+  // ------------------------------------------------------------------------
+  const particleScale = isMobile || lowPower ? 0.52 : 1.0;
+  const particleCenterX = isMobile ? 0.25 : 1.55;
+
+  const farParticles = createParticleLayer({
+    count: Math.round(140 * particleScale),
+    xSpread: 7.4,
+    ySpread: 4.2,
+    zMin: -4.8,
+    zMax: -1.6,
+    sculptureBias: 0.18,
+    sculptureCenterX: particleCenterX,
+    sizeMin: 0.5,
+    sizeMax: 1.0,
+    alphaBase: 0.36,
+    driftSpeed: 0.055,
+    parallaxStrength: 0.06,
+    streakAspect: 1.0,
+    goldRatio: 0.02,
+    pixelRatio,
+  });
+
+  const midParticles = createParticleLayer({
+    count: Math.round(170 * particleScale),
+    xSpread: 6.4,
+    ySpread: 3.6,
+    zMin: -1.4,
+    zMax: 1.1,
+    sculptureBias: 0.62,
+    sculptureCenterX: particleCenterX,
+    sizeMin: 0.75,
+    sizeMax: 1.45,
+    alphaBase: 0.52,
+    driftSpeed: 0.095,
+    parallaxStrength: 0.22,
+    streakAspect: 1.0,
+    goldRatio: 0.05,
+    pixelRatio,
+  });
+
+  const fgParticles = createParticleLayer({
+    count: Math.round(22 * particleScale),
+    xSpread: 5.8,
+    ySpread: 3.1,
+    zMin: 1.2,
+    zMax: 2.5,
+    sculptureBias: 0.65,
+    sculptureCenterX: particleCenterX,
+    sizeMin: 1.2,
+    sizeMax: 1.95,
+    alphaBase: 0.42,
+    driftSpeed: 0.12,
+    parallaxStrength: 0.40,
+    streakAspect: 1.45,
+    goldRatio: 0.14,
+    pixelRatio,
+  });
+
+  scene.add(farParticles.points, midParticles.points, fgParticles.points);
+
+  // ------------------------------------------------------------------------
+  // 2. REDESIGNED RIGHT-SIDE HERO SCULPTURE
+  // ------------------------------------------------------------------------
   const sculptureGroup = new THREE.Group();
   scene.add(sculptureGroup);
 
-  // Ribbon A: Deep Electric Purple -> Vibrant Magenta (Upper/Left clasp)
+  // Non-intersecting, counter-orbital double-S ribbon A (Deep Purple -> Vivid Magenta)
   const ribbonAConfig: RibbonConfig = {
     points: [
-      new THREE.Vector3(-0.06, 1.92, -0.14),
-      new THREE.Vector3(0.92, 1.24, 0.44),
-      new THREE.Vector3(1.12, 0.14, 0.22),
-      new THREE.Vector3(0.40, -0.84, -0.32),
-      new THREE.Vector3(-0.52, -1.62, -0.16),
-      new THREE.Vector3(-0.16, -2.02, 0.20),
+      new THREE.Vector3(0.14, 1.96, -0.32),
+      new THREE.Vector3(-0.94, 1.22, 0.32),
+      new THREE.Vector3(-1.02, 0.42, 0.52),
+      new THREE.Vector3(-0.46, 0.06, 0.44), // Front-left waist cradling molten core
+      new THREE.Vector3(0.56, -0.96, 0.18),
+      new THREE.Vector3(0.32, -1.68, -0.22),
+      new THREE.Vector3(-0.18, -1.98, -0.30),
     ],
-    colorStart: new THREE.Color(0x8b00ff),
+    colorStart: new THREE.Color(0x6d00d9),
+    colorMid: new THREE.Color(0x8b00ff),
     colorEnd: new THREE.Color(0xef00cf),
-    emissiveTint: new THREE.Color(0x4b0082),
+    emissiveTint: new THREE.Color(0x3a006e),
     phaseOffset: 0.0,
-    twistTurns: 1.15,
-    maxHalfWidth: 0.38,
-    maxHalfThickness: 0.075,
+    twistTurns: 1.45,
+    maxHalfWidth: 0.36,
+    maxHalfThickness: 0.072,
   };
 
-  // Ribbon B: 180° Palindromic mirror (Electric Blue -> Electric Cyan, Lower/Right clasp)
+  // True 180° palindromic mirror ribbon B (Deep Cobalt -> Electric Cyan)
   const ribbonBConfig: RibbonConfig = {
-    points: ribbonAConfig.points.map((p) => new THREE.Vector3(-p.x, -p.y, -p.z * 0.85)),
-    colorStart: new THREE.Color(0x1f3cff),
+    points: ribbonAConfig.points.map((p) => new THREE.Vector3(-p.x, -p.y, -p.z)),
+    colorStart: new THREE.Color(0x1432e8),
+    colorMid: new THREE.Color(0x1f6bff),
     colorEnd: new THREE.Color(0x00d9ff),
-    emissiveTint: new THREE.Color(0x003f66),
+    emissiveTint: new THREE.Color(0x003358),
     phaseOffset: Math.PI,
-    twistTurns: -1.15,
-    maxHalfWidth: 0.38,
-    maxHalfThickness: 0.075,
+    twistTurns: -1.45,
+    maxHalfWidth: 0.36,
+    maxHalfThickness: 0.072,
   };
 
-  const ribbonAGeo = createPalindromeRibbonGeometry(ribbonAConfig);
-  const ribbonBGeo = createPalindromeRibbonGeometry(ribbonBConfig);
+  const ribbonAGeo = createSculptedRibbonGeometry(ribbonAConfig);
+  const ribbonBGeo = createSculptedRibbonGeometry(ribbonBConfig);
   const ribbonAMat = createRibbonMaterial(ribbonAConfig, envTexture);
   const ribbonBMat = createRibbonMaterial(ribbonBConfig, envTexture);
 
@@ -518,55 +818,42 @@ export function initHeroSculpture(
   const ribbonBMesh = new THREE.Mesh(ribbonBGeo, ribbonBMat.material);
   sculptureGroup.add(ribbonAMesh, ribbonBMesh);
 
-  // Subtle signature gold convergence filament & pinpoint ember (no bulky center sphere)
-  const coreGroup = new THREE.Group();
-  const filamentGeo = new THREE.TorusGeometry(0.28, 0.0065, 12, 72);
-  const filamentMat = new THREE.MeshBasicMaterial({
-    color: 0xffc900,
-    transparent: true,
-    opacity: 0,
-  });
-  const filamentA = new THREE.Mesh(filamentGeo, filamentMat);
-  filamentA.rotation.set(Math.PI * 0.36, 0.4, 0.2);
+  // Molten gold core + micro-droplet cluster inside the tight central tension zone
+  const moltenCore = createMoltenGoldCore(envTexture);
+  sculptureGroup.add(moltenCore.group);
 
-  const emberGeo = new THREE.SphereGeometry(0.028, 16, 16);
-  const emberMat = new THREE.MeshBasicMaterial({
-    color: 0xffd84d,
-    transparent: true,
-    opacity: 0,
-  });
-  const emberMesh = new THREE.Mesh(emberGeo, emberMat);
-  coreGroup.add(filamentA, emberMesh);
-  sculptureGroup.add(coreGroup);
+  // Subtle ambient glow spill behind sculpture
+  const ambientSpill = createAmbientSpillMesh();
+  sculptureGroup.add(ambientSpill.mesh);
 
-  // Subtle residual particle wake
-  const particles = createHeroParticles(isMobile);
-  sculptureGroup.add(particles.points);
+  // Studio lights
+  const ambientLight = new THREE.AmbientLight(0x141220, 0.75);
+  const keyLight = new THREE.DirectionalLight(0xf5f5f7, 1.85);
+  keyLight.position.set(-2.5, 4.5, 4.0);
 
-  // Sculpted studio lights
-  const ambient = new THREE.AmbientLight(0x161420, 0.7);
-  const magentaLight = new THREE.PointLight(0xef00cf, 12, 16, 1.6);
-  magentaLight.position.set(-3.2, 2.2, 3.0);
+  const magentaRim = new THREE.PointLight(0xef00cf, 13, 15, 1.55);
+  magentaRim.position.set(-3.0, 2.0, 2.8);
 
-  const cyanLight = new THREE.PointLight(0x00d9ff, 12, 16, 1.6);
-  cyanLight.position.set(3.4, -1.6, 3.2);
+  const cyanRim = new THREE.PointLight(0x00d9ff, 13, 15, 1.55);
+  cyanRim.position.set(3.1, -1.8, 3.0);
 
-  const purpleRim = new THREE.PointLight(0x8b00ff, 9, 15, 1.5);
-  purpleRim.position.set(0.0, 3.5, -3.2);
+  const purpleBack = new THREE.PointLight(0x8b00ff, 10, 14, 1.5);
+  purpleBack.position.set(0.0, 3.2, -3.2);
 
-  const goldCoreLight = new THREE.PointLight(0xffc900, 1.4, 3.2, 2.0);
-  goldCoreLight.position.set(0, 0, 0.2);
+  // Warm gold core light spills onto the inner concave ribbon faces
+  const goldCoreLight = new THREE.PointLight(0xffc900, 4.6, 3.8, 1.9);
+  goldCoreLight.position.set(0, 0, 0.15);
 
-  scene.add(ambient, magentaLight, cyanLight, purpleRim, goldCoreLight);
+  scene.add(ambientLight, keyLight, magentaRim, cyanRim, purpleBack, goldCoreLight);
 
   // Restrained post-processing bloom
   const composer = new EffectComposer(renderer);
   const renderPass = new RenderPass(scene, camera);
   const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(heroSection.clientWidth || 1, heroSection.clientHeight || 1),
-    0.34,
+    0.30,
     0.58,
-    0.76,
+    0.82,
   );
   const outputPass = new OutputPass();
   composer.addPass(renderPass);
@@ -579,9 +866,9 @@ export function initHeroSculpture(
   let targetPointerY = 0;
   let pointerX = 0;
   let pointerY = 0;
-  let baseSculptureX = 1.45;
-  let baseSculptureY = 0.05;
-  let baseScale = 1.0;
+  let baseSculptureX = 1.48;
+  let baseSculptureY = -0.04;
+  let baseScale = 0.98;
 
   let rafId = 0;
   let isHeroVisible = true;
@@ -592,71 +879,93 @@ export function initHeroSculpture(
     const width = heroSection.clientWidth || window.innerWidth;
     const height = heroSection.clientHeight || window.innerHeight;
     const mobile = width < 960;
+    const dpr = Math.min(window.devicePixelRatio || 1, mobile || lowPower ? 1.5 : 1.75);
 
     camera.aspect = width / Math.max(1, height);
     camera.position.z = mobile ? 8.8 : width < 1200 ? 8.0 : 7.4;
     camera.updateProjectionMatrix();
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.75));
+    renderer.setPixelRatio(dpr);
     renderer.setSize(width, height, false);
     composer.setSize(width, height);
     bloomPass.setSize(width, height);
-    particles.uniforms.uPixelRatio.value = renderer.getPixelRatio();
+
+    farParticles.uniforms.uPixelRatio.value = dpr;
+    midParticles.uniforms.uPixelRatio.value = dpr;
+    fgParticles.uniforms.uPixelRatio.value = dpr;
 
     if (mobile) {
-      baseSculptureX = 0.24;
+      baseSculptureX = 0.18;
       baseSculptureY = 0.92;
-      baseScale = 0.64;
+      baseScale = 0.66;
     } else if (width < 1240) {
-      baseSculptureX = 1.15;
-      baseSculptureY = -0.10;
-      baseScale = 0.84;
+      baseSculptureX = 1.18;
+      baseSculptureY = -0.05;
+      baseScale = 0.88;
     } else {
       baseSculptureX = 1.48;
-      baseSculptureY = -0.10;
-      baseScale = 0.92;
+      baseSculptureY = -0.04;
+      baseScale = 0.98;
     }
   };
 
   const renderFrame = (elapsed: number): void => {
-    pointerX += (targetPointerX - pointerX) * 0.055;
-    pointerY += (targetPointerY - pointerY) * 0.055;
+    pointerX += (targetPointerX - pointerX) * 0.05;
+    pointerY += (targetPointerY - pointerY) * 0.05;
 
     ribbonAMat.uniforms.uTime.value = elapsed;
     ribbonBMat.uniforms.uTime.value = elapsed;
-    particles.uniforms.uTime.value = elapsed;
+    moltenCore.uniforms.uTime.value = elapsed;
+    ambientSpill.uniforms.uTime.value = elapsed;
 
     ribbonAMat.uniforms.uReveal.value = revealProgress;
     ribbonBMat.uniforms.uReveal.value = revealProgress;
-    particles.uniforms.uReveal.value = revealProgress;
+    moltenCore.uniforms.uReveal.value = revealProgress;
+    ambientSpill.uniforms.uReveal.value = revealProgress;
 
     ribbonAMat.uniforms.uPointer.value.set(pointerX, pointerY);
     ribbonBMat.uniforms.uPointer.value.set(-pointerX, -pointerY);
-    particles.uniforms.uPointer.value.set(pointerX, pointerY);
 
-    const coreAlpha = Math.max(0, Math.min(1, (revealProgress - 0.2) * 1.25));
-    filamentMat.opacity = coreAlpha * 0.42;
-    emberMat.opacity = coreAlpha * 0.92;
-    coreGroup.rotation.y = elapsed * 0.32;
-    coreGroup.rotation.z = Math.sin(elapsed * 0.45) * 0.25;
+    for (const layer of [farParticles, midParticles, fgParticles]) {
+      layer.uniforms.uTime.value = elapsed;
+      layer.uniforms.uReveal.value = revealProgress;
+      layer.uniforms.uScroll.value = scrollProgress;
+      layer.uniforms.uPointer.value.set(pointerX, pointerY);
+    }
 
-    // Gentle living sculpture motion + cursor-responsive parallax + scroll exit drift
+    // Orbiting molten droplets inside the center tension aperture
+    const dropletAlpha = Math.max(0, Math.min(1, (revealProgress - 0.18) * 1.25));
+    moltenCore.droplets.forEach((droplet, idx) => {
+      const mat = droplet.material as THREE.MeshPhysicalMaterial;
+      mat.opacity = dropletAlpha * 0.92;
+      const base = droplet.userData.baseOrbit as THREE.Vector3;
+      const phase = elapsed * (0.45 + idx * 0.12) + idx * 1.57;
+      droplet.position.set(
+        base.x * Math.cos(phase * 0.4) - base.z * Math.sin(phase * 0.4),
+        base.y + Math.sin(phase) * 0.045,
+        base.x * Math.sin(phase * 0.4) + base.z * Math.cos(phase * 0.4),
+      );
+    });
+    moltenCore.group.rotation.y = elapsed * 0.22;
+
+    // Calm, poised sculpture pose + soft cursor response + scroll exit drift
     const scrollLift = scrollProgress * 0.85;
     const scrollScale = baseScale * (1 - scrollProgress * 0.12);
     sculptureGroup.position.set(
-      baseSculptureX + pointerX * 0.24,
-      baseSculptureY + pointerY * 0.18 + scrollLift,
-      -scrollProgress * 1.1,
+      baseSculptureX + pointerX * 0.22,
+      baseSculptureY + pointerY * 0.16 + scrollLift,
+      -scrollProgress * 1.05,
     );
     sculptureGroup.scale.setScalar(scrollScale);
-    sculptureGroup.rotation.y = Math.sin(elapsed * 0.24) * 0.22 + pointerX * 0.26 + scrollProgress * 0.45;
-    sculptureGroup.rotation.x = Math.cos(elapsed * 0.19) * 0.1 - pointerY * 0.18;
-    sculptureGroup.rotation.z = Math.sin(elapsed * 0.14) * 0.06 - 0.14;
+    sculptureGroup.rotation.y =
+      -0.22 + Math.sin(elapsed * 0.20) * 0.16 + pointerX * 0.24 + scrollProgress * 0.42;
+    sculptureGroup.rotation.x = Math.cos(elapsed * 0.16) * 0.08 - pointerY * 0.16;
+    sculptureGroup.rotation.z = Math.sin(elapsed * 0.12) * 0.05 - 0.08;
 
-    // Subtle light breathing
-    magentaLight.position.x = -3.2 + Math.sin(elapsed * 0.4) * 0.4 + pointerX * 0.6;
-    cyanLight.position.x = 3.4 + Math.cos(elapsed * 0.35) * 0.4 - pointerX * 0.6;
-    goldCoreLight.intensity = 1.4 * revealProgress;
+    // Subtle studio light play across glossy ridges
+    magentaRim.position.x = -3.0 + Math.sin(elapsed * 0.34) * 0.45 + pointerX * 0.65;
+    cyanRim.position.x = 3.1 + Math.cos(elapsed * 0.30) * 0.45 - pointerX * 0.65;
+    goldCoreLight.intensity = 4.6 * revealProgress;
 
     composer.render();
   };
@@ -745,11 +1054,11 @@ export function initHeroSculpture(
       ribbonBGeo.dispose();
       ribbonAMat.material.dispose();
       ribbonBMat.material.dispose();
-      filamentGeo.dispose();
-      filamentMat.dispose();
-      emberGeo.dispose();
-      emberMat.dispose();
-      particles.dispose();
+      moltenCore.dispose();
+      ambientSpill.dispose();
+      farParticles.dispose();
+      midParticles.dispose();
+      fgParticles.dispose();
       envTexture.dispose();
       composer.dispose();
       renderer.dispose();

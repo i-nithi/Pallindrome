@@ -26,6 +26,9 @@
 }
 @media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
   .proof.is-cinematic .proof-frame { left: 50%; margin-left: -24%; top: 50%; }
-  .proof.is-cinematic .proof-background { filter: blur(20px) brightness(1) saturate(1); }
-  .proof.is-cinematic .proof-shade { background: linear-gradient(90deg, rgba(0,0,0,.36), rgba(0,0,0,.08) 50%, rgba(0,0,0,.42)), linear-gradient(0deg, rgba(0,0,0,.6), transparent 30%, transparent 72%, rgba(0,0,0,.3)); }
+  .proof.is-cinematic .proof-background { filter: blur(12px) brightness(1.15) saturate(1); }
+  .proof.is-cinematic .proof-shade { background: linear-gradient(90deg, rgba(0,0,0,.28), rgba(0,0,0,.04) 50%, rgba(0,0,0,.34)), linear-gradient(0deg, rgba(0,0,0,.5), transparent 30%, transparent 72%, rgba(0,0,0,.2)); }
+}
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .proof.is-cinematic #project-rajamanickam-chit-fund h3 { font-size: clamp(1.65rem, 2.65vw, 3.55rem); overflow-wrap: normal; }
 }

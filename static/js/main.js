@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NITHYASHRI PORTFOLIO — TypeScript Interaction Layer
+   ANTONIUS JAIRUS PORTFOLIO — TypeScript Interaction Layer
    ========================================================================== */
 
                           
@@ -22,10 +22,12 @@
  
 
 const PROJECT_DISPLAY_NAMES                         = {
-  "lostmatch-ai": "LostMatch AI",
-  "unigigs": "UniGigs",
-  "elevatr": "ElevaTr",
-  "paceline": "Paceline",
+  "palindrome": "Palindrome",
+  "kaiforge": "KaiForge",
+  "neuroshield": "NeuroShield",
+  "rajamanickam-chit-fund": "Rajamanickam Chit Funds",
+  "zsi-yogesh": "ZSI Portfolio",
+  "mfalmion": "Mfalmion",
 };
 
 const prefersReducedMotion = ()          =>
@@ -67,7 +69,6 @@ function initHeroCanvas()       {
     const px = pointerX * width;
     const py = pointerY * height;
 
-    // Subtle editorial coordinate hairlines
     ctx.strokeStyle = "rgba(20, 20, 19, 0.055)";
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -83,7 +84,6 @@ function initHeroCanvas()       {
     }
     ctx.stroke();
 
-    // Symmetrical palindrome axis crosshairs reacting to pointer proximity
     for (let c = 1; c < cols; c++) {
       for (let r = 1; r < rows; r++) {
         const x = c * spacing;
@@ -290,23 +290,6 @@ function initProjectInteractions()       {
       if (indicator) indicator.textContent = expanded ? "+" : "−";
     });
   }
-
-  const demoTriggers = document.querySelectorAll             ("[data-project-inquiry]");
-  const typeSelect = document.getElementById("contact-type")                            ;
-  const descriptionInput = document.getElementById("contact-description")                              ;
-
-  for (const trigger of demoTriggers) {
-    trigger.addEventListener("click", () => {
-      const projectName = trigger.dataset.projectInquiry;
-      if (!projectName || !descriptionInput) return;
-      if (typeSelect) typeSelect.value = "Custom web applications";
-      if (!descriptionInput.value.trim()) {
-        descriptionInput.value = `Hi Nithyashri, I would love to see a live walkthrough of ${projectName} and discuss a project idea.`;
-        descriptionInput.dispatchEvent(new Event("input"));
-      }
-      window.setTimeout(() => descriptionInput.focus(), 350);
-    });
-  }
 }
 
 function initSkillsWorkbench()       {
@@ -399,12 +382,22 @@ function initFreelanceAndContactForm()       {
     });
   }
 
-  // Contact channel focus helpers
-  const focusButtons = document.querySelectorAll             ("[data-focus-form]");
-  for (const btn of focusButtons) {
-    btn.addEventListener("click", () => {
-      nameInput?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center" });
-      window.setTimeout(() => nameInput?.focus(), 250);
+  // Copy email button
+  const copyButtons = document.querySelectorAll                   ("[data-copy-email]");
+  for (const btn of copyButtons) {
+    btn.addEventListener("click", async () => {
+      const email = btn.dataset.copyEmail;
+      if (!email) return;
+      try {
+        await navigator.clipboard.writeText(email);
+        const orig = btn.textContent;
+        btn.textContent = "Copied";
+        window.setTimeout(() => {
+          btn.textContent = orig;
+        }, 1600);
+      } catch {
+        // Clipboard permission denied; fall back silently
+      }
     });
   }
 

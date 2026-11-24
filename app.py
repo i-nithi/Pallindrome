@@ -1,4 +1,4 @@
-"""Primary Python backend for Nithyashri's portfolio and freelance inquiry API."""
+"""Primary Python backend for Antonius Jairus R's portfolio and freelance studio."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field, field_validator
 
-from data import FREELANCE_TRACKS, PROJECTS, SITE_CONFIG, SKILLS
+from data import DISCIPLINES, FREELANCE_TRACKS, PROJECTS, SITE_CONFIG, SKILLS
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "inquiries.db"
@@ -78,9 +78,9 @@ class ContactInquiry(BaseModel):
 
 
 app = FastAPI(
-    title="Nithyashri — Developer Portfolio & Freelance Studio",
-    description="Custom Python-powered portfolio and inquiry backend.",
-    version="1.0.0",
+    title="Antonius Jairus — Developer Portfolio & Palindrome Studio",
+    description="Custom Python-powered portfolio and inquiry backend for Antonius Jairus R.",
+    version="2.0.0",
 )
 
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
@@ -108,6 +108,7 @@ async def home(request: Request) -> HTMLResponse:
             "projects": PROJECTS,
             "skills": SKILLS,
             "skill_categories": skill_categories,
+            "disciplines": DISCIPLINES,
             "freelance_tracks": FREELANCE_TRACKS,
             "project_types": ALLOWED_PROJECT_TYPES,
         },

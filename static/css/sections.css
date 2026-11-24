@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SECTION STYLES — Hero, Colophon, Projects, About, Skills, Freelance, Contact
+   SECTION STYLES — Hero, Colophon, Projects, About, Skills, Beyond, Freelance, Contact
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -74,8 +74,8 @@
 .hero__name {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: var(--text-hero);
-  line-height: 0.9;
+  font-size: clamp(2.75rem, 1.5rem + 5.6vw, 6.7rem);
+  line-height: 0.92;
   letter-spacing: -0.045em;
   color: var(--ink-primary);
 }
@@ -87,7 +87,7 @@
   font-size: clamp(1.35rem, 1.05rem + 1.4vw, 2.25rem);
   line-height: 1.16;
   letter-spacing: -0.025em;
-  max-width: 24ch;
+  max-width: 25ch;
 }
 
 .hero__headline em {
@@ -118,10 +118,10 @@
   gap: 0.85rem;
 }
 
-/* Integrated Portfolio & Awwwards Colophon */
+/* Integrated Portfolio & Palindrome Colophon */
 .colophon {
   display: grid;
-  grid-template-columns: 180px minmax(0, 1fr) auto;
+  grid-template-columns: 185px minmax(0, 1fr) auto;
   gap: 1.25rem 2.5rem;
   align-items: center;
   padding: clamp(1.25rem, 2.6vw, 1.9rem);
@@ -180,29 +180,6 @@
 
 .colophon__meta a:hover {
   color: var(--accent);
-}
-
-@media (max-width: 960px) {
-  .hero__grid {
-    grid-template-columns: 1fr;
-  }
-
-  .hero__aside {
-    padding-left: 0;
-    padding-top: 1.5rem;
-    border-left: 0;
-    border-top: 1px solid var(--rule-light);
-  }
-
-  .colophon {
-    grid-template-columns: 1fr;
-    align-items: start;
-  }
-
-  .colophon__meta {
-    align-items: flex-start;
-    text-align: left;
-  }
 }
 
 /* --------------------------------------------------------------------------
@@ -288,6 +265,15 @@
   color: var(--ink-on-dark-muted);
 }
 
+.project-spread__disclaimer {
+  margin-top: 1rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px dashed var(--rule-dark-strong);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink-on-dark-muted);
+}
+
 .tech-tags {
   display: flex;
   flex-wrap: wrap;
@@ -302,11 +288,11 @@
   font-size: 0.72rem;
   letter-spacing: 0.04em;
   color: var(--ink-on-dark);
-  transition: border-color var(--t-fast) ease, background-color var(--t-fast) ease;
+  transition: border-color var(--t-fast) ease;
 }
 
 .project-spread:hover .tech-tag {
-  border-color: rgba(243, 239, 230, 0.45);
+  border-color: rgba(243, 239, 230, 0.48);
 }
 
 .project-spread__actions {
@@ -365,7 +351,7 @@
   font-family: var(--font-mono);
 }
 
-/* Custom Bespoke Visual Previews */
+/* Bespoke Visual Previews */
 .project-preview {
   position: relative;
   border: 1px solid var(--rule-dark-strong);
@@ -398,14 +384,13 @@
 }
 
 .preview-stage {
-  min-height: 250px;
+  min-height: 245px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 0.9rem;
 }
 
-/* LostMatch AI Preview */
 .preview-match-row {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -454,16 +439,15 @@
 .preview-bar-fill {
   height: 100%;
   background: var(--accent);
-  width: 82%;
+  width: 78%;
   transform-origin: left;
   transition: transform 600ms var(--ease-expo);
 }
 
 .project-spread:hover .preview-bar-fill {
-  transform: scaleX(1.08);
+  transform: scaleX(1.1);
 }
 
-/* UniGigs Preview */
 .preview-gigs-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -503,7 +487,6 @@
   color: var(--ink-on-dark-muted);
 }
 
-/* ElevaTr Preview */
 .preview-doc-frame {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -544,7 +527,6 @@
   color: var(--ink-on-dark-muted);
 }
 
-/* Paceline Preview */
 .preview-storefront {
   display: flex;
   flex-direction: column;
@@ -683,39 +665,8 @@
   color: var(--ink-secondary);
 }
 
-@media (max-width: 960px) {
-  .project-spread,
-  .about-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .about-pillars {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
-
-  .about-pillar {
-    border-right: 0;
-    border-bottom: 1px solid var(--rule-light);
-    padding: 1.25rem 0 !important;
-  }
-
-  .about-pillar:last-child {
-    border-bottom: 0;
-  }
-}
-
-@media (max-width: 560px) {
-  .preview-match-row,
-  .preview-gigs-grid,
-  .preview-doc-frame,
-  .preview-storefront__row {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* --------------------------------------------------------------------------
-   04. SKILLS & TECHNOLOGIES (INTERACTIVE STACK INSPECTOR)
+   04. SKILLS & CAPABILITY LANDSCAPE
    -------------------------------------------------------------------------- */
 .skills-filters {
   display: flex;
@@ -762,7 +713,7 @@
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 1rem;
-  padding: 1.05rem 0.5rem;
+  padding: 1.02rem 0.5rem;
   border-bottom: 1px solid var(--rule-light);
   text-align: left;
   transition:
@@ -782,7 +733,7 @@
 
 .skill-row__name {
   font-family: var(--font-display);
-  font-size: clamp(1.1rem, 1rem + 0.5vw, 1.45rem);
+  font-size: clamp(1.08rem, 0.95rem + 0.5vw, 1.4rem);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -885,7 +836,85 @@
 }
 
 /* --------------------------------------------------------------------------
-   05. FREELANCE COLLABORATIONS
+   05. BEYOND THE CODE — ACHIEVEMENTS ARCHIVE
+   -------------------------------------------------------------------------- */
+.disciplines-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--rule-strong);
+  border-left: 1px solid var(--rule-light);
+}
+
+.discipline-card {
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border-right: 1px solid var(--rule-light);
+  border-bottom: 1px solid var(--rule-light);
+  background-color: rgba(255, 255, 255, 0.25);
+  transition: background-color var(--t-fast) ease;
+}
+
+.discipline-card:hover {
+  background-color: var(--bg-paper-elevated);
+}
+
+.discipline-card__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-secondary);
+}
+
+.discipline-card__metric {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.discipline-card__title {
+  margin-top: 0.85rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 1.25rem + 0.9vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.discipline-card__sub {
+  margin-top: 0.25rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--ink-secondary);
+}
+
+.discipline-card__list {
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.discipline-card__list li {
+  position: relative;
+  padding-left: 1rem;
+  font-size: var(--text-sm);
+  color: var(--ink-secondary);
+}
+
+.discipline-card__list li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   06. FREELANCE & PALINDROME TECH TEAM
    -------------------------------------------------------------------------- */
 .freelance-intro {
   display: grid;
@@ -898,7 +927,7 @@
 .freelance-intro__lead {
   font-size: var(--text-lg);
   color: var(--ink-on-dark);
-  max-width: 46ch;
+  max-width: 48ch;
 }
 
 .freelance-intro__note {
@@ -924,7 +953,7 @@
   padding: clamp(1.4rem, 2.8vw, 2rem);
   border-right: 1px solid var(--rule-dark);
   border-bottom: 1px solid var(--rule-dark);
-  transition: background-color var(--t-fast) ease, border-color var(--t-fast) ease;
+  transition: background-color var(--t-fast) ease;
 }
 
 .freelance-card:hover {
@@ -994,7 +1023,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   06. CONTACT SECTION
+   07. CONTACT SECTION
    -------------------------------------------------------------------------- */
 .contact-layout {
   display: grid;
@@ -1039,6 +1068,13 @@
   display: block;
   margin-top: 0.2rem;
   font-weight: 600;
+  word-break: break-word;
+}
+
+.contact-channel__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .contact-channel__action {
@@ -1056,7 +1092,6 @@
   color: var(--ink-on-dark);
 }
 
-/* Contact Form */
 .contact-form {
   border: 1px solid var(--rule-strong);
   padding: clamp(1.5rem, 3.5vw, 2.5rem);
@@ -1156,15 +1191,55 @@
   color: #961d14;
 }
 
+/* Responsive Breakpoints */
 @media (max-width: 960px) {
+  .hero__grid,
+  .project-spread,
+  .about-grid,
   .skills-workbench,
   .freelance-intro,
   .contact-layout {
     grid-template-columns: 1fr;
   }
 
+  .hero__aside {
+    padding-left: 0;
+    padding-top: 1.5rem;
+    border-left: 0;
+    border-top: 1px solid var(--rule-light);
+  }
+
+  .colophon {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .colophon__meta {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .about-pillars {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .about-pillar {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule-light);
+    padding: 1.25rem 0 !important;
+  }
+
+  .about-pillar:last-child {
+    border-bottom: 0;
+  }
+
   .skill-inspector {
     position: static;
+  }
+
+  .disciplines-grid {
+    grid-template-columns: 1fr;
   }
 
   .freelance-grid {
@@ -1174,7 +1249,16 @@
 
 @media (max-width: 640px) {
   .freelance-grid,
-  .form-grid {
+  .form-grid,
+  .preview-match-row,
+  .preview-gigs-grid,
+  .preview-doc-frame,
+  .preview-storefront__row {
     grid-template-columns: 1fr;
+  }
+
+  .contact-channel {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

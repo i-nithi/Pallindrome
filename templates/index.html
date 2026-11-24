@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ site.owner_name }} — Developer Portfolio &amp; Freelance</title>
+  <title>{{ site.owner_name }} — Developer, Freelancer &amp; Founder of Palindrome</title>
   <meta
     name="description"
-    content="Personal developer portfolio of {{ site.owner_name }} — Computer Science Engineering student building web applications, Python systems, and AI/ML projects."
+    content="Portfolio of {{ site.full_name }} (@{{ site.handle }}) — Developer, Freelancer, Engineering Student, and Founder of Palindrome in {{ site.location }}."
   />
   <meta name="theme-color" content="#F3EFE6" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,10 +25,8 @@
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
-  <!-- Scroll Progress Indicator -->
   <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
 
-  <!-- Custom Pointer Reticle (desktop) -->
   <div class="cursor-reticle" id="cursor-reticle" aria-hidden="true">
     <div class="cursor-reticle__ring">
       <span class="cursor-reticle__label" id="cursor-label">VIEW</span>
@@ -40,13 +38,14 @@
     <div class="container masthead__inner">
       <a href="#hero" class="brand-mark" data-cursor="TOP">
         <span>{{ site.owner_name }}</span>
-        <span class="brand-mark__tag">Index / 2026</span>
+        <span class="brand-mark__tag">Palindrome / 2026</span>
       </a>
 
       <nav class="nav-links" aria-label="Primary navigation">
         <a href="#projects" data-nav-link>Work</a>
         <a href="#about" data-nav-link>About</a>
         <a href="#skills" data-nav-link>Stack</a>
+        <a href="#beyond" data-nav-link>Beyond</a>
         <a href="#freelance" data-nav-link>Freelance</a>
         <a href="#contact" data-nav-link>Contact</a>
       </nav>
@@ -75,11 +74,12 @@
   <div class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
     <nav aria-label="Mobile navigation">
       <ul class="mobile-drawer__list">
-        <li><a href="#projects" data-drawer-link>Selected Works <span>01</span></a></li>
-        <li><a href="#about" data-drawer-link>About &amp; Focus <span>02</span></a></li>
-        <li><a href="#skills" data-drawer-link>Skills &amp; Tech <span>03</span></a></li>
-        <li><a href="#freelance" data-drawer-link>Freelance <span>04</span></a></li>
-        <li><a href="#contact" data-drawer-link>Contact <span>05</span></a></li>
+        <li><a href="#projects" data-drawer-link>Selected Work <span>01</span></a></li>
+        <li><a href="#about" data-drawer-link>About &amp; Identity <span>02</span></a></li>
+        <li><a href="#skills" data-drawer-link>Capability Stack <span>03</span></a></li>
+        <li><a href="#beyond" data-drawer-link>Beyond the Code <span>04</span></a></li>
+        <li><a href="#freelance" data-drawer-link>Freelance &amp; Team <span>05</span></a></li>
+        <li><a href="#contact" data-drawer-link>Contact <span>06</span></a></li>
       </ul>
     </nav>
     <div>
@@ -101,55 +101,51 @@
             <span class="availability-dot" aria-hidden="true"></span>
             {{ site.availability }}
           </span>
-          <span>Python · TypeScript · AI/ML</span>
+          <span>{{ site.location }} · @{{ site.handle }}</span>
         </div>
 
         <div class="hero__grid">
           <div data-reveal>
-            <p class="hero__kicker">Developer Portfolio &amp; Freelance Practice</p>
+            <p class="hero__kicker">Student · Freelancer · Entrepreneur</p>
             <h1 class="hero__name" id="hero-name">{{ site.owner_name }}</h1>
             <p class="hero__headline">
-              Building <em>practical web systems</em>, interactive interfaces, and
-              AI-driven applications from first principles.
+              Founder of <em>Palindrome</em> — engineering full-stack products,
+              interactive web experiences, and applied ML systems.
             </p>
           </div>
 
           <div class="hero__aside" data-reveal>
             <p class="hero__intro">
-              Computer Science Engineering student focused on full-stack web craftsmanship,
-              Python architecture, and applied machine learning — turning raw ideas into
-              fast, usable digital products.
+              Building consumer fintech concepts like Palindrome, sports analytics at KaiForge,
+              Alzheimer's ML research at NeuroShield, Rust engines, and bespoke client software.
             </p>
             <div class="hero__cta-group">
               <a href="#projects" class="btn btn--primary" data-cursor="EXPLORE">
                 <span>Explore My Work</span>
                 <span class="btn__arrow" aria-hidden="true">↗</span>
               </a>
-              <a href="#contact" class="btn btn--secondary" data-cursor="TALK">
+              <a href="#contact" class="btn btn--secondary" data-cursor="BUILD">
                 <span>Let's Work Together</span>
               </a>
             </div>
           </div>
         </div>
 
-        <!-- Integrated Portfolio & Awwwards Identity Block -->
-        <aside class="colophon" aria-label="Portfolio and Awwwards statement" data-reveal>
+        <!-- Integrated Portfolio & Palindrome Colophon -->
+        <aside class="colophon" aria-label="Portfolio and Palindrome statement" data-reveal>
           <div class="colophon__badge">
-            <strong>Awwwards Edition</strong>
-            <span>Custom Build · 01</span>
+            <strong>Palindrome Edition</strong>
+            <span>14 Public Repos · GitHub</span>
           </div>
           <div class="colophon__copy">
             <p class="colophon__lead">{{ site.intro_statement }}</p>
             <p class="colophon__awwwards">{{ site.awwwards_statement }}</p>
           </div>
           <div class="colophon__meta">
-            <span>Engineered in Python &amp; TypeScript</span>
-            <span>
-              Pallindrome Collaboration ·
-              <a href="{{ site.pallindrome_founder_github }}" target="_blank" rel="noopener noreferrer">
-                @antoniusjairus4
-              </a>
-            </span>
+            <span>Python · TypeScript · Rust</span>
+            <a href="{{ site.github_url }}" target="_blank" rel="noopener noreferrer">
+              github.com/{{ site.handle }} ↗
+            </a>
           </div>
         </aside>
       </div>
@@ -162,12 +158,12 @@
       <div class="container">
         <header class="section-header" data-reveal>
           <div>
-            <span class="eyebrow">Curated Archive</span>
+            <span class="eyebrow">Selected Work &amp; Repositories</span>
             <h2 class="section-title" id="projects-title">
-              Selected <em>Projects</em>
+              Shipped <em>Systems</em> &amp; Research
             </h2>
           </div>
-          <span class="section-index">01 — 04 / BUILDS</span>
+          <span class="section-index">01 — 06 / BUILDS</span>
         </header>
 
         <div class="projects-list">
@@ -185,9 +181,13 @@
               <p class="project-spread__desc">{{ project.description }}</p>
 
               <div class="project-spread__contribution">
-                <span class="project-spread__sublabel">My Contribution</span>
+                <span class="project-spread__sublabel">Role &amp; Contribution</span>
                 <p>{{ project.contribution }}</p>
               </div>
+
+              {% if project.disclaimer %}
+              <p class="project-spread__disclaimer">{{ project.disclaimer }}</p>
+              {% endif %}
 
               <ul class="tech-tags" aria-label="Technologies used in {{ project.name }}">
                 {% for tech in project.technologies %}
@@ -215,18 +215,8 @@
                   class="btn btn--on-dark"
                   data-cursor="LIVE"
                 >
-                  <span>Live Demo</span>
+                  <span>Live Site</span>
                   <span class="btn__arrow" aria-hidden="true">↗</span>
-                </a>
-                {% else %}
-                <a
-                  href="#contact"
-                  class="btn btn--on-dark"
-                  data-project-inquiry="{{ project.name }}"
-                  data-cursor="DEMO"
-                >
-                  <span>Request Demo</span>
-                  <span class="btn__arrow" aria-hidden="true">→</span>
                 </a>
                 {% endif %}
 
@@ -251,67 +241,67 @@
               </div>
             </div>
 
-            <!-- Custom Interactive Project Preview -->
-            <div class="project-preview" aria-label="{{ project.name }} interface preview">
+            <!-- Custom Interactive Architectural Preview -->
+            <div class="project-preview" aria-label="{{ project.name }} preview">
               <div class="project-preview__chrome">
-                <span>PREVIEW // {{ project.slug | upper }}</span>
+                <span>BUILD // {{ project.slug | upper }}</span>
                 <span class="project-preview__badge">{{ project.accent_label }}</span>
               </div>
 
-              {% if project.slug == "lostmatch-ai" %}
+              {% if project.slug == "palindrome" %}
               <div class="preview-stage">
                 <div class="preview-match-row">
                   <div class="preview-node">
-                    <span class="preview-node__label">Lost Input</span>
-                    <span class="preview-node__value">"Black leather cardholder near CS block"</span>
+                    <span class="preview-node__label">Item Context</span>
+                    <span class="preview-node__value">Everyday purchase relationships</span>
                   </div>
                   <div class="preview-vector-pulse">
-                    <span>NLP</span>
+                    <span>FLOW</span>
                     <span>⇄</span>
-                    <span>EMBED</span>
+                    <span>CLARITY</span>
                   </div>
                   <div class="preview-node">
-                    <span class="preview-node__label">Found Report</span>
-                    <span class="preview-node__value">"Dark wallet found by lecture hall"</span>
+                    <span class="preview-node__label">Pattern Layer</span>
+                    <span class="preview-node__value">Recurring spending signals</span>
                   </div>
                 </div>
                 <div class="preview-node">
-                  <span class="preview-node__label">Semantic Similarity Index</span>
+                  <span class="preview-node__label">Palindrome Financial Intelligence</span>
                   <div class="preview-bar-track" style="margin-top: 0.5rem;">
                     <div class="preview-bar-fill"></div>
                   </div>
                 </div>
               </div>
-              {% elif project.slug == "unigigs" %}
+              {% elif project.slug == "kaiforge" %}
               <div class="preview-stage">
                 <div class="preview-gigs-grid">
                   <div class="preview-gig-card preview-gig-card--active">
-                    <span class="preview-gig-card__tag">Campus · Web</span>
-                    <div class="preview-gig-card__title">Event Microsite Build</div>
-                    <div class="preview-gig-card__meta">Role: Frontend · Active</div>
+                    <span class="preview-gig-card__tag">Web · Analytics</span>
+                    <div class="preview-gig-card__title">Performance Dashboard</div>
+                    <div class="preview-gig-card__meta">TypeScript · Live</div>
                   </div>
                   <div class="preview-gig-card">
-                    <span class="preview-gig-card__tag">Campus · Python</span>
-                    <div class="preview-gig-card__title">Lab Data Parser Script</div>
-                    <div class="preview-gig-card__meta">Role: Automation · Open</div>
+                    <span class="preview-gig-card__tag">Mobile · Companion</span>
+                    <div class="preview-gig-card__title">Session Telemetry</div>
+                    <div class="preview-gig-card__meta">Cross-Platform Sync</div>
                   </div>
                   <div class="preview-gig-card">
-                    <span class="preview-gig-card__tag">Campus · UI</span>
-                    <div class="preview-gig-card__title">Club Portal Redesign</div>
-                    <div class="preview-gig-card__meta">Role: Design Eng · Open</div>
+                    <span class="preview-gig-card__tag">Data · Metrics</span>
+                    <div class="preview-gig-card__title">Match Comparison</div>
+                    <div class="preview-gig-card__meta">Structured Views</div>
                   </div>
                   <div class="preview-gig-card">
-                    <span class="preview-gig-card__tag">Campus · ML</span>
-                    <div class="preview-gig-card__title">Study Notes Classifier</div>
-                    <div class="preview-gig-card__meta">Role: NLP · Matching</div>
+                    <span class="preview-gig-card__tag">Platform</span>
+                    <div class="preview-gig-card__title">kaiforge.antoniusjairus.in</div>
+                    <div class="preview-gig-card__meta">Deployed Build</div>
                   </div>
                 </div>
               </div>
-              {% elif project.slug == "elevatr" %}
+              {% elif project.slug == "neuroshield" %}
               <div class="preview-stage">
                 <div class="preview-doc-frame">
                   <div class="preview-doc-sheet">
-                    <span class="preview-node__label">Structured Resume Canvas</span>
+                    <span class="preview-node__label">Research Loop · ADNI</span>
                     <div class="preview-line preview-line--accent"></div>
                     <div class="preview-line"></div>
                     <div class="preview-line preview-line--short"></div>
@@ -320,10 +310,10 @@
                   </div>
                   <div class="preview-doc-insights">
                     <div>
-                      <span class="preview-node__label">NLP Check</span>
-                      <p style="margin-top: 0.35rem;">Action verbs, role alignment, clean export layout.</p>
+                      <span class="preview-node__label">Observe · Test · Revise</span>
+                      <p style="margin-top: 0.35rem;">Experimental ML runs, graphs &amp; team evidence.</p>
                     </div>
-                    <span style="color: var(--accent);">SCHEMA VALIDATED</span>
+                    <span style="color: var(--accent);">6-PERSON RESEARCH TEAM</span>
                   </div>
                 </div>
               </div>
@@ -332,24 +322,18 @@
                 <div class="preview-storefront">
                   <div class="preview-storefront__hero">
                     <div>
-                      <span class="preview-node__label">Storefront System</span>
-                      <div class="preview-node__value">Responsive Editorial Grid</div>
+                      <span class="preview-node__label">{{ project.category }}</span>
+                      <div class="preview-node__value">{{ project.name }}</div>
                     </div>
-                    <span class="tech-tag">UI RECREATION</span>
+                    <span class="tech-tag">{{ project.technologies[0] }}</span>
                   </div>
                   <div class="preview-storefront__row">
+                    {% for tech in project.technologies[:3] %}
                     <div class="preview-swatch">
                       <div class="preview-swatch__box"></div>
-                      <span>Product Grid</span>
+                      <span>{{ tech }}</span>
                     </div>
-                    <div class="preview-swatch">
-                      <div class="preview-swatch__box"></div>
-                      <span>Filter State</span>
-                    </div>
-                    <div class="preview-swatch">
-                      <div class="preview-swatch__box"></div>
-                      <span>Cart Drawer</span>
-                    </div>
+                    {% endfor %}
                   </div>
                 </div>
               </div>
@@ -368,9 +352,9 @@
       <div class="container">
         <header class="section-header" data-reveal>
           <div>
-            <span class="eyebrow">Profile &amp; Direction</span>
+            <span class="eyebrow">01 / Identity</span>
             <h2 class="section-title" id="about-title">
-              About <em>Nithyashri</em>
+              About <em>Antonius Jairus</em>
             </h2>
           </div>
           <span class="section-index">02 / BACKGROUND</span>
@@ -379,62 +363,60 @@
         <div class="about-grid">
           <dl class="about-specs" data-reveal>
             <div class="about-specs__row">
-              <dt>Discipline</dt>
-              <dd>Computer Science Engineering</dd>
+              <dt>Name</dt>
+              <dd>{{ site.full_name }}</dd>
             </div>
             <div class="about-specs__row">
-              <dt>Core Focus</dt>
-              <dd>Web Development &amp; AI/ML</dd>
+              <dt>Base</dt>
+              <dd>{{ site.location }}</dd>
             </div>
             <div class="about-specs__row">
-              <dt>Primary Backend</dt>
-              <dd>Python</dd>
+              <dt>Venture</dt>
+              <dd>Founder of Palindrome</dd>
             </div>
             <div class="about-specs__row">
-              <dt>Frontend Craft</dt>
-              <dd>HTML, CSS, TypeScript, React</dd>
+              <dt>Disciplines</dt>
+              <dd>Full-Stack · 3D Web · Android · ML</dd>
             </div>
             <div class="about-specs__row">
-              <dt>Current Mode</dt>
-              <dd>Building &amp; Open to Freelance</dd>
+              <dt>Security</dt>
+              <dd>CDAC BOSS-OS Bug Bounty Team</dd>
             </div>
           </dl>
 
           <div data-reveal>
             <p class="about-editorial__lead">
-              A Computer Science Engineering student building software where clean web engineering
-              meets practical machine intelligence.
+              Engineering student, freelancer, and builder turning ambitious product ideas into
+              live, custom-crafted software.
             </p>
 
             <div class="about-editorial__body">
               <p>
-                My work sits at the intersection of structured frontend craft and Python-driven
-                backend systems. Rather than treating interfaces and intelligence as separate
-                worlds, I build end-to-end applications — from semantic matching in LostMatch AI
-                and NLP workflows in ElevaTr to responsive platforms like UniGigs and Paceline.
+                Based in Coimbatore, I build across the full stack — from interactive 3D and
+                TypeScript web experiences to custom client operations software, Android tools,
+                Rust chess engines, and machine-learning research with ADNI neuroimaging datasets.
               </p>
               <p>
-                I like understanding how things work beneath abstractions: writing custom layouts
-                without relying on heavy visual templates, modeling data cleanly in SQL, and
-                experimenting with new tools whenever a problem calls for a sharper approach.
+                Through Palindrome, I focus both on consumer financial intelligence and on partnering
+                with startups that need a sharp, hands-on engineering team ready to ship real code.
               </p>
             </div>
 
             <div class="about-pillars">
               <div class="about-pillar">
                 <span class="about-pillar__num">01</span>
-                <h3>Practical Builds</h3>
-                <p>Software aimed at concrete everyday friction — campus gigs, lost items, and clear resumes.</p>
+                <h3>Product &amp; Client Builds</h3>
+                <p>Shipped bespoke systems for businesses, scientists, and sports analytics platforms.</p>
               </div>
               <div class="about-pillar">
                 <span class="about-pillar__num">02</span>
-                <h3>Technical Exploration</h3>
-                <p>Testing ideas across Python APIs, NLP pipelines, TypeScript interactions, and custom UI.</p>
+                <h3>Systems &amp; Research</h3>
+                <p>From Rust chess analysis (Mfalmion) to Python ML experimentation (NeuroShield).</p>
               </div>
               <div class="about-pillar">
                 <span class="about-pillar__num">03</span>
-                <h3>Visual Discipline</h3>
-                <p>Typography, hierarchy, and responsive execution treated as core engineering details.</p>
+                <h3>Competitive Discipline</h3>
+                <p>State-level athletics, 2198 Bullet chess, and national stages shape how I execute.</p>
               </div>
             </div>
           </div>
@@ -443,15 +425,15 @@
     </section>
 
     <!-- ====================================================================
-         04 / SKILLS & TECHNOLOGIES
+         04 / SKILLS & CAPABILITY LANDSCAPE
          ==================================================================== -->
     <section class="section" id="skills" aria-labelledby="skills-title">
       <div class="container">
         <header class="section-header" data-reveal>
           <div>
-            <span class="eyebrow">Technical Matrix</span>
+            <span class="eyebrow">Capability Landscape</span>
             <h2 class="section-title" id="skills-title">
-              Skills &amp; <em>Technologies</em>
+              Different disciplines. <em>One system.</em>
             </h2>
           </div>
           <span class="section-index">03 / INTERACTIVE STACK</span>
@@ -510,7 +492,7 @@
             <p class="skill-inspector__summary" id="inspector-summary">{{ first_skill.summary }}</p>
 
             <div class="skill-inspector__projects">
-              <span class="skill-inspector__projects-label">Applied in Projects</span>
+              <span class="skill-inspector__projects-label">Applied in Builds</span>
               <div class="skill-project-links" id="inspector-projects">
                 {% for slug in first_skill.projects %}
                 <a href="#project-{{ slug }}" class="skill-project-chip">{{ slug | replace('-', ' ') }}</a>
@@ -523,28 +505,62 @@
     </section>
 
     <!-- ====================================================================
-         05 / FREELANCE SECTION
+         05 / BEYOND THE CODE — ACHIEVEMENTS
+         ==================================================================== -->
+    <section class="section" id="beyond" aria-labelledby="beyond-title">
+      <div class="container">
+        <header class="section-header" data-reveal>
+          <div>
+            <span class="eyebrow">The Performance Archive</span>
+            <h2 class="section-title" id="beyond-title">
+              Beyond <em>the Code</em>
+            </h2>
+          </div>
+          <span class="section-index">04 / ACHIEVEMENTS</span>
+        </header>
+
+        <div class="disciplines-grid" data-reveal>
+          {% for item in disciplines %}
+          <article class="discipline-card">
+            <div class="discipline-card__top">
+              <span>{{ item.code }}</span>
+              <span class="discipline-card__metric">{{ item.metric }}</span>
+            </div>
+            <h3 class="discipline-card__title">{{ item.title }}</h3>
+            <p class="discipline-card__sub">{{ item.subtitle }}</p>
+            <ul class="discipline-card__list">
+              {% for line in item.highlights %}
+              <li>{{ line }}</li>
+              {% endfor %}
+            </ul>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         06 / FREELANCE & PALINDROME STUDIO
          ==================================================================== -->
     <section class="section section--dark" id="freelance" aria-labelledby="freelance-title">
       <div class="container">
         <header class="section-header" data-reveal>
           <div>
-            <span class="eyebrow">Freelance &amp; Collaborations</span>
+            <span class="eyebrow">Work With Me · Palindrome</span>
             <h2 class="section-title" id="freelance-title">
               Have an idea? <em>Let's build it.</em>
             </h2>
           </div>
-          <span class="section-index">04 / SERVICES</span>
+          <span class="section-index">05 / SERVICES</span>
         </header>
 
         <div class="freelance-intro" data-reveal>
           <p class="freelance-intro__lead">
-            Whether you are shaping an early product prototype, a custom web interface, or an
-            AI-assisted tool, I am open to discussing ideas, technical builds, and creative
-            collaborations.
+            Get custom software and full-stack web applications — or partner with Palindrome
+            when your startup needs a dedicated technical team to build and ship.
           </p>
           <p class="freelance-intro__note">
-            Select any track below to pre-fill the project brief form directly with your scope.
+            Select any capability track below to pre-fill the inquiry form with your project scope.
           </p>
         </div>
 
@@ -569,7 +585,7 @@
                 data-select-track="{{ track.title }}"
                 data-cursor="SELECT"
               >
-                Discuss this scope →
+                Scope this build →
               </a>
             </div>
           </article>
@@ -578,13 +594,13 @@
 
         <div class="freelance-banner-cta" data-reveal>
           <div>
-            <span class="eyebrow">Open Conversation</span>
+            <span class="eyebrow">Your startup needs a tech team?</span>
             <p style="margin-top: 0.45rem; color: var(--ink-on-dark);">
-              Not sure which category fits best? Share a rough outline and we can scope it together.
+              Reach out directly to discuss custom web apps, interactive launches, or collaborations.
             </p>
           </div>
           <a href="#contact" class="btn btn--on-dark" data-cursor="START">
-            <span>Start a Project Inquiry</span>
+            <span>Start a Conversation</span>
             <span class="btn__arrow" aria-hidden="true">→</span>
           </a>
         </div>
@@ -592,84 +608,78 @@
     </section>
 
     <!-- ====================================================================
-         06 / CONTACT SECTION
+         07 / CONTACT SECTION
          ==================================================================== -->
     <section class="section" id="contact" aria-labelledby="contact-title">
       <div class="container">
         <header class="section-header" data-reveal>
           <div>
-            <span class="eyebrow">Get In Touch</span>
+            <span class="eyebrow">Let's Collaborate</span>
             <h2 class="section-title" id="contact-title">
-              Connect &amp; <em>Collaborate</em>
+              Connect with <em>Antonius</em>
             </h2>
           </div>
-          <span class="section-index">05 / INQUIRY</span>
+          <span class="section-index">06 / CONTACT</span>
         </header>
 
         <div class="contact-layout">
           <div data-reveal>
             <p class="contact-copy">
-              Open to freelance projects, technical collaborations, and conversations around web
-              engineering and AI/ML.
+              Find my repos interesting or want to build something ambitious together? Let's talk.
             </p>
 
             <div class="contact-channels">
               <div class="contact-channel">
                 <div>
                   <span class="contact-channel__label">Email</span>
-                  {% if site.contact_email %}
                   <span class="contact-channel__value">{{ site.contact_email }}</span>
-                  {% else %}
-                  <span class="contact-channel__value">Direct inquiry via Python form</span>
-                  {% endif %}
                 </div>
-                {% if site.contact_email %}
-                <a href="mailto:{{ site.contact_email }}" class="contact-channel__action">Email ↗</a>
-                {% else %}
-                <button type="button" class="contact-channel__action" data-focus-form>
-                  Write Note →
-                </button>
-                {% endif %}
+                <div class="contact-channel__actions">
+                  <button
+                    type="button"
+                    class="contact-channel__action"
+                    data-copy-email="{{ site.contact_email }}"
+                  >
+                    Copy
+                  </button>
+                  <a href="mailto:{{ site.contact_email }}" class="contact-channel__action">
+                    Mail ↗
+                  </a>
+                </div>
               </div>
 
               <div class="contact-channel">
                 <div>
                   <span class="contact-channel__label">GitHub</span>
-                  <span class="contact-channel__value">github.com/i-nithi</span>
+                  <span class="contact-channel__value">github.com/{{ site.handle }}</span>
                 </div>
-                <a
-                  href="{{ site.github_url }}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="contact-channel__action"
-                >
-                  Profile ↗
-                </a>
+                <div class="contact-channel__actions">
+                  <a
+                    href="{{ site.github_url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="contact-channel__action"
+                  >
+                    Profile ↗
+                  </a>
+                </div>
               </div>
 
               <div class="contact-channel">
                 <div>
                   <span class="contact-channel__label">LinkedIn</span>
-                  {% if site.linkedin_url %}
-                  <span class="contact-channel__value">Connect on LinkedIn</span>
-                  {% else %}
-                  <span class="contact-channel__value">Available upon direct inquiry</span>
-                  {% endif %}
+                  <span class="contact-channel__value">linkedin.com/in/{{ site.handle }}</span>
                 </div>
-                {% if site.linkedin_url %}
-                <a
-                  href="{{ site.linkedin_url }}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="contact-channel__action"
-                >
-                  Connect ↗
-                </a>
-                {% else %}
-                <button type="button" class="contact-channel__action" data-focus-form>
-                  Request →
-                </button>
-                {% endif %}
+                <div class="contact-channel__actions">
+                  <a
+                    href="{{ site.linkedin_url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="contact-channel__action"
+                  >
+                    Connect ↗
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -729,7 +739,7 @@
                   required
                   minlength="15"
                   maxlength="2500"
-                  placeholder="Tell me about what you want to build, your goals, and timeline..."
+                  placeholder="Share what you're building, scope, and timeline..."
                 ></textarea>
                 <div class="form-field__meta">
                   <span class="form-field__error" id="error-description"></span>
@@ -755,11 +765,13 @@
 
   <footer class="site-footer">
     <div class="container site-footer__inner">
-      <span>© 2026 {{ site.owner_name }} — Built from scratch with Python, HTML, CSS &amp; TypeScript.</span>
+      <span>© 2026 {{ site.full_name }} · Founder of Palindrome · {{ site.location }}.</span>
       <div class="site-footer__links">
-        <a href="{{ site.github_url }}" target="_blank" rel="noopener noreferrer">GitHub (@i-nithi)</a>
-        <a href="{{ site.pallindrome_founder_github }}" target="_blank" rel="noopener noreferrer">Pallindrome Founder</a>
-        <a href="#hero">Back to top ↑</a>
+        <a href="{{ site.github_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="{{ site.linkedin_url }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="{{ site.x_url }}" target="_blank" rel="noopener noreferrer">X</a>
+        <a href="{{ site.website_url }}" target="_blank" rel="noopener noreferrer">antoniusjairus.in</a>
+        <a href="#hero">Top ↑</a>
       </div>
     </div>
   </footer>

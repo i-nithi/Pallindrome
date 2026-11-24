@@ -5,6 +5,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { initHeroSculpture, type HeroSculptureController } from "./heroSculpture";
+import { initGlowCursor, type GlowCursorController } from "./glowCursor";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -672,8 +673,51 @@ function initServicesAndContactForm(): void {
   });
 }
 
+function initSiteGlowCursor(): void {
+  const layer = document.getElementById("glow-cursor-layer");
+  const canvas = document.getElementById("glow-cursor-canvas") as HTMLCanvasElement | null;
+  if (!layer || !canvas) return;
+
+  const root = document.documentElement;
+  const cursor: GlowCursorController | null = initGlowCursor(layer, canvas, {
+    colors: [
+      ["#00D9FF", "#8B00FF"],
+      ["#EF00CF", "#0066FF"],
+      ["#8B00FF", "#00D9FF"],
+      ["#0066FF", "#EF00CF"],
+    ],
+    burstAccentColor: "#FFC900",
+    intensity: 1.25,
+    trailWidth: 3,
+    linger: 1.4,
+    glow: 1.15,
+    hotspot: 0.78,
+    followSpeed: 0.6,
+    grain: 0.015,
+    clickBurst: true,
+    enabled: !root.classList.contains("intro-active"),
+  });
+
+  if (!cursor) {
+    layer.remove();
+    return;
+  }
+
+  // Enable fluid cursor once any first-visit intro video finishes
+  if (root.classList.contains("intro-active")) {
+    const observer = new MutationObserver(() => {
+      if (!root.classList.contains("intro-active")) {
+        cursor.setEnabled(true);
+        observer.disconnect();
+      }
+    });
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initHeroAndIntroExperience();
+  initSiteGlowCursor();
   initMagneticControls();
   initScrollProgressAndNav();
   initScrollReveals();

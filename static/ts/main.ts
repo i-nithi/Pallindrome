@@ -49,12 +49,14 @@ function initHeroAndIntroExperience(): void {
   // Initialize WebGL sculpture immediately so it is ready before the video ends
   let sculpture: HeroSculptureController | null = null;
   if (hero && heroCanvas) {
-    sculpture = initHeroSculpture(heroCanvas, hero, {
-      reducedMotion: reduced,
-      onFallback: () => {
-        hero.classList.add("is-webgl-fallback");
-      },
-    });
+    try {
+      sculpture = initHeroSculpture(heroCanvas, hero, {
+        reducedMotion: reduced,
+        onFallback: () => hero.classList.add("is-webgl-fallback"),
+      });
+    } catch {
+      hero.classList.add("is-webgl-fallback");
+    }
   } else if (hero) {
     hero.classList.add("is-webgl-fallback");
   }
@@ -678,6 +680,21 @@ function initProofOfWork(): void {
   const exhibition = document.querySelector<HTMLElement>('[data-proof-exhibition]');
   if (!section || !stage || !panel || !intro || !exhibition) return;
   const mm = gsap.matchMedia();
+  mm.add('(max-width: 900px) and (prefers-reduced-motion: no-preference)', () => {
+    const context = gsap.context(() => {
+      gsap.fromTo(intro, { scale: .92, borderRadius: 20 }, {
+        scale: 1, borderRadius: 0, ease: 'none',
+        scrollTrigger: { trigger: intro, start: 'top 90%', end: 'bottom 65%', scrub: true },
+      });
+      section.querySelectorAll<HTMLElement>('.proof-mobile-image').forEach((image) => {
+        gsap.fromTo(image, { y: 24, opacity: .75 }, {
+          y: 0, opacity: 1, ease: 'none',
+          scrollTrigger: { trigger: image, start: 'top 95%', end: 'top 55%', scrub: true },
+        });
+      });
+    }, section);
+    return () => context.revert();
+  });
   mm.add('(min-width: 901px) and (prefers-reduced-motion: no-preference)', () => {
     section.classList.add('is-cinematic');
     const projects = gsap.utils.toArray<HTMLElement>('[data-project]', section);

@@ -1,0 +1,46 @@
+/* Phone and tablet layouts keep the same visual language without desktop pinning. */
+@media (max-width: 900px) {
+  .hero { min-height: 100svh; align-items: center; }
+  .hero__content { padding-top: calc(var(--nav-height) + 2.5rem); padding-bottom: 3.5rem; }
+  .hero__vignette { background: linear-gradient(180deg, rgba(0,0,0,.28), rgba(0,0,0,.22) 35%, rgba(5,5,7,.72) 78%, #050507); }
+  .hero__fallback-halo { right: -8%; top: 38%; }
+  .hero__fallback-ring { right: 0; top: 38%; }
+  .hero__fallback-void { right: 16%; top: 38%; }
+  .proof-stage { min-height: 0; }
+  .proof-intro { position: relative; min-height: min(70svh, 600px); overflow: hidden; padding: 3rem 1.25rem; text-align: center; }
+  .proof-intro h2 { max-width: 100%; font-size: clamp(2.75rem, 11vw, 6rem); line-height: .92; letter-spacing: -.055em; overflow-wrap: normal; margin: 1.5rem 0; }
+  .proof-intro p { line-height: 1.7; }
+  .proof-project { position: relative; isolation: isolate; overflow: hidden; padding: 5rem var(--gutter); }
+  .proof-project::before { content: ""; position: absolute; z-index: -2; inset: -35px; background: var(--project-image) center/cover no-repeat; filter: blur(20px) brightness(.55); }
+  .proof-project::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.48) 48%, rgba(0,0,0,.86)); }
+  .proof-project h3 { font-size: clamp(2.3rem, 9vw, 4rem); overflow-wrap: anywhere; }
+  .proof-project__right p { color: #f0f0f2; }
+  .proof-project .proof-kicker, .proof-project .proof-project__type, .proof-project .proof-status, .proof-project .proof-private { color: #d5d5da; }
+  .proof-mobile-image { width: 100%; height: auto; max-height: none; aspect-ratio: 16/10; object-fit: cover; box-shadow: 0 16px 45px #0008; }
+  .lab { padding-top: 5rem; padding-bottom: 4rem; }
+  .lab h2 { font-size: clamp(2.6rem, 10vw, 5rem); }
+  .lab-grid { overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
+  .lab-item { flex-basis: min(85%, 360px); }
+  .lab-cta .hero-btn { width: auto; }
+  .skills-workbench, .founder-layout, .contact-layout, .services-grid, .form-grid { min-width: 0; }
+  .skill-row, .skill-inspector, .founder-card, .contact-form, .service-card { min-width: 0; }
+  .contact-channel__value { overflow-wrap: anywhere; }
+}
+@media (max-width: 640px) {
+  .hero__content { padding-top: calc(var(--nav-height) + 2rem); padding-bottom: 3rem; }
+  .hero__title { font-size: clamp(2.15rem, 10vw, 3.25rem); }
+  .hero__eyebrow { font-size: .6rem; letter-spacing: .14em; }
+  .hero__lower { margin-top: 1.4rem; gap: 1.15rem; }
+  .hero__copy { font-size: .95rem; }
+  .hero__actions { gap: .6rem; }
+  .hero__actions .hero-btn { padding-block: .8rem; }
+  .section-header, .section-title, .founder-card__name { min-width: 0; overflow-wrap: anywhere; }
+  .proof-project h3 { font-size: clamp(2rem, 8.6vw, 3.3rem); }
+  .lab-item { flex-basis: 88%; }
+  .contact-form { padding: 1.2rem; }
+  .form-field input, .form-field select, .form-field textarea { font-size: 16px; }
+  .mobile-drawer { padding-bottom: max(2rem, env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .proof-project::before { filter: blur(20px) brightness(.55); }
+}

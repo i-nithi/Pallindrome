@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pallindrome — Build Your Digital Presence</title>
+  <meta
+    name="description"
+    content="Pallindrome — Freelancing company in Coimbatore, India building custom websites, full-stack web applications, and Android apps. Founded by Antonius Jairus R."
+  />
+  <meta name="theme-color" content="#050507" />
+  <link rel="icon" type="image/svg+xml" href="/static/img/pallindrome-logo.svg" />
+  <link rel="apple-touch-icon" href="/static/img/pallindrome-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/static/css/tokens.css" />
+  <link rel="stylesheet" href="/static/css/layout.css" />
+  <link rel="stylesheet" href="/static/css/sections.css" />
+  <link rel="stylesheet" href="/static/css/work.css" />
+  <script>
+    document.documentElement.classList.add("js-enhanced");
+    try {
+      var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduceMotion) {
+        document.documentElement.classList.add("intro-active");
+      }
+    } catch (e) {
+      // Storage unavailable; skip intro splash
+    }
+  </script>
+</head>
+<body>
+  <!-- First-visit Intro Video Splash -->
+  <div
+    class="intro-splash"
+    id="intro-splash"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Pallindrome intro"
+  >
+    <video
+      class="intro-splash__video"
+      id="intro-video"
+      data-src="/static/video/palindrome-logo-reveal.mp4"
+      muted
+      playsinline
+      preload="none"
+    ></video>
+  </div>
+
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+  <!-- Interactive Fluid GlowCursor Layer -->
+  <div class="glow-cursor-layer" id="glow-cursor-layer" aria-hidden="true">
+    <canvas class="glow-cursor__canvas" id="glow-cursor-canvas"></canvas>
+  </div>
+
+  <!-- Minimal Studio Masthead -->
+  <header class="masthead" id="masthead">
+    <div class="masthead__inner">
+      <a href="#hero" class="brand-mark" data-magnetic>
+        <img
+          src="/static/img/pallindrome-logo.svg"
+          alt="Pallindrome logo"
+          class="brand-mark__logo"
+          width="34"
+          height="34"
+        />
+        <span class="brand-mark__text">Pallindrome</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#services" data-nav-link><span>Services</span></a>
+        <a href="#work" data-nav-link><span>Proof of Work</span></a>
+        <a href="#capabilities" data-nav-link><span>Stack</span></a>
+        <a href="#founder" data-nav-link><span>Founder</span></a>
+        <a href="#contact" data-nav-link><span>Connect</span></a>
+      </nav>
+
+      <div class="masthead__actions">
+        <span class="availability-indicator" title="Accepting new client projects">
+          <span class="availability-indicator__dot" aria-hidden="true"></span>
+          <span class="availability-indicator__label">Available</span>
+        </span>
+        <a href="#contact" class="nav-cta" data-magnetic>
+          <span>Start a project</span>
+          <span class="nav-cta__arrow" aria-hidden="true">↗</span>
+        </a>
+        <button
+          type="button"
+          class="menu-toggle"
+          id="menu-toggle"
+          aria-label="Open navigation menu"
+          aria-expanded="false"
+          aria-controls="mobile-drawer"
+        >
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Overlay -->
+  <div class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
+    <nav aria-label="Mobile navigation">
+      <ul class="mobile-drawer__list">
+        <li><a href="#services" data-drawer-link>Services &amp; Pricing <span>01</span></a></li>
+        <li><a href="#work" data-drawer-link>Proof of Work <span>02</span></a></li>
+        <li><a href="#capabilities" data-drawer-link>Technical Stack <span>03</span></a></li>
+        <li><a href="#founder" data-drawer-link>Founder <span>04</span></a></li>
+        <li><a href="#contact" data-drawer-link>Let's Connect <span>05</span></a></li>
+      </ul>
+    </nav>
+    <div class="mobile-drawer__footer">
+      <div class="mobile-drawer__status">
+        <span class="availability-indicator__dot" aria-hidden="true"></span>
+        <span>Accepting new client projects</span>
+      </div>
+      <a href="#contact" class="hero-btn hero-btn--primary" data-drawer-link>
+        <span>Start a project</span>
+        <span class="hero-btn__arrow" aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </div>
+
+  <main id="main-content">
+    <!-- ====================================================================
+         01 / HERO SECTION — PALINDROME LABS
+         ==================================================================== -->
+    <section class="hero" id="hero" aria-labelledby="hero-headline">
+      <div class="hero__stage" aria-hidden="true">
+        <canvas class="hero__canvas" id="hero-canvas"></canvas>
+        <div class="hero__fallback" id="hero-fallback">
+          <div class="hero__fallback-halo"></div>
+          <div class="hero__fallback-ring"></div>
+          <div class="hero__fallback-void"></div>
+        </div>
+        <div class="hero__vignette"></div>
+      </div>
+
+      <div class="hero__content" id="hero-content">
+        <div class="hero__editorial">
+          <p class="hero__eyebrow" data-hero-stagger>
+            <span class="hero__eyebrow-mark" aria-hidden="true"></span>
+            <span>DESIGN. ENGINEERING. EXPERIENCE.</span>
+          </p>
+
+          <h1 class="hero__title" id="hero-headline">
+            <span class="hero__line"><span class="hero__line-inner">Engineering</span></span>
+            <span class="hero__line"><span class="hero__line-inner">Concepts</span></span>
+            <span class="hero__line"><span class="hero__line-inner">Into Craft<span class="hero__period">.</span></span></span>
+          </h1>
+
+          <div class="hero__lower">
+            <p class="hero__copy" data-hero-stagger>
+              Digital experiences designed to be remembered. Software engineered to last.
+            </p>
+
+            <div class="hero__actions" data-hero-stagger>
+              <a href="#contact" class="hero-btn hero-btn--primary" data-magnetic>
+                <span>Start a project</span>
+                <span class="hero-btn__arrow" aria-hidden="true">↗</span>
+              </a>
+              <a href="#work" class="hero-btn hero-btn--ghost" data-magnetic>
+                <span>Explore our work</span>
+                <span class="hero-btn__arrow" aria-hidden="true">→</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <a href="#work" class="hero__scroll" id="hero-scroll" aria-label="Scroll to proof of work">
+        <span class="hero__scroll-label">Scroll</span>
+        <span class="hero__scroll-line" aria-hidden="true"></span>
+      </a>
+    </section>
+
+    <section class="proof" id="work" aria-labelledby="work-title">
+      <div class="proof-stage" data-proof-stage>
+        <div class="proof-panel" data-proof-panel>
+          <div class="proof-intro" data-proof-intro><span class="proof-kicker">02 / SELECTED WORK</span><h2 id="work-title">SOME OF<br>MY WORKS<span>.</span></h2><p>SCROLL TO EXPLORE <span>↓</span></p></div>
+          <div class="proof-exhibition" data-proof-exhibition>
+            <div class="proof-backgrounds" aria-hidden="true"><div class="proof-background" style="background-image:url('/static/img/work/campion.webp')"></div><div class="proof-background" style="background-image:url('/static/img/work/yogesh.webp')"></div><div class="proof-background" style="background-image:url('/static/img/work/chit-fund.webp')"></div><div class="proof-background" style="background-image:url('/static/img/work/kaiforge.webp')"></div></div>
+            <div class="proof-shade" aria-hidden="true"></div>
+            <div class="proof-film" aria-hidden="true"><div class="proof-frame"><img src="/static/img/work/campion.webp" alt="" width="1448" height="1086" ></div><div class="proof-frame"><img src="/static/img/work/yogesh.webp" alt="" width="1448" height="1086" loading="lazy"></div><div class="proof-frame"><img src="/static/img/work/chit-fund.webp" alt="" width="1448" height="1086" loading="lazy"></div><div class="proof-frame"><img src="/static/img/work/kaiforge.webp" alt="" width="1448" height="1086" loading="lazy"></div></div>
+            <div class="proof-editorial"><article class="proof-project" id="project-campion" data-project>
+              <div class="proof-project__left"><span class="proof-image-description">Campion school website redesign displayed on a desktop monitor in a workspace</span><span class="proof-kicker">01 / Education / Institutional website</span><h3>Campion<span>.</span></h3><span class="proof-project__type">Client project</span></div>
+              <img class="proof-mobile-image" src="/static/img/work/campion.webp" alt="Campion school website redesign displayed on a desktop monitor in a workspace" loading="lazy" width="1448" height="1086">
+              <div class="proof-project__right"><p>Reimagining the digital presence of an educational institution through a thoughtfully structured, responsive and modern website experience.</p><ul><li>Institutional website</li><li>Responsive UI/UX</li><li>Digital branding</li><li>Academic content</li></ul><p class="proof-status">Website redesign / Under renovation</p><a href="https://campiontrichy.com/" target="_blank" rel="noopener noreferrer">Visit Website <span aria-hidden="true">↗</span></a></div>
+            </article><article class="proof-project" id="project-zsi-yogesh" data-project>
+              <div class="proof-project__left"><span class="proof-image-description">Marine-inspired scientific portfolio displayed on a laptop</span><span class="proof-kicker">02 / Science / Research / Digital archive</span><h3>Yogesh Kumar<span>.</span></h3><span class="proof-project__type">Client project</span></div>
+              <img class="proof-mobile-image" src="/static/img/work/yogesh.webp" alt="Marine-inspired scientific portfolio displayed on a laptop" loading="lazy" width="1448" height="1086">
+              <div class="proof-project__right"><p>An immersive scientific portfolio and marine specimen archive designed for a Scientist E at the Zoological Survey of India, presenting coral taxonomy, marine biodiversity and reef research through a distinctive digital experience.</p><ul><li>Scientific portfolio</li><li>Specimen archive</li><li>Creative frontend</li><li>Research presentation</li></ul><p class="proof-status">Scientific portfolio</p><a href="https://yogesh-teal.vercel.app/" target="_blank" rel="noopener noreferrer">Explore Website <span aria-hidden="true">↗</span></a></div>
+            </article><article class="proof-project" id="project-rajamanickam-chit-fund" data-project>
+              <div class="proof-project__left"><span class="proof-image-description">Financial administration dashboard displayed on a tablet, with figures obscured</span><span class="proof-kicker">03 / Business automation / Custom software</span><h3>Rajamanickam Chit Fund<span>.</span></h3><span class="proof-project__type">Private client application</span></div>
+              <img class="proof-mobile-image" src="/static/img/work/chit-fund.webp" alt="Financial administration dashboard displayed on a tablet, with figures obscured" loading="lazy" width="1448" height="1086">
+              <div class="proof-project__right"><p>A custom-built financial administration platform designed to simplify member management, auctions, installment records and payment tracking through a centralized administrative interface.</p><ul><li>Custom software</li><li>Full-stack development</li><li>Admin dashboards</li><li>Workflow automation</li></ul><p class="proof-status">Restricted access</p><span class="proof-private">Private client application</span></div>
+            </article><article class="proof-project" id="project-kaiforge" data-project>
+              <div class="proof-project__left"><span class="proof-image-description">KaiForge table tennis performance dashboard displayed on a smartphone</span><span class="proof-kicker">04 / Sports technology / Independent product</span><h3>KaiForge<span>.</span></h3><span class="proof-project__type">Independent product</span></div>
+              <img class="proof-mobile-image" src="/static/img/work/kaiforge.webp" alt="KaiForge table tennis performance dashboard displayed on a smartphone" loading="lazy" width="1448" height="1086">
+              <div class="proof-project__right"><p>A dedicated table tennis training and performance-tracking platform designed to help players record matches, monitor practice and understand their performance through meaningful analytics.</p><ul><li>Product engineering</li><li>Sports analytics</li><li>Match tracking</li><li>Full-stack application</li></ul><p class="proof-status">Independent product</p><a href="https://kaiforge.antoniusjairus.in/" target="_blank" rel="noopener noreferrer">Explore KaiForge <span aria-hidden="true">↗</span></a></div>
+            </article></div>
+            <div class="proof-bottom"><div class="proof-count"><span data-proof-count>01</span> <span>/ 04</span></div><div class="proof-progress"><span data-proof-progress></span></div><nav aria-label="Select a flagship project"><button type="button" data-proof-nav="0"><span>01</span> Campion</button><button type="button" data-proof-nav="1"><span>02</span> Yogesh Kumar</button><button type="button" data-proof-nav="2"><span>03</span> Chit Fund</button><button type="button" data-proof-nav="3"><span>04</span> KaiForge</button></nav></div>
+          </div>
+        </div>
+      </div>
+      <div class="lab"><div class="lab-inner"><header class="lab-header"><div><span class="proof-kicker">02 / ENGINEERING LAB</span><h2>Inside the Lab<span>.</span></h2></div><p>Beyond client projects, we explore algorithms, automation and experimental software engineering.</p></header>
+        <div class="lab-grid"><article class="lab-item"><div class="lab-art lab-art--chess" aria-hidden="true">
+          <svg class="lab-visual lab-visual--chess" viewBox="0 0 200 100" fill="none" aria-hidden="true">
+            <path class="lab-grid-lines" d="M13 79H108M23 62H116M33 45H123M43 28H131M23 79L51 28M51 79L72 28M79 79L94 28M107 79L116 45"/>
+            <path class="lab-knight" d="M58 68h37l-3-8-6-3 2-11-6-14-12-6-10 5-6 12 8-2 6 6-8 9-5 5z"/>
+            <path class="lab-knight-detail" d="M63 44l9 5 7-2M72 36h.1M56 68h41"/>
+            <path class="lab-eval" d="M126 69h55M126 60l10-3 9 2 9-9 9 3 15-15"/>
+            <circle class="lab-pulse lab-pulse--one" cx="154" cy="50" r="2.5"/><circle class="lab-pulse lab-pulse--two" cx="178" cy="38" r="2.5"/>
+          </svg>
+          </div><div class="lab-item__meta">01 / Native desktop software</div><h3>Mfalmion</h3><p>A local-first native chess analysis application integrating Stockfish-powered position analysis, legal move handling and persistent game libraries.</p><div class="lab-tech">Rust · egui · wgpu · Stockfish · SQLite</div><a href="https://github.com/antoniusjairus4/Mfalmion" target="_blank" rel="noopener noreferrer" aria-label="View Mfalmion on GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.54v-2.12c-3.1.67-3.75-1.31-3.75-1.31-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.68.08-.68 1.11.08 1.7 1.14 1.7 1.14.99 1.69 2.59 1.2 3.22.92.1-.72.39-1.2.7-1.48-2.47-.28-5.07-1.24-5.07-5.49 0-1.21.43-2.2 1.14-2.98-.12-.28-.5-1.41.1-2.94 0 0 .93-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.43 3.04-1.14 3.04-1.14.6 1.53.22 2.66.1 2.94.71.78 1.14 1.77 1.14 2.98 0 4.26-2.6 5.2-5.08 5.48.4.35.75 1.02.75 2.06v3.1c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg> View repository <span>↗</span></a></article><article class="lab-item"><div class="lab-art lab-art--graph" aria-hidden="true">
+          <svg class="lab-visual lab-visual--graph" viewBox="0 0 200 100" fill="none" aria-hidden="true">
+            <path class="lab-graph-edges" d="M100 16L55 43M100 16L145 43M55 43L30 75M55 43L78 75M145 43L122 75M145 43L170 75"/>
+            <path class="lab-graph-traverse" d="M30 75L55 43L100 16L145 43L170 75"/>
+            <g class="lab-graph-nodes"><circle cx="100" cy="16" r="5"/><circle cx="55" cy="43" r="4.5"/><circle cx="145" cy="43" r="4.5"/><circle cx="30" cy="75" r="4"/><circle cx="78" cy="75" r="4"/><circle cx="122" cy="75" r="4"/><circle cx="170" cy="75" r="4"/></g>
+            <circle class="lab-traversal-dot" r="3"><animateMotion dur="5s" repeatCount="indefinite" path="M30 75L55 43L100 16L145 43L170 75"/></circle>
+          </svg>
+          </div><div class="lab-item__meta">02 / Core engineering</div><h3>Data Structures &amp; Algorithms</h3><p>A structured C++ engineering repository exploring algorithms, data structures, object-oriented programming and computational problem solving.</p><div class="lab-tech">C++17 · DSA · Algorithms · OOP</div><a href="https://github.com/antoniusjairus4/Data-Structures-Algorithm-and-Design-Techniques" target="_blank" rel="noopener noreferrer" aria-label="View Data Structures &amp; Algorithms on GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.54v-2.12c-3.1.67-3.75-1.31-3.75-1.31-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.68.08-.68 1.11.08 1.7 1.14 1.7 1.14.99 1.69 2.59 1.2 3.22.92.1-.72.39-1.2.7-1.48-2.47-.28-5.07-1.24-5.07-5.49 0-1.21.43-2.2 1.14-2.98-.12-.28-.5-1.41.1-2.94 0 0 .93-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.43 3.04-1.14 3.04-1.14.6 1.53.22 2.66.1 2.94.71.78 1.14 1.77 1.14 2.98 0 4.26-2.6 5.2-5.08 5.48.4.35.75 1.02.75 2.06v3.1c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg> View repository <span>↗</span></a></article><article class="lab-item"><div class="lab-art lab-art--terminal" aria-hidden="true">
+          <svg class="lab-visual lab-visual--terminal" viewBox="0 0 200 100" fill="none" aria-hidden="true">
+            <rect class="lab-terminal-frame" x="25" y="13" width="150" height="74" rx="4"/>
+            <path class="lab-terminal-frame" d="M25 29H175"/><circle class="lab-terminal-dot" cx="35" cy="21" r="1.5"/><circle class="lab-terminal-dot" cx="42" cy="21" r="1.5"/><circle class="lab-terminal-dot" cx="49" cy="21" r="1.5"/>
+            <path class="lab-terminal-prompt" d="M37 42l5 4-5 4M47 51h8"/><path class="lab-terminal-command" d="M63 46h43"/>
+            <path class="lab-terminal-output lab-terminal-output--one" d="M38 61h18m7 0h45"/><path class="lab-terminal-output lab-terminal-output--two" d="M38 70h18m7 0h65"/>
+            <path class="lab-terminal-scan" d="M150 38v37"/>
+          </svg>
+          </div><div class="lab-item__meta">03 / Developer tooling</div><h3>Morena</h3><p>A command-line developer toolkit designed for authorized website auditing, browser automation, web asset analysis and structured security reporting.</p><div class="lab-tech">Node.js · Puppeteer · JavaScript · CLI</div><a href="https://github.com/antoniusjairus4/Morena" target="_blank" rel="noopener noreferrer" aria-label="View Morena on GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.54v-2.12c-3.1.67-3.75-1.31-3.75-1.31-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.68.08-.68 1.11.08 1.7 1.14 1.7 1.14.99 1.69 2.59 1.2 3.22.92.1-.72.39-1.2.7-1.48-2.47-.28-5.07-1.24-5.07-5.49 0-1.21.43-2.2 1.14-2.98-.12-.28-.5-1.41.1-2.94 0 0 .93-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.43 3.04-1.14 3.04-1.14.6 1.53.22 2.66.1 2.94.71.78 1.14 1.77 1.14 2.98 0 4.26-2.6 5.2-5.08 5.48.4.35.75 1.02.75 2.06v3.1c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg> View repository <span>↗</span></a></article></div>
+        <div class="lab-cta"><div><h3>What’s in your mind<span>?</span></h3><p>Let's build something beyond ordinary.</p></div><a href="#contact" class="hero-btn hero-btn--primary"><span>Start a project</span><span class="hero-btn__arrow" aria-hidden="true">↗</span></a></div>
+      </div></div>
+    </section>
+
+    <!-- ====================================================================
+         02 / SERVICES & PRICING
+         ==================================================================== -->
+    <section class="section" id="services" aria-labelledby="services-title">
+      <div class="container">
+        <header class="section-header" data-reveal>
+          <div>
+            <span class="eyebrow">Packages &amp; Transparent Pricing</span>
+            <h2 class="section-title" id="services-title">
+              Services Built to <em>Ship</em>
+            </h2>
+          </div>
+          <span class="section-index">01 / SERVICES</span>
+        </header>
+
+        <div class="services-grid">
+          
+          <article
+            class="service-card "
+            data-reveal
+          >
+            <div>
+              <div class="service-card__top">
+                <span class="service-card__code">01 / SERVICE</span>
+                
+              </div>
+              <h3 class="service-card__title">Websites And Portfolios</h3>
+              <p class="service-card__tagline">Fast, custom-coded sites built for visibility and conversion.</p>
+
+              <div class="service-card__price-wrap">
+                <span class="service-card__price-label">Starting from</span>
+                <span class="service-card__price">₹6,000</span>
+              </div>
+
+              <ul class="service-card__features">
+                
+                <li>Custom responsive design (mobile + desktop)</li>
+                
+                <li>Contact / enquiry form</li>
+                
+                <li>Basic SEO setup</li>
+                
+                <li>Sitemap &amp; robots.txt</li>
+                
+                <li>Google Search Console setup</li>
+                
+                <li>Google Analytics setup</li>
+                
+                <li>Deployment</li>
+                
+              </ul>
+            </div>
+
+            <a
+              href="#contact"
+              class="btn btn--secondary"
+              data-select-service="Websites And Portfolios"
+              data-cursor="BOOK"
+            >
+              <span>Start Websites And Portfolios</span>
+              <span class="btn__arrow" aria-hidden="true">→</span>
+            </a>
+          </article>
+          
+          <article
+            class="service-card service-card--featured"
+            data-reveal
+          >
+            <div>
+              <div class="service-card__top">
+                <span class="service-card__code">02 / SERVICE</span>
+                
+                <span class="service-card__badge">Popular</span>
+                
+              </div>
+              <h3 class="service-card__title">Web Applications</h3>
+              <p class="service-card__tagline">Full-stack software tailored to real business workflows and scale.</p>
+
+              <div class="service-card__price-wrap">
+                <span class="service-card__price-label">Starting from</span>
+                <span class="service-card__price">₹12,000</span>
+              </div>
+
+              <ul class="service-card__features">
+                
+                <li>Custom frontend &amp; backend</li>
+                
+                <li>Database (pay as you scale)</li>
+                
+                <li>Authentication &amp; authorization</li>
+                
+                <li>CRUD functionality</li>
+                
+                <li>API integration</li>
+                
+                <li>Responsive UI/UX</li>
+                
+                <li>Basic SEO (for public pages)</li>
+                
+                <li>Google Search Console setup</li>
+                
+                <li>Deployment</li>
+                
+              </ul>
+            </div>
+
+            <a
+              href="#contact"
+              class="btn btn--primary"
+              data-select-service="Web Applications"
+              data-cursor="BOOK"
+            >
+              <span>Start Web Applications</span>
+              <span class="btn__arrow" aria-hidden="true">→</span>
+            </a>
+          </article>
+          
+          <article
+            class="service-card "
+            data-reveal
+          >
+            <div>
+              <div class="service-card__top">
+                <span class="service-card__code">03 / SERVICE</span>
+                
+              </div>
+              <h3 class="service-card__title">Android Development</h3>
+              <p class="service-card__tagline">End-to-end mobile applications ready for Play Store launch.</p>
+
+              <div class="service-card__price-wrap">
+                <span class="service-card__price-label">Starting from</span>
+                <span class="service-card__price">₹15,000</span>
+              </div>
+
+              <ul class="service-card__features">
+                
+                <li>Custom Android app development</li>
+                
+                <li>Responsive UI for different screen sizes</li>
+                
+                <li>Backend &amp; API integration</li>
+                
+                <li>Database integration</li>
+                
+                <li>User authentication &amp; authorization</li>
+                
+                <li>CRUD functionality</li>
+                
+                <li>Push notifications</li>
+                
+                <li>Third-party SDK &amp; service integration</li>
+                
+                <li>Testing &amp; bug fixing</li>
+                
+                <li>App deployment / Play Store publishing</li>
+                
+              </ul>
+            </div>
+
+            <a
+              href="#contact"
+              class="btn btn--secondary"
+              data-select-service="Android Development"
+              data-cursor="BOOK"
+            >
+              <span>Start Android Development</span>
+              <span class="btn__arrow" aria-hidden="true">→</span>
+            </a>
+          </article>
+          
+        </div>
+
+        <aside class="charges-note" aria-label="Additional charges" data-reveal>
+          <h3 class="charges-note__title">Additional charges (billed separately)</h3>
+          <ul class="charges-note__list">
+            
+            <li>Domain, hosting &amp; server costs (if applicable)</li>
+            
+            <li>Database / cloud service charges</li>
+            
+            <li>Third-party APIs, SDKs &amp; paid integrations</li>
+            
+            <li>Google Play Console registration and other applicable platform fees</li>
+            
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         04 / TECHNICAL CAPABILITIES
+         ==================================================================== -->
+    <section class="section" id="capabilities" aria-labelledby="capabilities-title">
+      <div class="container">
+        <header class="section-header" data-reveal>
+          <div>
+            <span class="eyebrow">Engineering Stack</span>
+            <h2 class="section-title" id="capabilities-title">
+              Capabilities &amp; <em>Technologies</em>
+            </h2>
+          </div>
+          <span class="section-index">03 / TECH MATRIX</span>
+        </header>
+
+        <div class="work-filters" role="tablist" aria-label="Filter capabilities" data-reveal>
+          <button
+            type="button"
+            class="filter-pill is-active"
+            role="tab"
+            aria-selected="true"
+            data-skill-filter="all"
+          >
+            All (7)
+          </button>
+          
+          <button
+            type="button"
+            class="filter-pill"
+            role="tab"
+            aria-selected="false"
+            data-skill-filter="Web &amp; Frontend"
+          >
+            Web &amp; Frontend
+          </button>
+          
+          <button
+            type="button"
+            class="filter-pill"
+            role="tab"
+            aria-selected="false"
+            data-skill-filter="Backend &amp; Data"
+          >
+            Backend &amp; Data
+          </button>
+          
+          <button
+            type="button"
+            class="filter-pill"
+            role="tab"
+            aria-selected="false"
+            data-skill-filter="Mobile &amp; Systems"
+          >
+            Mobile &amp; Systems
+          </button>
+          
+          <button
+            type="button"
+            class="filter-pill"
+            role="tab"
+            aria-selected="false"
+            data-skill-filter="AI &amp; Security"
+          >
+            AI &amp; Security
+          </button>
+          
+        </div>
+
+        <div class="skills-workbench">
+          <div class="skills-matrix" role="listbox" aria-label="Studio capabilities" data-reveal>
+            
+            <button
+              type="button"
+              class="skill-row is-selected"
+              role="option"
+              aria-selected="true"
+              data-skill-item
+              data-skill-name="Websites &amp; SEO Engineering"
+              data-skill-category="Web &amp; Frontend"
+              data-skill-focus="Responsive Design, Search Console &amp; Analytics"
+              data-skill-summary="Custom HTML5, CSS3, TypeScript, and React websites engineered with clean sitemaps, robots.txt, Google Search Console, and Analytics integration."
+              data-skill-projects="zsi-yogesh,palindrome"
+            >
+              <span class="skill-row__name">Websites &amp; SEO Engineering</span>
+              <span class="skill-row__cat">Web &amp; Frontend</span>
+              <span class="skill-row__arrow" aria-hidden="true">→</span>
+            </button>
+            
+            <button
+              type="button"
+              class="skill-row "
+              role="option"
+              aria-selected="false"
+              data-skill-item
+              data-skill-name="TypeScript &amp; React"
+              data-skill-category="Web &amp; Frontend"
+              data-skill-focus="Interactive Frontend Architecture"
+              data-skill-summary="Typed UI components, custom animations, and responsive interfaces built for client dashboards and interactive product launches."
+              data-skill-projects="rajamanickam-chit-fund,kaiforge,zsi-yogesh,palindrome"
+            >
+              <span class="skill-row__name">TypeScript &amp; React</span>
+              <span class="skill-row__cat">Web &amp; Frontend</span>
+              <span class="skill-row__arrow" aria-hidden="true">→</span>
+            </button>
+            
+            <button
+              type="button"
+              class="skill-row "
+              role="option"
+              aria-selected="false"
+              data-skill-item
+              data-skill-name="Python &amp; FastAPI"
+              data-skill-category="Backend &amp; Data"
+              data-skill-focus="APIs, Validation &amp; ML Workflows"
+              data-skill-summary="Clean Python backends with strict input validation, SQL persistence, automation, and machine-learning pipelines."
+              data-skill-projects="palindrome,neuroshield"
+            >
+              <span class="skill-row__name">Python &amp; FastAPI</span>
+              <span class="skill-row__cat">Backend &amp; Data</span>
+              <span class="skill-row__arrow" aria-hidden="true">→</span>
+            </button>
+            
+            <button
+              type="button"
+              class="skill-row "
+              role="option"
+              aria-selected="false"
+              data-skill-item
+              data-skill-name="Node.js, Express &amp; MERN"
+              data-skill-category="Backend &amp; Data"
+              data-skill-focus="Authentication, CRUD &amp; API Integrations"
+              data-skill-summary="Full-stack JavaScript/TypeScript services supporting role-based access, REST APIs, and pay-as-you-scale databases like MongoDB &amp; Supabase."
+              data-skill-projects="rajamanickam-chit-fund,kaiforge"
+            >
+              <span class="skill-row__name">Node.js, Express &amp; MERN</span>
+              <span class="skill-row__cat">Backend &amp; Data</span>
+              <span class="skill-row__arrow" aria-hidden="true">→</span>
+            </button>
+            
+            <button
+              type="button"
+              class="skill-row "
+              role="option"
+              aria-selected="false"
+              data-skill-item
+              data-skill-name="Android Development"
+              data-skill-category="Mobile &amp; Systems"
+              data-skill-focus="Custom Apps &amp; Play Store Delivery"
+              data-skill-summary="Responsive Android applications with push notifications, backend API sync, auth, third-party SDK integration, and release management."
+              data-skill-projects="kaiforge"
+            >
+              <span class="skill-row__name">Android Development</span>
+              <span class="skill-row__cat">Mobile &amp; Systems</span>
+              <span class="skill-row__arrow" aria-hidden="true">→</span>
+            </button>
+            
+            <button
+              type="button"
+              class="skill-row "
+              role="option"
+              aria-selected="false"
+              data-skill-item
+              data-skill-name="Rust, C++ &amp; Java"
+              data-skill-category="Mobile &amp; Systems"
+              data-skill-focus="Performance-Critical Computing &amp; DSA"
+              data-skill-summary="Low-overhead systems tooling like the Mfalmion chess analyser alongside strong Data Structures &amp; Algorithms foundations."
+              data-skill-projects="mfalmion"
+            >
+              <span class="skill-row__name">Rust, C++ &amp; Java</span>
+              <span class="skill-row__cat">Mobile &amp; Systems</span>
+              <span class="skill-row__arrow" aria-hidden="true">→</span>
+            </button>
+            
+            <button
+              type="button"
+              class="skill-row "
+              role="option"
+              aria-selected="false"
+              data-skill-item
+              data-skill-name="Machine Learning &amp; Security"
+              data-skill-category="AI &amp; Security"
+              data-skill-focus="ADNI Research, Scraping &amp; Bug Bounty"
+              data-skill-summary="Experimental ML modeling, network security fundamentals, Kali Linux workflows, and CDAC All-India BOSS-OS Bug Bounty competition experience."
+              data-skill-projects="neuroshield"
+            >
+              <span class="skill-row__name">Machine Learning &amp; Security</span>
+              <span class="skill-row__cat">AI &amp; Security</span>
+              <span class="skill-row__arrow" aria-hidden="true">→</span>
+            </button>
+            
+          </div>
+
+          <aside class="skill-inspector" id="skill-inspector" aria-live="polite" data-reveal>
+            
+            <span class="skill-inspector__kicker" id="inspector-category">Web &amp; Frontend</span>
+            <h3 class="skill-inspector__name" id="inspector-name">Websites &amp; SEO Engineering</h3>
+            <p class="skill-inspector__focus" id="inspector-focus">Responsive Design, Search Console &amp; Analytics</p>
+            <p class="skill-inspector__summary" id="inspector-summary">Custom HTML5, CSS3, TypeScript, and React websites engineered with clean sitemaps, robots.txt, Google Search Console, and Analytics integration.</p>
+
+            <div class="skill-inspector__projects">
+              <span class="skill-inspector__projects-label">Proven in Projects</span>
+              <div class="skill-project-links" id="inspector-projects">
+                
+                <a href="#project-zsi-yogesh" class="skill-project-chip">zsi yogesh</a>
+                
+                <a href="#project-palindrome" class="skill-project-chip">palindrome</a>
+                
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         05 / FOUNDER SPOTLIGHT — ANTONIUS JAIRUS R
+         ==================================================================== -->
+    <section class="section section--deep" id="founder" aria-labelledby="founder-title">
+      <div class="container">
+        <header class="section-header" data-reveal>
+          <div>
+            <span class="eyebrow">Studio Leadership</span>
+            <h2 class="section-title" id="founder-title">
+              Led by the <em>Founder</em>
+            </h2>
+          </div>
+          <span class="section-index">04 / LEADERSHIP</span>
+        </header>
+
+        <div class="founder-layout">
+          <article class="founder-card" data-reveal>
+            <span class="founder-card__role">Founder of Palindrome Labs</span>
+            <h3 class="founder-card__name">Antonius Jairus R</h3>
+            <p class="founder-card__meta">Coimbatore, India · Web / Website Developer · Full-Stack &amp; Android Engineer</p>
+            <p class="founder-card__bio">
+              Antonius Jairus R founded Palindrome Labs to bring clean software architecture,
+              interactive web craft, and dependable full-stack &amp; Android execution to founders,
+              local enterprises, and research teams.
+            </p>
+            <div class="founder-card__links">
+              <a
+                href="https://github.com/antoniusjairus4"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="work-link"
+              >
+                GitHub ↗
+              </a>
+              <a
+                href="https://www.linkedin.com/in/antoniusjairus4"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="work-link"
+              >
+                LinkedIn ↗
+              </a>
+              <a
+                href="https://antoniusjairus.in"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="work-link"
+              >
+                Personal Archive ↗
+              </a>
+            </div>
+          </article>
+
+          <div data-reveal>
+            <div class="honor-tabs" role="tablist" aria-label="Founder track record">
+              
+              <button
+                type="button"
+                class="honor-tab is-active"
+                role="tab"
+                aria-selected="true"
+                aria-controls="honor-table-tennis"
+                data-honor-tab="table-tennis"
+              >
+                Table Tennis
+              </button>
+              
+              <button
+                type="button"
+                class="honor-tab "
+                role="tab"
+                aria-selected="false"
+                aria-controls="honor-karate"
+                data-honor-tab="karate"
+              >
+                Karate
+              </button>
+              
+              <button
+                type="button"
+                class="honor-tab "
+                role="tab"
+                aria-selected="false"
+                aria-controls="honor-chess"
+                data-honor-tab="chess"
+              >
+                Chess
+              </button>
+              
+              <button
+                type="button"
+                class="honor-tab "
+                role="tab"
+                aria-selected="false"
+                aria-controls="honor-speaking"
+                data-honor-tab="speaking"
+              >
+                Public Speaking &amp; Events
+              </button>
+              
+            </div>
+
+            
+            <div
+              class="honor-panel"
+              id="honor-table-tennis"
+              role="tabpanel"
+              data-honor-panel="table-tennis"
+              
+            >
+              <span class="honor-panel__metric">2× State Champion</span>
+              <h4 class="honor-panel__title">Table Tennis</h4>
+              <p class="honor-panel__sub">Velocity · Spin · Trajectory</p>
+              <ul class="honor-panel__list">
+                
+                <li>State 2× RDS Winner &amp; 2× State Champion</li>
+                
+                <li>District 3× Junior &amp; Youth Champion · 1× Men&#39;s Champion</li>
+                
+                <li>All India Youth Championship winner, representing Tamil Nadu in Goa</li>
+                
+              </ul>
+            </div>
+            
+            <div
+              class="honor-panel"
+              id="honor-karate"
+              role="tabpanel"
+              data-honor-panel="karate"
+              hidden
+            >
+              <span class="honor-panel__metric">1st Dan Black Belt</span>
+              <h4 class="honor-panel__title">Karate</h4>
+              <p class="honor-panel__sub">Impact · Precision · Stillness</p>
+              <ul class="honor-panel__list">
+                
+                <li>State 4× Gold Medalist in Kata, Kumite &amp; Team Kata</li>
+                
+                <li>Nationals 2× Silver Medalist in Kata · 1× Bronze Medalist in Kumite</li>
+                
+                <li>District 3× Champion across Kata &amp; Kumite</li>
+                
+              </ul>
+            </div>
+            
+            <div
+              class="honor-panel"
+              id="honor-chess"
+              role="tabpanel"
+              data-honor-panel="chess"
+              hidden
+            >
+              <span class="honor-panel__metric">2198 Peak Bullet</span>
+              <h4 class="honor-panel__title">Chess</h4>
+              <p class="honor-panel__sub">Calculation · Pressure · Decision</p>
+              <ul class="honor-panel__list">
+                
+                <li>Bullet Peak: 2198 · Blitz Peak: 2010 · Rapid Peak: 1984</li>
+                
+                <li>Directly inspired the Mfalmion Rust chess analyser</li>
+                
+                <li>Decision-making discipline under strict time constraints</li>
+                
+              </ul>
+            </div>
+            
+            <div
+              class="honor-panel"
+              id="honor-speaking"
+              role="tabpanel"
+              data-honor-panel="speaking"
+              hidden
+            >
+              <span class="honor-panel__metric">15+ Speeches · 15,000+ Audience</span>
+              <h4 class="honor-panel__title">Public Speaking &amp; Events</h4>
+              <p class="honor-panel__sub">Clarity · Presence · Amplification</p>
+              <ul class="honor-panel__list">
+                
+                <li>Addressed 15,000+ people across 15+ speeches and conducted 7 events</li>
+                
+                <li>Shared stages alongside Sid Ahmed &amp; Sivakarthikeyan</li>
+                
+                <li>Coimbatore Book Festival 3rd Place · Campofez 2nd Place · Trinity Music 3 Grades</li>
+                
+              </ul>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         06 / LET'S CONNECT & PROJECT INQUIRY
+         ==================================================================== -->
+    <section class="section" id="contact" aria-labelledby="contact-title">
+      <div class="container">
+        <header class="section-header" data-reveal>
+          <div>
+            <span class="eyebrow">Let's Connect · palindrome labs</span>
+            <h2 class="section-title" id="contact-title">
+              Start Your <em>Project</em>
+            </h2>
+          </div>
+          <span class="section-index">05 / CONTACT</span>
+        </header>
+
+        <div class="contact-layout">
+          <div data-reveal>
+            <p class="contact-copy">
+              Need a website, full-stack web application, or Android app? Reach Palindrome Labs directly.
+            </p>
+
+            <div class="contact-channels">
+              <div class="contact-channel">
+                <div>
+                  <span class="contact-channel__label">Email</span>
+                  <span class="contact-channel__value">antoniusjairusofficial@gmail.com</span>
+                </div>
+                <div class="contact-channel__actions">
+                  <button
+                    type="button"
+                    class="contact-channel__action"
+                    data-copy-text="antoniusjairusofficial@gmail.com"
+                  >
+                    Copy
+                  </button>
+                  <a href="mailto:antoniusjairusofficial@gmail.com" class="contact-channel__action">
+                    Mail ↗
+                  </a>
+                </div>
+              </div>
+
+              <div class="contact-channel">
+                <div>
+                  <span class="contact-channel__label">Phone / WhatsApp</span>
+                  <span class="contact-channel__value">+919443385650</span>
+                </div>
+                <div class="contact-channel__actions">
+                  <button
+                    type="button"
+                    class="contact-channel__action"
+                    data-copy-text="9443385650"
+                  >
+                    Copy
+                  </button>
+                  <a
+                    href="https://wa.me/919443385650"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="contact-channel__action"
+                  >
+                    WhatsApp ↗
+                  </a>
+                  <a href="tel:+919443385650" class="contact-channel__action">
+                    Call ↗
+                  </a>
+                </div>
+              </div>
+
+              <div class="contact-channel">
+                <div>
+                  <span class="contact-channel__label">Proof of Work</span>
+                  <span class="contact-channel__value">GitHub &amp; LinkedIn</span>
+                </div>
+                <div class="contact-channel__actions">
+                  <a
+                    href="https://github.com/antoniusjairus4"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="contact-channel__action"
+                  >
+                    GitHub ↗
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/in/antoniusjairus4"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="contact-channel__action"
+                  >
+                    LinkedIn ↗
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form class="contact-form" id="contact-form" novalidate data-reveal>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="contact-name">Your Name</label>
+                <input
+                  id="contact-name"
+                  name="name"
+                  type="text"
+                  required
+                  minlength="2"
+                  maxlength="100"
+                  autocomplete="name"
+                  placeholder="Name or company"
+                />
+                <div class="form-field__meta">
+                  <span class="form-field__error" id="error-name"></span>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="contact-email">Email</label>
+                <input
+                  id="contact-email"
+                  name="email"
+                  type="email"
+                  required
+                  maxlength="160"
+                  autocomplete="email"
+                  placeholder="you@company.com"
+                />
+                <div class="form-field__meta">
+                  <span class="form-field__error" id="error-email"></span>
+                </div>
+              </div>
+
+              <div class="form-field form-field--full">
+                <label for="contact-type">Service / Package</label>
+                <select id="contact-type" name="project_type" required>
+                  
+                  <option value="Websites And Portfolios">Websites And Portfolios</option>
+                  
+                  <option value="Web Applications">Web Applications</option>
+                  
+                  <option value="Android Development">Android Development</option>
+                  
+                  <option value="Custom Startup / Tech Team Collaboration">Custom Startup / Tech Team Collaboration</option>
+                  
+                  <option value="General Inquiry">General Inquiry</option>
+                  
+                </select>
+                <div class="form-field__meta">
+                  <span class="form-field__error" id="error-project_type"></span>
+                </div>
+              </div>
+
+              <div class="form-field form-field--full">
+                <label for="contact-description">Project Brief</label>
+                <textarea
+                  id="contact-description"
+                  name="description"
+                  required
+                  minlength="15"
+                  maxlength="2500"
+                  placeholder="Describe your website, web app, or Android goals and timeline..."
+                ></textarea>
+                <div class="form-field__meta">
+                  <span class="form-field__error" id="error-description"></span>
+                  <span class="form-field__count" id="description-count">0 / 2500</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-footer">
+              <span class="eyebrow">Opens your email app</span>
+              <button type="submit" class="btn btn--primary" id="contact-submit" data-cursor="SEND">
+                <span>Send Project Inquiry</span>
+                <span class="btn__arrow" aria-hidden="true">↗</span>
+              </button>
+            </div>
+
+            <div class="form-status" id="form-status" role="status" aria-live="polite" hidden></div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <span>© 2026 Palindrome Labs · Founded by Antonius Jairus R · Coimbatore, India.</span>
+      <div class="site-footer__links">
+        <a href="https://github.com/antoniusjairus4" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://www.linkedin.com/in/antoniusjairus4" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://wa.me/919443385650" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a href="#hero">Top ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/js/main.js" defer></script>
+</body>
+</html>

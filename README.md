@@ -1,33 +1,23 @@
-# Palindrome Labs — Build Your Digital Presence
+# Pallindrome
 
-Company website, service pricing showcase, interactive proof-of-work archive, and client inquiry backend for **Palindrome Labs** (Coimbatore, India), founded by **Antonius Jairus R**.
+Static website built with HTML, CSS and TypeScript. GSAP and Three.js run in the browser; no Python server is required.
 
-## Color Palette
+## Build and preview
 
-- `#403F50` — Deep Slate
-- `#F7A7C1` — Blush Rose
-- `#E34A83` — Electric Berry
-- `#8E3096` — Royal Plum
-
-## Architecture
-
-- `app.py` — Primary Python backend (`FastAPI` + `Jinja2` + `SQLite` inquiry storage + `Pydantic` validation).
-- `data.py` — Service tiers (`₹6,000` Websites & Portfolios, `₹12,000` Web Applications, `₹15,000` Android Development), interactive Proof of Work cards, capabilities, and Founder spotlight.
-- `templates/index.html` — Semantic HTML5 layout.
-- `static/css/` — Modular custom CSS (`tokens.css`, `layout.css`, `sections.css`).
-- `static/ts/main.ts` — Typed frontend interactions compiled cleanly to `static/js/main.js`.
-
-## Running Locally
-
-```bash
-cd Pallindrome
-python -m uvicorn app:app --reload
+```sh
+npm ci
+npm run typecheck
+npm run build
+npm run preview
 ```
 
-Then open `http://127.0.0.1:8000`.
+`npm run build` bundles the frontend and creates `dist/`, the Firebase Hosting directory. Edit page content in `index.html`, styles in `static/css/`, and interactions in `static/ts/`.
 
-## Updating TypeScript
+## Deploy to Firebase Hosting
 
-```bash
-node -e "const fs=require('fs'),m=require('module'); fs.writeFileSync('static/js/main.js', m.stripTypeScriptTypes(fs.readFileSync('static/ts/main.ts','utf8'),{mode:'strip'}));"
-```
+1. Create a Firebase project on the Spark plan and install the Firebase CLI: `npm install -g firebase-tools`.
+2. Run `firebase login`, then `firebase use --add` and select your Firebase project.
+3. Run `npm ci`, `npm run build`, then `firebase deploy --only hosting`.
+4. Add your custom domain in Firebase Hosting if desired, following Firebase's DNS instructions.
+
+The inquiry form validates in the browser and opens a prefilled draft in the visitor's email application. The visitor must send the message; the site does not store submissions or guarantee delivery. A visitor without a configured email app can use the displayed contact details instead. The old local `inquiries.db`, if present, is not deployed and should be backed up separately if it contains inquiries.

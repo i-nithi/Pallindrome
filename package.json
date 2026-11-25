@@ -2,10 +2,11 @@
   "name": "palindrome-labs",
   "private": true,
   "version": "4.0.0",
-  "description": "Frontend interaction & WebGL build toolchain for Palindrome Labs",
+  "description": "Static website for Pallindrome",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "esbuild static/ts/main.ts --bundle --minify --format=iife --target=es2022 --outfile=static/js/main.js"
+    "build": "esbuild static/ts/main.ts --bundle --minify --format=iife --target=es2022 --outfile=static/js/main.js && node scripts/build.mjs",
+    "preview": "npx serve dist"
   },
   "dependencies": {
     "gsap": "^3.12.7",

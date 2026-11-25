@@ -16,18 +16,6 @@ interface ContactPayload {
   description: string;
 }
 
-interface FastApiValidationDetail {
-  loc?: Array<string | number>;
-  msg?: string;
-}
-
-interface ContactApiResponse {
-  status?: string;
-  id?: number;
-  message?: string;
-  detail?: string | FastApiValidationDetail[];
-}
-
 const PROJECT_DISPLAY_NAMES: Record<string, string> = {
   "rajamanickam-chit-fund": "Rajamanickam Chit Funds",
   "zsi-yogesh": "ZSI Portfolio",
@@ -620,44 +608,10 @@ function initServicesAndContactForm(): void {
       return;
     }
 
-    const labelSpan = submitBtn.querySelector("span:first-child");
-    submitBtn.disabled = true;
-    if (labelSpan) labelSpan.textContent = "Sending...";
-
-    try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = (await response.json()) as ContactApiResponse;
-
-      if (!response.ok) {
-        if (Array.isArray(data.detail)) {
-          for (const issue of data.detail) {
-            const fieldName = String(issue.loc?.[issue.loc.length - 1] ?? "");
-            if (fieldName && issue.msg) {
-              setFieldError(fieldName, issue.msg.replace(/^Value error,\s*/i, ""));
-            }
-          }
-        }
-        showBanner("error", "Unable to submit yet. Please check your details and try again.");
-        return;
-      }
-
-      form.reset();
-      updateCounter();
-      showBanner(
-        "success",
-        data.message || "Project inquiry received by Palindrome Labs.",
-      );
-    } catch {
-      showBanner("error", "Network error while contacting the Python backend. Please try again.");
-    } finally {
-      submitBtn.disabled = false;
-      if (labelSpan) labelSpan.textContent = "Send Project Inquiry";
-    }
+    const subject = encodeURIComponent(`Project inquiry: ${payload.project_type}`);
+    const body = encodeURIComponent(`Name: ${payload.name}\nEmail: ${payload.email}\nService: ${payload.project_type}\n\nProject brief:\n${payload.description}`);
+    window.location.href = `mailto:antoniusjairusofficial@gmail.com?subject=${subject}&body=${body}`;
+    showBanner("success", "Your email app should open with a draft. Please send it to complete your inquiry.");
   });
 }
 

@@ -202,7 +202,30 @@
         </div>
       </div>
       <div class="lab"><div class="lab-inner"><header class="lab-header"><div><span class="proof-kicker">02 / ENGINEERING LAB</span><h2>Inside the Lab<span>.</span></h2></div><p>Beyond client projects, we explore algorithms, automation and experimental software engineering.</p></header>
-        <div class="lab-grid">{% for repo in repositories %}<article class="lab-item"><div class="lab-art lab-art--{{ repo.art }}" aria-hidden="true">{% if repo.art == 'chess' %}<span class="chess-knight">♞</span><span class="chess-lines">▂ ▄ ▃ ▆ ▄ ▇</span>{% elif repo.art == 'graph' %}<svg viewBox="0 0 180 90"><path d="M90 15L42 45M90 15L138 45M42 45L20 75M42 45L65 75M138 45L115 75M138 45L160 75"/><g><circle cx="90" cy="15" r="5"/><circle cx="42" cy="45" r="5"/><circle cx="138" cy="45" r="5"/><circle cx="20" cy="75" r="4"/><circle cx="65" cy="75" r="4"/><circle cx="115" cy="75" r="4"/><circle cx="160" cy="75" r="4"/></g></svg>{% else %}<span class="terminal-prompt">&gt;_</span><span class="terminal-lines"> ━━━━━<br> ━━━<br> ━━━━━━━</span>{% endif %}</div><div class="lab-item__meta">{{ '%02d'|format(loop.index) }} / {{ repo.category }}</div><h3>{{ repo.name }}</h3><p>{{ repo.description }}</p><div class="lab-tech">{{ repo.tech }}</div><a href="{{ repo.url }}" target="_blank" rel="noopener noreferrer" aria-label="View {{ repo.name }} on GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.54v-2.12c-3.1.67-3.75-1.31-3.75-1.31-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.68.08-.68 1.11.08 1.7 1.14 1.7 1.14.99 1.69 2.59 1.2 3.22.92.1-.72.39-1.2.7-1.48-2.47-.28-5.07-1.24-5.07-5.49 0-1.21.43-2.2 1.14-2.98-.12-.28-.5-1.41.1-2.94 0 0 .93-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.43 3.04-1.14 3.04-1.14.6 1.53.22 2.66.1 2.94.71.78 1.14 1.77 1.14 2.98 0 4.26-2.6 5.2-5.08 5.48.4.35.75 1.02.75 2.06v3.1c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg> View repository <span>↗</span></a></article>{% endfor %}</div>
+        <div class="lab-grid">{% for repo in repositories %}<article class="lab-item"><div class="lab-art lab-art--{{ repo.art }}" aria-hidden="true">{% if repo.art == 'chess' %}
+          <svg class="lab-visual lab-visual--chess" viewBox="0 0 200 100" fill="none" aria-hidden="true">
+            <path class="lab-grid-lines" d="M13 79H108M23 62H116M33 45H123M43 28H131M23 79L51 28M51 79L72 28M79 79L94 28M107 79L116 45"/>
+            <path class="lab-knight" d="M58 68h37l-3-8-6-3 2-11-6-14-12-6-10 5-6 12 8-2 6 6-8 9-5 5z"/>
+            <path class="lab-knight-detail" d="M63 44l9 5 7-2M72 36h.1M56 68h41"/>
+            <path class="lab-eval" d="M126 69h55M126 60l10-3 9 2 9-9 9 3 15-15"/>
+            <circle class="lab-pulse lab-pulse--one" cx="154" cy="50" r="2.5"/><circle class="lab-pulse lab-pulse--two" cx="178" cy="38" r="2.5"/>
+          </svg>
+          {% elif repo.art == 'graph' %}
+          <svg class="lab-visual lab-visual--graph" viewBox="0 0 200 100" fill="none" aria-hidden="true">
+            <path class="lab-graph-edges" d="M100 16L55 43M100 16L145 43M55 43L30 75M55 43L78 75M145 43L122 75M145 43L170 75"/>
+            <path class="lab-graph-traverse" d="M30 75L55 43L100 16L145 43L170 75"/>
+            <g class="lab-graph-nodes"><circle cx="100" cy="16" r="5"/><circle cx="55" cy="43" r="4.5"/><circle cx="145" cy="43" r="4.5"/><circle cx="30" cy="75" r="4"/><circle cx="78" cy="75" r="4"/><circle cx="122" cy="75" r="4"/><circle cx="170" cy="75" r="4"/></g>
+            <circle class="lab-traversal-dot" r="3"><animateMotion dur="5s" repeatCount="indefinite" path="M30 75L55 43L100 16L145 43L170 75"/></circle>
+          </svg>
+          {% else %}
+          <svg class="lab-visual lab-visual--terminal" viewBox="0 0 200 100" fill="none" aria-hidden="true">
+            <rect class="lab-terminal-frame" x="25" y="13" width="150" height="74" rx="4"/>
+            <path class="lab-terminal-frame" d="M25 29H175"/><circle class="lab-terminal-dot" cx="35" cy="21" r="1.5"/><circle class="lab-terminal-dot" cx="42" cy="21" r="1.5"/><circle class="lab-terminal-dot" cx="49" cy="21" r="1.5"/>
+            <path class="lab-terminal-prompt" d="M37 42l5 4-5 4M47 51h8"/><path class="lab-terminal-command" d="M63 46h43"/>
+            <path class="lab-terminal-output lab-terminal-output--one" d="M38 61h18m7 0h45"/><path class="lab-terminal-output lab-terminal-output--two" d="M38 70h18m7 0h65"/>
+            <path class="lab-terminal-scan" d="M150 38v37"/>
+          </svg>
+          {% endif %}</div><div class="lab-item__meta">{{ '%02d'|format(loop.index) }} / {{ repo.category }}</div><h3>{{ repo.name }}</h3><p>{{ repo.description }}</p><div class="lab-tech">{{ repo.tech }}</div><a href="{{ repo.url }}" target="_blank" rel="noopener noreferrer" aria-label="View {{ repo.name }} on GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.54v-2.12c-3.1.67-3.75-1.31-3.75-1.31-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.68.08-.68 1.11.08 1.7 1.14 1.7 1.14.99 1.69 2.59 1.2 3.22.92.1-.72.39-1.2.7-1.48-2.47-.28-5.07-1.24-5.07-5.49 0-1.21.43-2.2 1.14-2.98-.12-.28-.5-1.41.1-2.94 0 0 .93-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.43 3.04-1.14 3.04-1.14.6 1.53.22 2.66.1 2.94.71.78 1.14 1.77 1.14 2.98 0 4.26-2.6 5.2-5.08 5.48.4.35.75 1.02.75 2.06v3.1c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg> View repository <span>↗</span></a></article>{% endfor %}</div>
         <div class="lab-cta"><div><h3>What’s in your mind<span>?</span></h3><p>Let's build something beyond ordinary.</p></div><a href="#contact" class="hero-btn hero-btn--primary"><span>Start a project</span><span class="hero-btn__arrow" aria-hidden="true">↗</span></a></div>
       </div></div>
     </section>

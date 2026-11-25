@@ -53,3 +53,31 @@
   .proof--light-background .proof-bottom button.is-active span { color: #654900; }
 }
 .proof-frame, .proof-mobile-image { border-radius: 14px; }
+/* Compact animated identity marks for the engineering collection. */
+.lab-art .lab-visual { width: 200px; height: 100px; overflow: visible; fill: none; stroke-width: 1; transition: filter .4s ease; }
+.lab-item:hover .lab-visual { filter: drop-shadow(0 0 5px rgba(0,217,255,.24)); }
+.lab-grid-lines { stroke: #8b00ff; opacity: .28; }
+.lab-knight { fill: rgba(139,0,255,.16); stroke: #b18bff; stroke-width: 1.4; }
+.lab-knight-detail { stroke: #f5f5f7; stroke-width: 1.2; opacity: .8; }
+.lab-eval { stroke: #00d9ff; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 90; animation: lab-draw 5s ease-in-out infinite alternate; }
+.lab-pulse { fill: #00d9ff; stroke: none; transform-box: fill-box; transform-origin: center; animation: lab-pulse 3s ease-in-out infinite; }
+.lab-pulse--two { animation-delay: 1.2s; }
+.lab-graph-edges { stroke: #0066ff; opacity: .55; }
+.lab-graph-traverse { stroke: #00d9ff; stroke-dasharray: 6 190; animation: lab-traverse 5s linear infinite; opacity: .8; }
+.lab-graph-nodes { fill: #050507; stroke: #a06aff; stroke-width: 1.3; }
+.lab-traversal-dot { fill: #00d9ff; stroke: none; }
+.lab-terminal-frame { stroke: #8b6dc4; opacity: .65; }
+.lab-terminal-dot { fill: #a88bda; stroke: none; }
+.lab-terminal-prompt { stroke: #00d9ff; stroke-width: 1.5; animation: lab-terminal-blink 2.8s steps(1) infinite; }
+.lab-terminal-command { stroke: #f5f5f7; opacity: .7; stroke-dasharray: 43; animation: lab-command 5s ease-in-out infinite; }
+.lab-terminal-output { stroke: #00d9ff; opacity: .55; animation: lab-output 5s ease-in-out infinite; }
+.lab-terminal-output--two { stroke: #c578f4; animation-delay: .35s; }
+.lab-terminal-scan { stroke: #00d9ff; opacity: .3; animation: lab-scan 4s ease-in-out infinite alternate; }
+@keyframes lab-draw { from { stroke-dashoffset: 55; opacity: .45; } to { stroke-dashoffset: 0; opacity: 1; } }
+@keyframes lab-pulse { 0%,100% { opacity: .45; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.25); } }
+@keyframes lab-traverse { to { stroke-dashoffset: -196; } }
+@keyframes lab-terminal-blink { 0%,80%,100% { opacity: 1; } 90% { opacity: .3; } }
+@keyframes lab-command { 0%,10% { stroke-dashoffset: 43; } 45%,85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 43; } }
+@keyframes lab-output { 0%,30%,100% { opacity: .15; } 50%,85% { opacity: .65; } }
+@keyframes lab-scan { from { transform: translateX(-6px); opacity: .1; } to { transform: translateX(6px); opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .lab-visual *, .lab-art .lab-visual { animation: none !important; transition: none; } .lab-eval, .lab-terminal-command { stroke-dashoffset: 0; } .lab-graph-traverse, .lab-traversal-dot { display: none; } }

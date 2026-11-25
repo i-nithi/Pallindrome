@@ -37,18 +37,8 @@ const PROJECT_DISPLAY_NAMES: Record<string, string> = {
   "mfalmion": "Mfalmion",
 };
 
-const INTRO_SEEN_KEY = "palindrome_intro_seen";
-
 const prefersReducedMotion = (): boolean =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-function markIntroSeen(): void {
-  try {
-    window.localStorage.setItem(INTRO_SEEN_KEY, "1");
-  } catch {
-    // Storage unavailable
-  }
-}
 
 /**
  * Coordinates the optional first-visit intro video handoff, WebGL sculpture
@@ -225,8 +215,6 @@ function initHeroAndIntroExperience(): void {
 
   // First-visit video handoff vs immediate return-visit entrance
   if (!reduced && root.classList.contains("intro-active") && splash && video) {
-    markIntroSeen();
-
     let finished = false;
     let safetyTimer = 0;
 

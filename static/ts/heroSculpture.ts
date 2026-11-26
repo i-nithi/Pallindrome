@@ -5,6 +5,8 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 export interface HeroSculptureController {
   setReveal(value: number): void;
   setScrollProgress(value: number): void;
+  setHandoff(value: number): void;
+  readonly ready: Promise<boolean>;
   renderOnce(): void;
   dispose(): void;
 }
@@ -16,7 +18,7 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
     renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
   } catch {
     options.onFallback?.();
-    return { setReveal() {}, setScrollProgress() {}, renderOnce() {}, dispose() {} };
+    return { ready: Promise.resolve(false), setHandoff() {}, setReveal() {}, setScrollProgress() {}, renderOnce() {}, dispose() {} };
   }
   renderer.setClearColor(0x000000, 0);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -25,7 +27,7 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   camera.position.z = 6;
   const group = new THREE.Group();
   scene.add(group);
-  const uniforms = { uTime: { value: 0 }, uReveal: { value: 0 }, uScroll: { value: 0 }, uPointer: { value: new THREE.Vector2(.5,.5) }, uMotion: { value: 0 } };
+  const uniforms = { uTime: { value: 0 }, uReveal: { value: 0 }, uScroll: { value: 0 }, uPointer: { value: new THREE.Vector2(.5,.5) }, uMotion: { value: 0 }, uHandoff: { value: 1 } };
   const pmrem = new THREE.PMREMGenerator(renderer);
   const environment = pmrem.fromScene(new RoomEnvironment(), .08).texture;
   scene.environment = environment;
@@ -44,9 +46,12 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   hero.classList.add('has-sculpture-control');
   let dragX = 0, dragY = 0, dragging = false, activePointer = -1, lastX = 0, lastY = 0;
   let entranceElapsed = 0, entranceAngle = 0, entranceFinished = !!options.reducedMotion;
+  let handoff = 1;
+  let resolveReady: (ready: boolean) => void = () => {};
+  const ready = new Promise<boolean>(resolve => { resolveReady = resolve; });
   let model: THREE.Group | null = null;
   const loader = new GLTFLoader();
-  loader.load('/static/models/pallindrome-emblem.glb', (gltf) => {
+  loader.load('/static/models/loader-emblem.glb', (gltf) => {
     if (disposed) { gltf.scene.traverse(o => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); const mats=Array.isArray(o.material)?o.material:[o.material]; mats.forEach(m=>m.dispose()); } }); return; }
     model = gltf.scene;
     model.traverse((object) => {
@@ -56,15 +61,16 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
         if (!(mat instanceof THREE.MeshStandardMaterial)) return;
         mat.side = THREE.DoubleSide;
         mat.onBeforeCompile = (shader) => {
-          shader.uniforms.uTime = uniforms.uTime; shader.uniforms.uMotion = uniforms.uMotion; shader.uniforms.uReveal = uniforms.uReveal; shader.uniforms.uScroll = uniforms.uScroll;
-          shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uReveal; uniform float uScroll;');
-          shader.fragmentShader = shader.fragmentShader.replace('#include <opaque_fragment>', '#include <opaque_fragment>\ngl_FragColor.a *= smoothstep(.05,.75,uReveal) * (1.0-uScroll*.85);');
+          shader.uniforms.uHandoff = uniforms.uHandoff; shader.uniforms.uTime = uniforms.uTime; shader.uniforms.uMotion = uniforms.uMotion; shader.uniforms.uReveal = uniforms.uReveal; shader.uniforms.uScroll = uniforms.uScroll;
+          shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uReveal; uniform float uScroll; uniform float uHandoff;');
+          shader.fragmentShader = shader.fragmentShader.replace('#include <opaque_fragment>', 'outgoingLight = mix(diffuseColor.rgb, outgoingLight, uHandoff);\n#include <opaque_fragment>\ngl_FragColor.a *= smoothstep(.05,.75,uReveal) * (1.0-uScroll*.85);');
         };
         mat.transparent = true; mat.needsUpdate = true;
       });
     });
-    group.add(model); render();
-  }, undefined, () => { dragArea.remove(); hero.classList.remove('has-sculpture-control'); options.onFallback?.(); });
+    group.add(model);
+    try { renderer.compile(scene, camera); render(); resolveReady(true); } catch { resolveReady(false); }
+  }, undefined, () => { resolveReady(false); dragArea.remove(); hero.classList.remove('has-sculpture-control'); options.onFallback?.(); });
   const haloGeometry=new THREE.PlaneGeometry(5,5);
   const haloMaterial=new THREE.ShaderMaterial({uniforms, transparent:true, depthWrite:false,
     vertexShader:`varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
@@ -72,7 +78,7 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   const halo=new THREE.Mesh(haloGeometry,haloMaterial); halo.position.z=-.55; group.add(halo);
 
   let disposed = false, visible = true, raf = 0, reveal = 0, scroll = 0, time = 0, last = 0;
-  let px = .5, py = .5, tx = .5, ty = .5, motion = 0, baseScale = 1, baseY = 0;
+  let px = .5, py = .5, tx = .5, ty = .5, motion = 0, baseScale = 1, baseY = 0, baseX = 0, startScale = 1, startX = 0, startY = 0;
   function resize() {
     const w = hero.clientWidth, h = hero.clientHeight;
     if (!w || !h) return;
@@ -89,24 +95,33 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
     dragArea.style.top = `${h * (mobile ? .68 : .515) - size / 2}px`;
     baseScale = size / h * viewHeight / 3.6;
     baseY = (mobile ? -.18 : -.015) * viewHeight;
+    baseX = (mobile ? .5 : .755) * viewWidth - viewWidth/2;
+    const videoScale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    const rect = hero.getBoundingClientRect();
+    startScale = (520 * videoScale / h * viewHeight) / 3.4;
+    startX = ((window.innerWidth / 2 - rect.left) / w - .5) * viewWidth;
+    startY = (.5 - (window.innerHeight / 2 + 5 * videoScale - rect.top) / h) * viewHeight;
     group.scale.setScalar(baseScale);
-    group.position.set((mobile ? .5 : .755) * viewWidth - viewWidth/2, baseY, 0);
+    group.position.set(baseX, baseY, 0);
     render();
   }
   function render() {
     uniforms.uTime.value = time; uniforms.uReveal.value = reveal; uniforms.uScroll.value = scroll;
     uniforms.uPointer.value.set(px,py); uniforms.uMotion.value = motion;
-    group.scale.setScalar(baseScale * (1 + Math.sin(time*.42)*.008));
-    group.position.y = baseY + Math.sin(time*.35)*.025*baseScale;
-    group.rotation.y = dragY + entranceAngle;
-    group.rotation.x = dragX;
+    const scale = THREE.MathUtils.lerp(startScale, baseScale, handoff);
+    group.scale.setScalar(scale * (1 + Math.sin(time*.42)*.008*handoff));
+    group.position.x = THREE.MathUtils.lerp(startX, baseX, handoff);
+    group.position.y = THREE.MathUtils.lerp(startY, baseY, handoff) + Math.sin(time*.35)*.025*baseScale*handoff;
+    uniforms.uHandoff.value = handoff;
+    group.rotation.y = dragY + entranceAngle + .10 * handoff + (entranceFinished && !dragging ? (px-.5)*.05*handoff : 0);
+    group.rotation.x = dragX - .035 * handoff + (entranceFinished && !dragging ? - (py-.5)*.04*handoff : 0);
     group.rotation.z = 0;
     renderer.render(scene,camera);
   }
   function tick(now: number) {
     raf = 0; if (disposed || !visible || document.hidden || options.reducedMotion) return;
     const dt = last ? Math.min((now-last)/1000,.05) : 0; last = now; time += dt;
-    if (!entranceFinished && model && reveal >= .8) {
+    if (!entranceFinished && model && reveal >= .8 && handoff >= 1) {
       entranceElapsed = Math.min(entranceElapsed + dt, 3.2);
       const progress = entranceElapsed / 3.2;
       const eased = progress * progress * (3 - 2 * progress);
@@ -175,5 +190,5 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   observer.observe(hero); window.addEventListener('resize',resize,{passive:true}); hero.addEventListener('pointermove',pointer,{passive:true}); hero.addEventListener('pointerleave',leave); document.addEventListener('visibilitychange',visibility);
   if (options.reducedMotion) reveal=1;
   resize(); start();
-  return { setReveal(v) { reveal=THREE.MathUtils.clamp(v,0,1); if(options.reducedMotion) render(); }, setScrollProgress(v) {scroll=THREE.MathUtils.clamp(v,0,1); if(options.reducedMotion) render();}, renderOnce: render, dispose() {disposed=true; cancelAnimationFrame(raf); observer.disconnect(); window.removeEventListener('resize',resize); hero.removeEventListener('pointermove',pointer); hero.removeEventListener('pointerleave',leave); document.removeEventListener('visibilitychange',visibility); dragArea.remove(); hero.classList.remove('has-sculpture-control'); model?.traverse(o => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); const mats=Array.isArray(o.material)?o.material:[o.material]; mats.forEach(m=>m.dispose()); } }); environment.dispose(); pmrem.dispose(); haloGeometry.dispose(); haloMaterial.dispose(); renderer.dispose();} };
+  return { ready, setHandoff(v) { handoff=THREE.MathUtils.clamp(v,0,1); render(); }, setReveal(v) { reveal=THREE.MathUtils.clamp(v,0,1); if(options.reducedMotion) render(); }, setScrollProgress(v) {scroll=THREE.MathUtils.clamp(v,0,1); if(options.reducedMotion) render();}, renderOnce: render, dispose() {disposed=true; cancelAnimationFrame(raf); observer.disconnect(); window.removeEventListener('resize',resize); hero.removeEventListener('pointermove',pointer); hero.removeEventListener('pointerleave',leave); document.removeEventListener('visibilitychange',visibility); dragArea.remove(); hero.classList.remove('has-sculpture-control'); model?.traverse(o => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); const mats=Array.isArray(o.material)?o.material:[o.material]; mats.forEach(m=>m.dispose()); } }); environment.dispose(); pmrem.dispose(); haloGeometry.dispose(); haloMaterial.dispose(); renderer.dispose();} };
 }

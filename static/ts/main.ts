@@ -83,40 +83,37 @@ function initHeroAndIntroExperience(): void {
     const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
     const revealState = { value: 0 };
 
-    if (fromVideo && splash) {
-      tl.to(
-        splash,
-        {
-          opacity: 0,
-          duration: 0.78,
-          ease: "power3.inOut",
-          onComplete: () => {
-            video?.pause();
-            root.classList.remove("intro-active");
-            splash.style.opacity = "";
-          },
+    if (fromVideo && splash && sculpture) {
+      // The model starts where the contained 1280×720 video's last frame ends.
+      // Crossfade in place first, then move the same model into the hero.
+      const vignette = hero?.querySelector<HTMLElement>('.hero__vignette');
+      if (vignette) gsap.set(vignette, { opacity: 0 });
+      sculpture.setHandoff(0);
+      sculpture.setReveal(1);
+      sculpture.renderOnce();
+      const handoffState = { value: 0 };
+      tl.to(splash, {
+        opacity: 0, duration: .45, ease: "sine.inOut",
+        onComplete: () => {
+          video?.pause();
+          root.classList.remove("intro-active");
+          splash.style.opacity = "";
         },
-        0,
-      );
+      }, 0);
+      tl.to(handoffState, {
+        value: 1, duration: 1.45, ease: "power2.inOut",
+        onUpdate: () => sculpture?.setHandoff(handoffState.value),
+      }, .36);
+      if (vignette) tl.to(vignette, { opacity: 1, duration: 1.45, ease: "power2.inOut", clearProps: "opacity" }, .36);
     } else {
       root.classList.remove("intro-active");
+      tl.to(revealState, {
+        value: 1, duration: 1.05, ease: "power3.out",
+        onUpdate: () => sculpture?.setReveal(revealState.value),
+      }, 0);
     }
 
-    // Materialize 3D sculpture & residual particles seamlessly from black
-    tl.to(
-      revealState,
-      {
-        value: 1,
-        duration: fromVideo ? 1.35 : 1.05,
-        ease: "power3.out",
-        onUpdate: () => {
-          sculpture?.setReveal(revealState.value);
-        },
-      },
-      fromVideo ? 0.1 : 0.0,
-    );
-
-    const textStart = fromVideo ? 0.24 : 0.04;
+    const textStart = fromVideo ? 0.4 : 0.04;
 
     if (staggerEls[0]) {
       tl.to(staggerEls[0], { y: 0, opacity: 1, duration: 0.62, ease: "power3.out" }, textStart);
@@ -208,11 +205,18 @@ function initHeroAndIntroExperience(): void {
     let finished = false;
     let safetyTimer = 0;
 
-    const completeVideo = (): void => {
+    const completeVideo = async (playedToEnd: boolean): Promise<void> => {
       if (finished) return;
       finished = true;
       if (safetyTimer) window.clearTimeout(safetyTimer);
-      playHeroEntrance(true);
+      if (!playedToEnd || !sculpture) { playHeroEntrance(false); return; }
+      // The video remains on its last frame while an unusually slow model load
+      // finishes; the bounded wait still lets the page recover from failure.
+      const ready = await Promise.race([
+        sculpture.ready,
+        new Promise<boolean>(resolve => window.setTimeout(() => resolve(false), 2000)),
+      ]);
+      playHeroEntrance(ready);
     };
 
     const src = video.dataset.src;
@@ -222,23 +226,23 @@ function initHeroAndIntroExperience(): void {
     video.muted = true;
     video.playsInline = true;
 
-    video.addEventListener("ended", completeVideo, { once: true });
-    video.addEventListener("error", completeVideo, { once: true });
+    video.addEventListener("ended", () => { void completeVideo(true); }, { once: true });
+    video.addEventListener("error", () => { void completeVideo(false); }, { once: true });
     video.addEventListener("loadedmetadata", () => {
       const durationMs =
         Number.isFinite(video.duration) && video.duration > 0
           ? Math.ceil(video.duration * 1000) + 1500
           : 8000;
       if (safetyTimer) window.clearTimeout(safetyTimer);
-      safetyTimer = window.setTimeout(completeVideo, durationMs);
+      safetyTimer = window.setTimeout(() => { void completeVideo(false); }, durationMs);
     });
 
-    safetyTimer = window.setTimeout(completeVideo, 8000);
+    safetyTimer = window.setTimeout(() => { void completeVideo(false); }, 8000);
 
     const playPromise = video.play();
     if (playPromise && typeof playPromise.catch === "function") {
       playPromise.catch(() => {
-        completeVideo();
+        void completeVideo(false);
       });
     }
   } else {

@@ -1,5 +1,5 @@
 """Make a thick, image-derived relief of the supplied logo, preserving its color and lettering.
-Run at repository root: blender -b -t 4 --python-exit-code 1 --python artwork/logo-emblem/generate.py
+Run at repository root: blender -b -t 4 --python-exit-code 1 --python artwork/loader-reference/generate.py
 """
 import bpy, os, numpy as np
 from scipy import ndimage as ndi
@@ -21,10 +21,10 @@ yellow=(r>.58)&(g>.38)&(b<.28)&mask
 near_gold=ndi.binary_dilation(yellow,iterations=5)
 dark=(np.maximum.reduce([r,g,b])<.22)&near_gold&mask
 edge=ndi.distance_transform_edt(mask)
-yellow_depth=ndi.gaussian_filter(yellow.astype(float),2)
+yellow_depth=ndi.gaussian_filter(yellow.astype(float),5)
 letter_depth=ndi.gaussian_filter(dark.astype(float),.65)
 # Rounded perimeter, domed gold and a raised script, all with genuine depth.
-height=.075+.055*np.clip(edge/6,0,1)+.055*yellow_depth+.004*letter_depth
+height=.055+.035*np.clip(edge/8,0,1)+.020*yellow_depth+.001*letter_depth
 height+=.010*np.sin(np.linspace(0,np.pi,384))[None,:]
 verts=[]; uv=[]; indices=np.full((384,384),-1,dtype=np.int32)
 for y in range(384):
@@ -33,7 +33,7 @@ for y in range(384):
             indices[y,x]=len(verts); verts.append(((x/383-.5)*3.4,(y/383-.5)*3.4,float(height[y,x])))
             uv.append((x/383,y/383))
 front=len(verts)
-verts += [(x,y,-.11) for x,y,z in verts]; uv += uv[:]
+verts += [(x,y,-.055) for x,y,z in verts]; uv += uv[:]
 faces=[]; boundary={}
 for y in range(383):
     for x in range(383):
@@ -61,9 +61,9 @@ world.node_tree.nodes['Background'].inputs['Color'].default_value=(.008,.008,.01
 def area(name,loc,color,power,size,sizey):
     d=bpy.data.lights.new(name,'AREA'); d.energy=power; d.color=color; d.shape='RECTANGLE'; d.size=size; d.size_y=sizey
     o=bpy.data.objects.new(name,d); bpy.context.collection.objects.link(o); o.location=loc; o.rotation_euler=(Vector((0,0,0))-o.location).to_track_quat('-Z','Y').to_euler()
-area('Large softbox',(-2,3,5),(1,.91,1),420,4,3)
-area('Cyan rim',(3,1,3),(.35,.8,1),350,3,4)
-area('Purple rim',(-3,-1,2),(.6,.3,1),300,3,3)
+area('Large softbox',(-2,3,5),(1,.96,1),320,5,4)
+area('Cyan rim',(3,1,3),(.45,.8,1),230,4,5)
+area('Purple rim',(-3,-1,2),(.65,.45,1),200,4,4)
 camera_data=bpy.data.cameras.new('Front camera'); camera=bpy.data.objects.new('Front camera',camera_data); bpy.context.collection.objects.link(camera); camera.location=(0,0,8); camera.rotation_euler=(0,0,0); camera_data.type='ORTHO'; camera_data.ortho_scale=3.8; bpy.context.scene.camera=camera
 scene=bpy.context.scene; scene.render.engine='CYCLES'; scene.cycles.samples=48; scene.cycles.use_denoising=True; scene.render.resolution_x=800; scene.render.resolution_y=800; scene.render.resolution_percentage=100; scene.render.image_settings.file_format='PNG'; scene.view_settings.view_transform='Standard'; scene.render.filepath=OUT+'/preview.png'; bpy.ops.render.render(write_still=True)
 bpy.ops.wm.save_as_mainfile(filepath=OUT+'/loader-emblem.blend')

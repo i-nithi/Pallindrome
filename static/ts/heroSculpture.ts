@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 export interface HeroSculptureController {
   setReveal(value: number): void;
@@ -7,54 +9,6 @@ export interface HeroSculptureController {
   dispose(): void;
 }
 export interface HeroSculptureOptions { reducedMotion?: boolean; onFallback?: () => void }
-
-// The original artwork is the surface map: its silhouette, folds and lettering are
-// retained, while a finely tessellated surface gives the printed mark real depth.
-const vertex = `
-uniform float uTime, uScroll, uMotion;
-uniform vec2 uPointer;
-varying vec2 vUv;
-varying vec3 vNormalView;
-varying vec3 vView;
-varying float vWave;
-void main() {
-  vUv = uv;
-  vec3 p = position;
-  float d = length(uv - uPointer);
-  float ripple = sin(d * 30.0 - uTime * 2.3) * exp(-d * 7.0) * uMotion;
-  float wave = sin(uv.x * 11.0 + uv.y * 5.0 + uTime * .55) * cos(uv.y * 9.0 - uTime * .4);
-  p.z += wave * .035 + ripple * .075 + uScroll * sin(uv.y * 8.0 + uTime) * .08;
-  p.z += .12 * (1.0 - dot(position.xy, position.xy) * .28);
-  vWave = wave + ripple;
-  vec4 mv = modelViewMatrix * vec4(p, 1.0);
-  vView = normalize(-mv.xyz);
-  vNormalView = normalize(normalMatrix * normalize(vec3(-.06 * cos(uv.x * 11.0 + uTime * .55), -.06 * sin(uv.y * 9.0 - uTime * .4), 1.0)));
-  gl_Position = projectionMatrix * mv;
-}`;
-const fragment = `
-uniform sampler2D uLogo;
-uniform float uTime, uReveal, uScroll;
-uniform vec2 uPointer;
-varying vec2 vUv;
-varying vec3 vNormalView, vView;
-varying float vWave;
-void main() {
-  vec4 art = texture2D(uLogo, vUv);
-  if (art.a < .07) discard;
-  vec3 n = normalize(vNormalView);
-  float fresnel = pow(1.0 - max(dot(n, normalize(vView)), 0.0), 2.0);
-  float band = pow(max(0.0, sin(vUv.x * 13.0 + vUv.y * 9.0 + vWave * 1.4 + uTime * .38)), 12.0);
-  float band2 = pow(max(0.0, cos(vUv.x * 7.0 - vUv.y * 14.0 - uTime * .23)), 18.0);
-  float cursorLight = exp(-length(vUv-uPointer)*5.0);
-  vec3 chroma = mix(vec3(.16,.06,.5), vec3(.02,.72,1.0), smoothstep(.2,.85,vUv.x));
-  chroma = mix(chroma, vec3(.88,.08,.64), .32 + .2*sin(vUv.y*7.0+uTime*.2));
-  // Keep the black script and original gold intact; reflections collect on the ribbons.
-  float ribbon = smoothstep(.18,.5,max(art.r, max(art.g, art.b))) * (1.0 - smoothstep(.55,.82, min(art.r, art.g)));
-  vec3 color = art.rgb * (.80 + .12 * vWave);
-  color += ribbon * (chroma * (.20 + band * .40 + cursorLight * .13) + vec3(.65,.82,1.0) * band2 * .25);
-  color += fresnel * chroma * .35;
-  gl_FragColor = vec4(color, art.a * smoothstep(.04,.58,uReveal) * (1.0-uScroll*.85));
-}`;
 
 export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, options: HeroSculptureOptions = {}): HeroSculptureController {
   let renderer: THREE.WebGLRenderer;
@@ -71,11 +25,42 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   camera.position.z = 6;
   const group = new THREE.Group();
   scene.add(group);
-  const uniforms = { uLogo: { value: null as THREE.Texture | null }, uTime: { value: 0 }, uReveal: { value: 0 }, uScroll: { value: 0 }, uPointer: { value: new THREE.Vector2(.5,.5) }, uMotion: { value: 0 } };
-  const geometry = new THREE.PlaneGeometry(3.25, 3.25, 80, 80);
-  const material = new THREE.ShaderMaterial({ uniforms, vertexShader: vertex, fragmentShader: fragment, transparent: true, side: THREE.DoubleSide, depthWrite: false });
-  const sculpture = new THREE.Mesh(geometry, material);
-  group.add(sculpture);
+  const uniforms = { uTime: { value: 0 }, uReveal: { value: 0 }, uScroll: { value: 0 }, uPointer: { value: new THREE.Vector2(.5,.5) }, uMotion: { value: 0 } };
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const environment = pmrem.fromScene(new RoomEnvironment(), .08).texture;
+  scene.environment = environment;
+  scene.environmentIntensity = .75;
+  const key = new THREE.DirectionalLight(0xf4dfff, 2.1); key.position.set(-3,4,5); scene.add(key);
+  const cyan = new THREE.DirectionalLight(0x41bfff, 2.5); cyan.position.set(4,1,3); scene.add(cyan);
+  const violet = new THREE.DirectionalLight(0x8d30ff, 2); violet.position.set(-4,-2,1); scene.add(violet);
+  let model: THREE.Group | null = null;
+  const loader = new GLTFLoader();
+  loader.load('/static/models/infinite-flow.glb', (gltf) => {
+    if (disposed) { gltf.scene.traverse(o => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); const mats=Array.isArray(o.material)?o.material:[o.material]; mats.forEach(m=>m.dispose()); } }); return; }
+    model = gltf.scene;
+    model.traverse((object) => {
+      if (!(object instanceof THREE.Mesh)) return;
+      const mats = Array.isArray(object.material) ? object.material : [object.material];
+      mats.forEach((mat) => {
+        if (!(mat instanceof THREE.MeshStandardMaterial)) return;
+        mat.side = THREE.DoubleSide;
+        mat.onBeforeCompile = (shader) => {
+          shader.uniforms.uTime = uniforms.uTime; shader.uniforms.uMotion = uniforms.uMotion; shader.uniforms.uReveal = uniforms.uReveal; shader.uniforms.uScroll = uniforms.uScroll;
+          shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nuniform float uTime; uniform float uMotion;');
+          shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += normal * (sin(position.y * 5.0 + position.x * 3.0 + uTime * .55) * .012 + uMotion * .018 * sin(position.y * 9.0 - uTime));');
+          shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uReveal; uniform float uScroll;');
+          shader.fragmentShader = shader.fragmentShader.replace('#include <opaque_fragment>', '#include <opaque_fragment>\ngl_FragColor.a *= smoothstep(.05,.75,uReveal) * (1.0-uScroll*.85);');
+        };
+        mat.transparent = true; mat.needsUpdate = true;
+      });
+    });
+    group.add(model); render();
+  }, undefined, () => options.onFallback?.());
+  const haloGeometry=new THREE.PlaneGeometry(5,5);
+  const haloMaterial=new THREE.ShaderMaterial({uniforms, transparent:true, depthWrite:false,
+    vertexShader:`varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`varying vec2 vUv; uniform float uReveal,uScroll; void main(){vec2 p=(vUv-.5)*2.; float r=length(p*vec2(1.,1.2)); float a=exp(-r*r*5.)*.19*smoothstep(0.,.8,uReveal)*(1.-uScroll); vec3 c=mix(vec3(.22,.025,.37),vec3(.005,.18,.29),smoothstep(-.5,.5,p.x)); gl_FragColor=vec4(c,a);}`});
+  const halo=new THREE.Mesh(haloGeometry,haloMaterial); halo.position.z=-.55; group.add(halo);
 
   // Small fragments travel into the mark during the existing GSAP reveal.
   const count = 180;
@@ -95,9 +80,6 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   const points = new THREE.Points(pointsGeo, pointsMat); group.add(points);
   let disposed = false, visible = true, raf = 0, reveal = 0, scroll = 0, time = 0, last = 0;
   let px = .5, py = .5, tx = .5, ty = .5, motion = 0;
-  const texture = new THREE.TextureLoader().load('/static/img/pallindrome-logo.png', () => { if (!disposed) render(); }, undefined, () => options.onFallback?.());
-  texture.colorSpace = THREE.SRGBColorSpace;
-  uniforms.uLogo.value = texture;
   function resize() {
     const w = hero.clientWidth, h = hero.clientHeight;
     if (!w || !h) return;
@@ -139,5 +121,5 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   observer.observe(hero); window.addEventListener('resize',resize,{passive:true}); hero.addEventListener('pointermove',pointer,{passive:true}); hero.addEventListener('pointerleave',leave); document.addEventListener('visibilitychange',visibility);
   if (options.reducedMotion) reveal=1;
   resize(); start();
-  return { setReveal(v) { reveal=THREE.MathUtils.clamp(v,0,1); if(options.reducedMotion) render(); }, setScrollProgress(v) {scroll=THREE.MathUtils.clamp(v,0,1); if(options.reducedMotion) render();}, renderOnce: render, dispose() {disposed=true; cancelAnimationFrame(raf); observer.disconnect(); window.removeEventListener('resize',resize); hero.removeEventListener('pointermove',pointer); hero.removeEventListener('pointerleave',leave); document.removeEventListener('visibilitychange',visibility); geometry.dispose(); material.dispose(); pointsGeo.dispose(); pointsMat.dispose(); texture.dispose(); renderer.dispose();} };
+  return { setReveal(v) { reveal=THREE.MathUtils.clamp(v,0,1); if(options.reducedMotion) render(); }, setScrollProgress(v) {scroll=THREE.MathUtils.clamp(v,0,1); if(options.reducedMotion) render();}, renderOnce: render, dispose() {disposed=true; cancelAnimationFrame(raf); observer.disconnect(); window.removeEventListener('resize',resize); hero.removeEventListener('pointermove',pointer); hero.removeEventListener('pointerleave',leave); document.removeEventListener('visibilitychange',visibility); model?.traverse(o => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); const mats=Array.isArray(o.material)?o.material:[o.material]; mats.forEach(m=>m.dispose()); } }); environment.dispose(); pmrem.dispose(); haloGeometry.dispose(); haloMaterial.dispose(); pointsGeo.dispose(); pointsMat.dispose(); renderer.dispose();} };
 }

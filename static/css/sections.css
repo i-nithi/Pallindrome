@@ -1277,7 +1277,7 @@ html.intro-active .intro-splash {
 /* The original mark remains available when WebGL cannot be created. */
 .hero__fallback-halo {
   right: 4%; top: 50%; width: min(48vw, 73vh); height: auto; aspect-ratio: 1;
-  border-radius: 0; background: url('../img/pallindrome-logo.png') center / contain no-repeat;
+  border-radius: 0; background: url('../img/hero-sculpture-fallback.svg') center / contain no-repeat;
   filter: none; transform: translateY(-50%);
 }
 .hero__fallback-ring, .hero__fallback-void { display: none; }

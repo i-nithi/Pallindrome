@@ -657,3 +657,15 @@ ol {
     transform: none;
   }
 }
+
+/* A precise, lightweight cursor with a chromatic halo on interactive elements. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  html.has-custom-cursor, html.has-custom-cursor * { cursor: none !important; }
+  html.has-custom-cursor input, html.has-custom-cursor textarea,
+  html.has-custom-cursor select, html.has-custom-cursor [contenteditable="true"] { cursor: auto !important; }
+  .custom-cursor { position: absolute; top: 0; left: 0; width: 0; height: 0; opacity: 0; pointer-events: none; transition: opacity .18s ease; }
+  .custom-cursor.is-visible { opacity: 1; }
+  .custom-cursor__ring { position: absolute; width: 30px; height: 30px; left: -15px; top: -15px; border: 1px solid rgba(186, 125, 255, .85); border-radius: 50%; box-shadow: 0 0 12px rgba(0, 217, 255, .18), inset 0 0 8px rgba(139, 0, 255, .12); transition: transform .25s ease, border-color .25s ease, background-color .25s ease; }
+  .custom-cursor__dot { position: absolute; width: 4px; height: 4px; left: -2px; top: -2px; border-radius: 50%; background: #fff; box-shadow: 0 0 7px #00d9ff; }
+  .custom-cursor.is-link .custom-cursor__ring { transform: scale(1.45); border-color: rgba(0, 217, 255, .9); background: rgba(139, 0, 255, .1); }
+}

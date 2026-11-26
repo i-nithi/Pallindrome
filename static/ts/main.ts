@@ -5,7 +5,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { initHeroSculpture, type HeroSculptureController } from "./heroSculpture";
-import { initGlowCursor, type GlowCursorController } from "./glowCursor";
+import { initChromaticPortal } from "./chromaticPortal";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -619,44 +619,32 @@ function initServicesAndContactForm(): void {
 
 function initSiteGlowCursor(): void {
   const layer = document.getElementById("glow-cursor-layer");
-  const canvas = document.getElementById("glow-cursor-canvas") as HTMLCanvasElement | null;
-  if (!layer || !canvas) return;
-
+  if (!layer || !window.matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)").matches) return;
+  layer.replaceChildren();
+  const cursor = document.createElement("div");
+  cursor.className = "custom-cursor";
+  cursor.innerHTML = '<span class="custom-cursor__ring"></span><span class="custom-cursor__dot"></span>';
+  layer.appendChild(cursor);
   const root = document.documentElement;
-  const cursor: GlowCursorController | null = initGlowCursor(layer, canvas, {
-    colors: [
-      ["#00D9FF", "#8B00FF"],
-      ["#EF00CF", "#0066FF"],
-      ["#8B00FF", "#00D9FF"],
-      ["#0066FF", "#EF00CF"],
-    ],
-    burstAccentColor: "#FFC900",
-    intensity: 1.25,
-    trailWidth: 3,
-    linger: 1.4,
-    glow: 1.15,
-    hotspot: 0.78,
-    followSpeed: 0.6,
-    grain: 0.015,
-    clickBurst: true,
-    enabled: !root.classList.contains("intro-active"),
+  const move = (event: PointerEvent): void => {
+    if (event.pointerType === "touch") return;
+    const target = event.target instanceof Element ? event.target : null;
+    const editing = !!target?.closest('input, textarea, select, [contenteditable="true"]');
+    const visible = !editing && !root.classList.contains("intro-active");
+    root.classList.toggle("has-custom-cursor", visible);
+    cursor.classList.toggle("is-visible", visible);
+    cursor.classList.toggle("is-link", !!target?.closest('a, button, [role="button"], label'));
+    cursor.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`;
+  };
+  window.addEventListener("pointermove", move, { passive: true });
+  document.documentElement.addEventListener("pointerleave", () => {
+    root.classList.remove("has-custom-cursor");
+    cursor.classList.remove("is-visible");
   });
-
-  if (!cursor) {
-    layer.remove();
-    return;
-  }
-
-  // Enable fluid cursor once any first-visit intro video finishes
-  if (root.classList.contains("intro-active")) {
-    const observer = new MutationObserver(() => {
-      if (!root.classList.contains("intro-active")) {
-        cursor.setEnabled(true);
-        observer.disconnect();
-      }
-    });
-    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
-  }
+  window.addEventListener("blur", () => {
+    root.classList.remove("has-custom-cursor");
+    cursor.classList.remove("is-visible");
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -679,9 +667,20 @@ function initProofOfWork(): void {
   const intro = document.querySelector<HTMLElement>('[data-proof-intro]');
   const exhibition = document.querySelector<HTMLElement>('[data-proof-exhibition]');
   if (!section || !stage || !panel || !intro || !exhibition) return;
+  const hero = document.querySelector<HTMLElement>('#hero');
+  let arrivalTarget: HTMLElement | null = null;
+  const portal = hero && !prefersReducedMotion() ? initChromaticPortal(hero, stage, panel, (arrival) => {
+    // Let the filaments reach the destination before the work card emerges.
+    const reveal = gsap.utils.clamp(0, 1, (arrival - .68) / .28);
+    const target = window.innerWidth > 900 ? panel : intro;
+    if (arrivalTarget && arrivalTarget !== target) gsap.set(arrivalTarget, { clearProps: 'opacity,transform' });
+    arrivalTarget = target;
+    gsap.set(target, { opacity: reveal, y: (1 - reveal) * 24 });
+  }) : null;
   const mm = gsap.matchMedia();
   mm.add('(max-width: 900px) and (prefers-reduced-motion: no-preference)', () => {
     const context = gsap.context(() => {
+      ScrollTrigger.create({ trigger: intro, start: 'top 65%', end: 'bottom 35%', onUpdate: self => portal?.setOpening(self.progress), onRefresh: self => portal?.setOpening(self.progress) });
       gsap.fromTo(intro, { scale: .92, borderRadius: 20 }, {
         scale: 1, borderRadius: 0, ease: 'none',
         scrollTrigger: { trigger: intro, start: 'top 90%', end: 'bottom 65%', scrub: true },
@@ -714,17 +713,18 @@ function initProofOfWork(): void {
       if(progress) progress.style.width = `${(index + 1) / projects.length * 100}%`;
     };
     const trigger = ScrollTrigger.create({trigger: stage, start:'top top', end: () => `+=${window.innerHeight * (projects.length + 0.8)}`, pin:true, scrub:true, onUpdate(self) {
-      const opening = Math.min(1, self.progress / .18);
+      const opening = Math.min(1, self.progress / .14);
+      portal?.setOpening(opening);
       gsap.set(panel, {width:`${43 + 57 * opening}vw`, height:`${52 + 48 * opening}vh`, borderRadius:18 * (1-opening)});
       gsap.set(intro, {opacity:Math.max(0, 1-opening*1.35), visibility: opening > .75 ? 'hidden':'visible'});
       gsap.set(exhibition, {opacity:Math.max(0, (opening-.3)/.7)});
-      const position = Math.max(0, Math.min(projects.length-1, (self.progress-.18)/.72*(projects.length-1)));
+      const position = Math.max(0, Math.min(projects.length-1, (self.progress-.14)/.76*(projects.length-1)));
       const index = Math.min(projects.length-1, Math.round(position));
       setActive(index);
       frames.forEach((frame,i) => {const delta=i-position; gsap.set(frame,{xPercent:0,yPercent:-50,y:delta*window.innerHeight*.37,scale:Math.max(.33,1-Math.abs(delta)*.67),opacity:Math.max(0,1-Math.abs(delta)*.38),zIndex:Math.round(10-Math.abs(delta)*5),filter:`brightness(${Math.max(.48,1-Math.abs(delta)*.5)})`});});
       backgrounds.forEach((bg,i) => gsap.set(bg,{opacity:Math.max(0,1-Math.abs(i-position))}));
     }});
-    buttons.forEach((button,i) => {button.onclick = () => { const ratio=.18 + (i/(projects.length-1))*.72; window.scrollTo({top:trigger.start+(trigger.end-trigger.start)*ratio,behavior:'smooth'}); };});
+    buttons.forEach((button,i) => {button.onclick = () => { const ratio=.14 + (i/(projects.length-1))*.76; window.scrollTo({top:trigger.start+(trigger.end-trigger.start)*ratio,behavior:'smooth'}); };});
     setActive(0); ScrollTrigger.refresh();
     return () => {trigger.kill(); section.classList.remove('is-cinematic', 'proof--light-background'); projects.forEach(p=>{p.inert=false;p.removeAttribute('aria-hidden');p.classList.remove('is-active');gsap.set(p,{clearProps:'all'});}); buttons.forEach(b=>{b.onclick=null;}); gsap.set([panel,intro,exhibition,...frames,...backgrounds],{clearProps:'all'});};
   });

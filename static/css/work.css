@@ -81,3 +81,7 @@
 @keyframes lab-output { 0%,30%,100% { opacity: .15; } 50%,85% { opacity: .65; } }
 @keyframes lab-scan { from { transform: translateX(-6px); opacity: .1; } to { transform: translateX(6px); opacity: .45; } }
 @media (prefers-reduced-motion: reduce) { .lab-visual *, .lab-art .lab-visual { animation: none !important; transition: none; } .lab-eval, .lab-terminal-command { stroke-dashoffset: 0; } .lab-graph-traverse, .lab-traversal-dot { display: none; } }
+
+/* Scroll-sampled energy between the hero and the existing work card. */
+.chromatic-portal { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; visibility: hidden; }
+@media (prefers-reduced-motion: reduce) { .chromatic-portal { display: none; } }

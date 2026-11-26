@@ -1273,3 +1273,14 @@ html.intro-active .intro-splash {
     align-items: flex-start;
   }
 }
+
+/* The original mark remains available when WebGL cannot be created. */
+.hero__fallback-halo {
+  right: 4%; top: 50%; width: min(48vw, 73vh); height: auto; aspect-ratio: 1;
+  border-radius: 0; background: url('../img/pallindrome-logo.png') center / contain no-repeat;
+  filter: none; transform: translateY(-50%);
+}
+.hero__fallback-ring, .hero__fallback-void { display: none; }
+@media (max-width: 767px) {
+  .hero__fallback-halo { right: 8%; top: 68%; width: min(84vw, 43vh); }
+}

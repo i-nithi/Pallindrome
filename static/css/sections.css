@@ -1277,10 +1277,30 @@ html.intro-active .intro-splash {
 /* The original mark remains available when WebGL cannot be created. */
 .hero__fallback-halo {
   right: 4%; top: 50%; width: min(48vw, 73vh); height: auto; aspect-ratio: 1;
-  border-radius: 0; background: url('../img/hero-sculpture-fallback.svg') center / contain no-repeat;
+  border-radius: 0; background: url('../img/pallindrome-logo.png') center / contain no-repeat;
   filter: none; transform: translateY(-50%);
 }
 .hero__fallback-ring, .hero__fallback-void { display: none; }
 @media (max-width: 767px) {
   .hero__fallback-halo { right: 8%; top: 68%; width: min(84vw, 43vh); }
 }
+
+/* The control covers the artwork only; the rest of the hero keeps normal input. */
+.hero__sculpture-control {
+  position: absolute;
+  z-index: 1;
+  touch-action: none;
+  cursor: grab;
+  border-radius: 50%;
+}
+.hero__sculpture-control.is-dragging { cursor: grabbing; }
+.hero__sculpture-control:focus-visible { outline: 2px solid #b493ff; outline-offset: 3px; }
+
+/* Keep text selectable and controls clickable where they overlap the artwork. */
+.hero.has-sculpture-control .hero__content,
+.hero.has-sculpture-control .hero__editorial,
+.hero.has-sculpture-control .hero__lower { pointer-events: none; }
+.hero.has-sculpture-control .hero__eyebrow,
+.hero.has-sculpture-control .hero__title,
+.hero.has-sculpture-control .hero__copy,
+.hero.has-sculpture-control .hero__actions { pointer-events: auto; }

@@ -35,7 +35,7 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   const violet = new THREE.DirectionalLight(0x8d30ff, 2); violet.position.set(-4,-2,1); scene.add(violet);
   let model: THREE.Group | null = null;
   const loader = new GLTFLoader();
-  loader.load('/static/models/infinite-flow.glb', (gltf) => {
+  loader.load('/static/models/chromatic-glass.glb', (gltf) => {
     if (disposed) { gltf.scene.traverse(o => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); const mats=Array.isArray(o.material)?o.material:[o.material]; mats.forEach(m=>m.dispose()); } }); return; }
     model = gltf.scene;
     model.traverse((object) => {
@@ -44,6 +44,16 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
       mats.forEach((mat) => {
         if (!(mat instanceof THREE.MeshStandardMaterial)) return;
         mat.side = THREE.DoubleSide;
+        if (mat instanceof THREE.MeshPhysicalMaterial) {
+          // glTF carries transmission and IOR; a restrained thin-film response
+          // adds the chromatic shift that the glTF export cannot preserve.
+          mat.transmission = .68;
+          mat.thickness = .18;
+          mat.iridescence = .38;
+          mat.iridescenceIOR = 1.3;
+          mat.iridescenceThicknessRange = [120, 420];
+          mat.envMapIntensity = 1.1;
+        }
         mat.onBeforeCompile = (shader) => {
           shader.uniforms.uTime = uniforms.uTime; shader.uniforms.uMotion = uniforms.uMotion; shader.uniforms.uReveal = uniforms.uReveal; shader.uniforms.uScroll = uniforms.uScroll;
           shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nuniform float uTime; uniform float uMotion;');
@@ -62,10 +72,10 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
     fragmentShader:`varying vec2 vUv; uniform float uReveal,uScroll; void main(){vec2 p=(vUv-.5)*2.; float r=length(p*vec2(1.,1.2)); float a=exp(-r*r*5.)*.19*smoothstep(0.,.8,uReveal)*(1.-uScroll); vec3 c=mix(vec3(.22,.025,.37),vec3(.005,.18,.29),smoothstep(-.5,.5,p.x)); gl_FragColor=vec4(c,a);}`});
   const halo=new THREE.Mesh(haloGeometry,haloMaterial); halo.position.z=-.55; group.add(halo);
 
-  // Small fragments travel into the mark during the existing GSAP reveal.
-  const count = 180;
+  // A sparse field adds depth without competing with the sculpture.
+  const count = 35;
   const positions = new Float32Array(count * 3), targets = new Float32Array(count * 3), colors = new Float32Array(count * 3);
-  const palette = [new THREE.Color('#a43cff'), new THREE.Color('#10bfff'), new THREE.Color('#ec3bc2'), new THREE.Color('#e6b14a')];
+  const palette = [new THREE.Color('#a43cff'), new THREE.Color('#10bfff'), new THREE.Color('#ec3bc2'), new THREE.Color('#514fff')];
   for (let i = 0; i < count; i++) {
     const a = i * 2.39996, radius = .6 + Math.random() * 1.6;
     positions[i*3] = Math.cos(a)*radius; positions[i*3+1] = Math.sin(a)*radius; positions[i*3+2] = (Math.random()-.5)*1.4;
@@ -79,7 +89,7 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   const pointsMat = new THREE.ShaderMaterial({ uniforms, transparent: true, depthWrite: false, vertexColors: true, vertexShader: `attribute vec3 aTarget; varying vec3 vColor; uniform float uReveal,uTime,uScroll; void main(){vColor=color; vec3 p=mix(position,aTarget,smoothstep(0.0,1.0,uReveal)); p.xy += vec2(sin(uTime*.3+position.y*4.0),cos(uTime*.25+position.x*4.0))*.025; vec4 mv=modelViewMatrix*vec4(p,1.0); gl_Position=projectionMatrix*mv; gl_PointSize=3.0*(6.0/-mv.z);}`, fragmentShader: `varying vec3 vColor; uniform float uReveal,uScroll; void main(){float d=length(gl_PointCoord-.5); float a=smoothstep(.5,.05,d)*(.3+.7*(1.0-uReveal))*(1.0-uScroll); gl_FragColor=vec4(vColor,a);}` });
   const points = new THREE.Points(pointsGeo, pointsMat); group.add(points);
   let disposed = false, visible = true, raf = 0, reveal = 0, scroll = 0, time = 0, last = 0;
-  let px = .5, py = .5, tx = .5, ty = .5, motion = 0;
+  let px = .5, py = .5, tx = .5, ty = .5, motion = 0, baseScale = 1, baseY = 0;
   function resize() {
     const w = hero.clientWidth, h = hero.clientHeight;
     if (!w || !h) return;
@@ -90,16 +100,19 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
     const viewHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*camera.position.z;
     const viewWidth = viewHeight * camera.aspect;
     const size = mobile ? Math.min(w*.84, h*.43) : Math.min(w*.48, h*.73);
-    const scale = size / h * viewHeight / 3.25;
-    group.scale.setScalar(scale);
-    group.position.set((mobile ? .5 : .755) * viewWidth - viewWidth/2, (mobile ? -.18 : -.015) * viewHeight, 0);
+    baseScale = size / h * viewHeight / 3.6;
+    baseY = (mobile ? -.18 : -.015) * viewHeight;
+    group.scale.setScalar(baseScale);
+    group.position.set((mobile ? .5 : .755) * viewWidth - viewWidth/2, baseY, 0);
     render();
   }
   function render() {
     uniforms.uTime.value = time; uniforms.uReveal.value = reveal; uniforms.uScroll.value = scroll;
     uniforms.uPointer.value.set(px,py); uniforms.uMotion.value = motion;
-    group.rotation.y = (px-.5)*.28 + Math.sin(time*.35)*.055;
-    group.rotation.x = -(py-.5)*.18 + Math.sin(time*.28)*.035;
+    group.scale.setScalar(baseScale * (1 + Math.sin(time*.42)*.008));
+    group.position.y = baseY + Math.sin(time*.35)*.025*baseScale;
+    group.rotation.y = (px-.5)*.18 + Math.sin(time*.25)*.035;
+    group.rotation.x = -(py-.5)*.12 + Math.sin(time*.22)*.025;
     group.rotation.z = Math.sin(time*.22)*.018 + scroll*.06;
     renderer.render(scene,camera);
   }

@@ -5,7 +5,6 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { initHeroSculpture, type HeroSculptureController } from "./heroSculpture";
-import { initChromaticPortal } from "./chromaticPortal";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -28,6 +27,8 @@ const PROJECT_DISPLAY_NAMES: Record<string, string> = {
 const prefersReducedMotion = (): boolean =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+let heroSculptureController: HeroSculptureController | null = null;
+
 /**
  * Coordinates the optional first-visit intro video handoff, WebGL sculpture
  * materialization, staggered masked headline reveal, and scroll exit.
@@ -40,7 +41,6 @@ function initHeroAndIntroExperience(): void {
   const heroCanvas = document.getElementById("hero-canvas") as HTMLCanvasElement | null;
   const masthead = document.getElementById("masthead");
   const heroScroll = document.getElementById("hero-scroll");
-  const heroContent = document.getElementById("hero-content");
   const headlineLines = Array.from(document.querySelectorAll<HTMLElement>(".hero__line-inner"));
   const staggerEls = Array.from(document.querySelectorAll<HTMLElement>("[data-hero-stagger]"));
 
@@ -60,6 +60,7 @@ function initHeroAndIntroExperience(): void {
   } else if (hero) {
     hero.classList.add("is-webgl-fallback");
   }
+  heroSculptureController = sculpture;
 
   if (!reduced) {
     gsap.set(headlineLines, { yPercent: 112, opacity: 0 });
@@ -175,30 +176,6 @@ function initHeroAndIntroExperience(): void {
       );
     }
   };
-
-  // Subtle ScrollTrigger exit transformation leaving the hero into Services
-  if (hero && !reduced) {
-    ScrollTrigger.create({
-      trigger: hero,
-      start: "top top",
-      end: "bottom top",
-      scrub: true,
-      onUpdate: (self) => {
-        sculpture?.setScrollProgress(self.progress);
-        if (heroContent) {
-          gsap.set(heroContent, {
-            y: self.progress * -48,
-            opacity: Math.max(0.18, 1 - self.progress * 1.15),
-          });
-        }
-        if (heroScroll) {
-          gsap.set(heroScroll, {
-            opacity: Math.max(0, 1 - self.progress * 3.5),
-          });
-        }
-      },
-    });
-  }
 
   // First-visit video handoff vs immediate return-visit entrance
   if (!reduced && root.classList.contains("intro-active") && splash && video) {
@@ -668,26 +645,15 @@ function initProofOfWork(): void {
   const section = document.querySelector<HTMLElement>('.proof');
   const stage = document.querySelector<HTMLElement>('[data-proof-stage]');
   const panel = document.querySelector<HTMLElement>('[data-proof-panel]');
-  const intro = document.querySelector<HTMLElement>('[data-proof-intro]');
   const exhibition = document.querySelector<HTMLElement>('[data-proof-exhibition]');
-  if (!section || !stage || !panel || !intro || !exhibition) return;
-  const hero = document.querySelector<HTMLElement>('#hero');
-  let arrivalTarget: HTMLElement | null = null;
-  const portal = hero && !prefersReducedMotion() ? initChromaticPortal(hero, stage, panel, (arrival) => {
-    // Let the filaments reach the destination before the work card emerges.
-    const reveal = gsap.utils.clamp(0, 1, (arrival - .68) / .28);
-    const target = window.innerWidth > 900 ? panel : intro;
-    if (arrivalTarget && arrivalTarget !== target) gsap.set(arrivalTarget, { clearProps: 'opacity,transform' });
-    arrivalTarget = target;
-    gsap.set(target, { opacity: reveal, y: (1 - reveal) * 24 });
-  }) : null;
+  const label = document.querySelector<HTMLElement>('[data-proof-label]');
+  if (!section || !stage || !panel || !exhibition || !label) return;
   const mm = gsap.matchMedia();
   mm.add('(max-width: 900px) and (prefers-reduced-motion: no-preference)', () => {
     const context = gsap.context(() => {
-      ScrollTrigger.create({ trigger: intro, start: 'top 65%', end: 'bottom 35%', onUpdate: self => portal?.setOpening(self.progress), onRefresh: self => portal?.setOpening(self.progress) });
-      gsap.fromTo(intro, { scale: .92, borderRadius: 20 }, {
-        scale: 1, borderRadius: 0, ease: 'none',
-        scrollTrigger: { trigger: intro, start: 'top 90%', end: 'bottom 65%', scrub: true },
+      gsap.fromTo(label, { y: 18, clipPath: 'inset(0 0 100% 0)' }, {
+        y: 0, clipPath: 'inset(0 0 0% 0)', ease: 'none',
+        scrollTrigger: { trigger: stage, start: 'top 92%', end: 'top 65%', scrub: true },
       });
       section.querySelectorAll<HTMLElement>('.proof-mobile-image').forEach((image) => {
         gsap.fromTo(image, { y: 24, opacity: .75 }, {
@@ -699,10 +665,21 @@ function initProofOfWork(): void {
     return () => context.revert();
   });
   mm.add('(min-width: 901px) and (prefers-reduced-motion: no-preference)', () => {
+    const hero = document.querySelector<HTMLElement>('#hero');
+    if (!hero) return;
     section.classList.add('is-cinematic');
+    document.body.classList.add('has-spatial-work');
+    const heroContent = hero.querySelector<HTMLElement>('.hero__content');
+    const heroStage = hero.querySelector<HTMLElement>('.hero__stage');
+    const heroScroll = hero.querySelector<HTMLElement>('.hero__scroll');
     const projects = gsap.utils.toArray<HTMLElement>('[data-project]', section);
     const frames = gsap.utils.toArray<HTMLElement>('.proof-frame', section);
     const backgrounds = gsap.utils.toArray<HTMLElement>('.proof-background', section);
+    const backgroundLayer = section.querySelector<HTMLElement>('.proof-backgrounds');
+    const film = section.querySelector<HTMLElement>('.proof-film');
+    const firstLeft = projects[0]?.querySelector<HTMLElement>('.proof-project__left');
+    const firstRight = projects[0]?.querySelector<HTMLElement>('.proof-project__right');
+    const bottom = section.querySelector<HTMLElement>('.proof-bottom');
     const buttons = gsap.utils.toArray<HTMLButtonElement>('[data-proof-nav]', section);
     const counter = section.querySelector<HTMLElement>('[data-proof-count]');
     const progress = section.querySelector<HTMLElement>('[data-proof-progress]');
@@ -711,26 +688,73 @@ function initProofOfWork(): void {
       if (index === active) return;
       active = index;
       section.classList.toggle('proof--light-background', projects[index]?.id === 'project-rajamanickam-chit-fund');
-      projects.forEach((project, i) => { project.classList.toggle('is-active', i === index); project.setAttribute('aria-hidden', String(i !== index)); project.inert = i !== index; gsap.to(project, {opacity: i === index ? 1 : 0, y: i === index ? 0 : 12, duration: .3, overwrite: true}); });
+      projects.forEach((project, i) => { project.classList.toggle('is-active', i === index); project.setAttribute('aria-hidden', String(i !== index)); project.inert = i !== index; gsap.set(project, {opacity: i === index ? 1 : 0, y: i === index ? 0 : 12}); });
       buttons.forEach((button, i) => {button.classList.toggle('is-active', i === index); if(i === index) button.setAttribute('aria-current','true'); else button.removeAttribute('aria-current');});
       if(counter) counter.textContent = String(index + 1).padStart(2, '0');
       if(progress) progress.style.width = `${(index + 1) / projects.length * 100}%`;
     };
-    const trigger = ScrollTrigger.create({trigger: stage, start:'top top', end: () => `+=${window.innerHeight * (projects.length + 0.8)}`, pin:true, scrub:true, onUpdate(self) {
-      const opening = Math.min(1, self.progress / .14);
-      portal?.setOpening(opening);
-      gsap.set(panel, {width:`${43 + 57 * opening}vw`, height:`${52 + 48 * opening}vh`, borderRadius:18 * (1-opening)});
-      gsap.set(intro, {opacity:Math.max(0, 1-opening*1.35), visibility: opening > .75 ? 'hidden':'visible'});
-      gsap.set(exhibition, {opacity:Math.max(0, (opening-.3)/.7)});
-      const position = Math.max(0, Math.min(projects.length-1, (self.progress-.14)/.76*(projects.length-1)));
+    // The project frame is centered before its first paint. The master timeline
+    // reveals the existing showcase as one full-width surface rises over the hero.
+    frames.forEach((frame, i) => gsap.set(frame, {xPercent:0, yPercent:-50, y:i * window.innerHeight * .37, scale:i===0?1:.33, opacity:i===0?1:0}));
+    backgrounds.forEach((bg, i) => gsap.set(bg, {opacity:i===0?1:0}));
+    setActive(0);
+    gsap.set(section, {pointerEvents:'none'});
+    const transition = gsap.timeline({
+      defaults: {ease:'none'},
+      scrollTrigger: {
+        trigger: hero, start:'top top', end:()=>`+=${window.innerHeight}`,
+        pin:true, pinSpacing:true, scrub:true, anticipatePin:1,
+        refreshPriority:2, invalidateOnRefresh:true,
+        onUpdate(self) {
+          // The solid work surface, rather than opacity, hides the outgoing scene.
+          heroSculptureController?.setScrollProgress(self.progress * .16);
+          section.style.pointerEvents = self.progress > .98 ? 'auto' : 'none';
+        },
+      },
+    });
+    if (heroContent) transition.to(heroContent, {scale:.9, y:-20, transformOrigin:'35% 50%', duration:.72}, 0);
+    if (heroStage) transition.to(heroStage, {scale:.86, y:-36, transformOrigin:'72% 50%', duration:.78}, 0);
+    if (heroScroll) transition.to(heroScroll, {opacity:0, duration:.15}, 0);
+    transition.fromTo(panel,
+      {rotationX:5, scaleY:.985, transformPerspective:1600, transformOrigin:'50% 0%'},
+      {rotationX:0, scaleY:1, duration:.43}, .25);
+    if (backgroundLayer) transition.fromTo(backgroundLayer, {opacity:0}, {opacity:1, duration:.55}, .2);
+    if (film) transition.fromTo(film,
+      {opacity:0, y:48, scale:.96, filter:'blur(5px)'},
+      {opacity:1, y:0, scale:1, filter:'blur(0px)', duration:.22}, .59);
+    transition.fromTo(label,
+      {clipPath:'inset(0 0 100% 0)', y:18},
+      {clipPath:'inset(0 0 0% 0)', y:0, duration:.2}, .61);
+    if (firstLeft) transition.fromTo(firstLeft,
+      {clipPath:'inset(0 0 100% 0)', y:28},
+      {clipPath:'inset(0 0 0% 0)', y:0, duration:.22}, .7);
+    if (firstRight) transition.fromTo(firstRight,
+      {clipPath:'inset(0 0 100% 0)', y:30},
+      {clipPath:'inset(0 0 0% 0)', y:0, duration:.2}, .76);
+    if (bottom) transition.fromTo(bottom,
+      {clipPath:'inset(0 0 100% 0)', y:18},
+      {clipPath:'inset(0 0 0% 0)', y:0, duration:.12}, .88);
+
+    // Project navigation begins only after the architectural entry completes.
+    const trigger = ScrollTrigger.create({trigger: stage, start:'top top', end: () => `+=${window.innerHeight * (projects.length - 1)}`, pin:true, scrub:true,
+      onEnter: () => transition.progress(1),
+      onEnterBack: () => transition.progress(1),
+      onUpdate(self) {
+      const position = self.progress * (projects.length-1);
       const index = Math.min(projects.length-1, Math.round(position));
       setActive(index);
-      frames.forEach((frame,i) => {const delta=i-position; gsap.set(frame,{xPercent:0,yPercent:-50,y:delta*window.innerHeight*.37,scale:Math.max(.33,1-Math.abs(delta)*.67),opacity:Math.max(0,1-Math.abs(delta)*.38),zIndex:Math.round(10-Math.abs(delta)*5),filter:`brightness(${Math.max(.48,1-Math.abs(delta)*.5)})`});});
+      frames.forEach((frame,i) => {const delta=i-position; gsap.set(frame,{xPercent:0,yPercent:-50,y:delta*window.innerHeight*.37,scale:Math.max(.33,1-Math.abs(delta)*.67),opacity:Math.max(0,1-Math.abs(delta)*1.1),zIndex:Math.round(10-Math.abs(delta)*5),filter:`brightness(${Math.max(.48,1-Math.abs(delta)*.5)})`});});
       backgrounds.forEach((bg,i) => gsap.set(bg,{opacity:Math.max(0,1-Math.abs(i-position))}));
     }});
-    buttons.forEach((button,i) => {button.onclick = () => { const ratio=.14 + (i/(projects.length-1))*.76; window.scrollTo({top:trigger.start+(trigger.end-trigger.start)*ratio,behavior:'smooth'}); };});
-    setActive(0); ScrollTrigger.refresh();
-    return () => {trigger.kill(); section.classList.remove('is-cinematic', 'proof--light-background'); projects.forEach(p=>{p.inert=false;p.removeAttribute('aria-hidden');p.classList.remove('is-active');gsap.set(p,{clearProps:'all'});}); buttons.forEach(b=>{b.onclick=null;}); gsap.set([panel,intro,exhibition,...frames,...backgrounds],{clearProps:'all'});};
+    buttons.forEach((button,i) => {button.onclick = () => { window.scrollTo({top:trigger.start+(trigger.end-trigger.start)*i/(projects.length-1),behavior:'smooth'}); };});
+    let resizeRefresh = 0;
+    const refreshSpatialLayout = (): void => {
+      window.clearTimeout(resizeRefresh);
+      resizeRefresh = window.setTimeout(() => ScrollTrigger.refresh(), 160);
+    };
+    window.addEventListener('resize', refreshSpatialLayout);
+    ScrollTrigger.refresh();
+    return () => {window.removeEventListener('resize', refreshSpatialLayout); window.clearTimeout(resizeRefresh); trigger.kill(); transition.scrollTrigger?.kill(); transition.kill(); heroSculptureController?.setScrollProgress(0); section.classList.remove('is-cinematic', 'proof--light-background'); document.body.classList.remove('has-spatial-work'); projects.forEach(p=>{p.inert=false;p.removeAttribute('aria-hidden');p.classList.remove('is-active');gsap.set(p,{clearProps:'all'});}); buttons.forEach(b=>{b.onclick=null;}); gsap.set([section,panel,exhibition,label,backgroundLayer,film,firstLeft,firstRight,bottom,...frames,...backgrounds,heroContent,heroStage,heroScroll].filter(Boolean),{clearProps:'all'});};
   });
 }
 document.addEventListener('DOMContentLoaded', initProofOfWork);

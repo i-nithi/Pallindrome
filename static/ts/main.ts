@@ -695,7 +695,22 @@ function initProofOfWork(): void {
     };
     // The project frame is centered before its first paint. The master timeline
     // reveals the existing showcase as one full-width surface rises over the hero.
-    frames.forEach((frame, i) => gsap.set(frame, {xPercent:0, yPercent:-50, y:i * window.innerHeight * .37, scale:i===0?1:.33, opacity:i===0?1:0}));
+    const positionFrames = (position: number): void => {
+      frames.forEach((frame, i) => {
+        const distance = Math.abs(i - position);
+        const neighboringVisibility = Math.max(0, 1 - distance * .55) * Math.min(1, Math.max(0, 2 - distance));
+        gsap.set(frame, {
+          xPercent: 0,
+          yPercent: -50,
+          y: (i - position) * window.innerHeight * .38,
+          scale: Math.max(.42, 1 - distance * .52),
+          opacity: neighboringVisibility,
+          zIndex: Math.round(10 - distance * 5),
+          filter: `brightness(${Math.max(.54, 1 - distance * .46)}) saturate(${Math.max(.78, 1 - distance * .22)})`,
+        });
+      });
+    };
+    positionFrames(0);
     backgrounds.forEach((bg, i) => gsap.set(bg, {opacity:i===0?1:0}));
     setActive(0);
     gsap.set(section, {pointerEvents:'none'});
@@ -743,7 +758,7 @@ function initProofOfWork(): void {
       const position = self.progress * (projects.length-1);
       const index = Math.min(projects.length-1, Math.round(position));
       setActive(index);
-      frames.forEach((frame,i) => {const delta=i-position; gsap.set(frame,{xPercent:0,yPercent:-50,y:delta*window.innerHeight*.37,scale:Math.max(.33,1-Math.abs(delta)*.67),opacity:Math.max(0,1-Math.abs(delta)*1.1),zIndex:Math.round(10-Math.abs(delta)*5),filter:`brightness(${Math.max(.48,1-Math.abs(delta)*.5)})`});});
+      positionFrames(position);
       backgrounds.forEach((bg,i) => gsap.set(bg,{opacity:Math.max(0,1-Math.abs(i-position))}));
     }});
     buttons.forEach((button,i) => {button.onclick = () => { window.scrollTo({top:trigger.start+(trigger.end-trigger.start)*i/(projects.length-1),behavior:'smooth'}); };});

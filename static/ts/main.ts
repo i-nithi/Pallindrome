@@ -758,3 +758,66 @@ function initProofOfWork(): void {
   });
 }
 document.addEventListener('DOMContentLoaded', initProofOfWork);
+
+function initEngineeringLab(): void {
+  const lab = document.querySelector<HTMLElement>('[data-lab]');
+  const viewport = lab?.querySelector<HTMLElement>('[data-lab-window]');
+  const track = lab?.querySelector<HTMLElement>('[data-lab-track]');
+  const progress = lab?.querySelector<HTMLElement>('[data-lab-progress]');
+  if (!lab || !viewport || !track || !progress) return;
+
+  const mm = gsap.matchMedia();
+  mm.add('(min-width: 901px) and (prefers-reduced-motion: no-preference)', () => {
+    const secondRoom = lab.querySelectorAll<HTMLElement>('.lab-panel--dsa .lab-panel__copy, .lab-panel--morena .lab-panel__copy');
+    const scenes = lab.querySelectorAll<HTMLElement>('.lab-panel--mfalmion .lab-scene, .lab-panel--dsa .lab-scene, .lab-panel--morena .lab-scene');
+    const indicator = lab.querySelector<HTMLElement>('.lab-progress > span:first-child');
+    const timeline = gsap.timeline({
+      defaults: {ease: 'none'},
+      scrollTrigger: {
+        trigger: viewport,
+        start: 'top top',
+        end: () => `+=${window.innerWidth}`,
+        pin: true,
+        scrub: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        refreshPriority: -2,
+        onUpdate(self) {
+          progress.style.transform = `scaleX(${1 + self.progress})`;
+          if (indicator) indicator.textContent = self.progress < .5 ? '01 / 02' : '02 / 02';
+        },
+      },
+    });
+    timeline.to(track, {x: () => -window.innerWidth, duration: 1}, 0);
+    timeline.fromTo(scenes, {x: -24}, {x: 24, duration: 1}, 0);
+    timeline.fromTo(secondRoom, {y: 32, clipPath: 'inset(0 0 100% 0)'}, {
+      y: 0, clipPath: 'inset(0 0 0% 0)', duration: .28, stagger: .08,
+    }, .46);
+
+    const links = Array.from(lab.querySelectorAll<HTMLAnchorElement>('.lab-panel__copy a'));
+    const magnetic: Array<{link: HTMLAnchorElement; move: (event: PointerEvent) => void; leave: () => void}> = [];
+    if (window.matchMedia('(pointer: fine)').matches) {
+      links.forEach(link => {
+        const move = (event: PointerEvent): void => {
+          const bounds = link.getBoundingClientRect();
+          const x = (event.clientX - bounds.left - bounds.width / 2) * .12;
+          const y = (event.clientY - bounds.top - bounds.height / 2) * .18;
+          gsap.to(link, {x, y, duration: .3, ease: 'power2.out', overwrite: true});
+        };
+        const leave = (): void => { gsap.to(link, {x: 0, y: 0, duration: .4, ease: 'power2.out', overwrite: true}); };
+        link.addEventListener('pointermove', move);
+        link.addEventListener('pointerleave', leave);
+        magnetic.push({link, move, leave});
+      });
+    }
+    return () => {
+      magnetic.forEach(({link, move, leave}) => {link.removeEventListener('pointermove', move); link.removeEventListener('pointerleave', leave);});
+      timeline.scrollTrigger?.kill();
+      timeline.kill();
+      gsap.set([track, ...scenes, ...secondRoom, ...links], {clearProps: 'transform,clipPath'});
+      progress.style.removeProperty('transform');
+      if (indicator) indicator.textContent = '01 / 02';
+    };
+  });
+}
+document.addEventListener('DOMContentLoaded', initEngineeringLab);

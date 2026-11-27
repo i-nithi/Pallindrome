@@ -16,7 +16,7 @@
   .proof-project h3 { font-size: clamp(2.3rem, 9vw, 4rem); overflow-wrap: anywhere; }
   .proof-project__right p { color: #f0f0f2; }
   .proof-project .proof-kicker, .proof-project .proof-project__type, .proof-project .proof-status, .proof-project .proof-private { color: #d5d5da; }
-  .proof-mobile-image { width: 100%; height: auto; max-height: none; aspect-ratio: 16/10; object-fit: cover; box-shadow: 0 16px 45px #0008; }
+  .proof-mobile-me mage { width: 100%; height: auto; max-height: none; aspect-ratio: 16/10; object-fit: cover; box-shadow: 0 16px 45px #0008; }
   .lab { padding-top: 5rem; padding-bottom: 4rem; }
   .lab h2 { font-size: clamp(2.6rem, 10vw, 5rem); }
   .lab-grid { overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }

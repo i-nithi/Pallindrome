@@ -45,7 +45,6 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   hero.appendChild(dragArea);
   hero.classList.add('has-sculpture-control');
   let dragX = 0, dragY = 0, dragging = false, activePointer = -1, lastX = 0, lastY = 0;
-  let entranceElapsed = 0, entranceAngle = 0, entranceFinished = !!options.reducedMotion;
   let handoff = 1;
   let resolveReady: (ready: boolean) => void = () => {};
   const ready = new Promise<boolean>(resolve => { resolveReady = resolve; });
@@ -243,22 +242,14 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
     halo.scale.setScalar(scale);
     halo.position.set(group.position.x, group.position.y, -.65);
     uniforms.uHandoff.value = handoff;
-    group.rotation.y = dragY + entranceAngle + .10 * handoff + (entranceFinished && !dragging ? (px-.5)*.05*handoff : 0);
-    group.rotation.x = dragX - .035 * handoff + (entranceFinished && !dragging ? - (py-.5)*.04*handoff : 0);
+    group.rotation.y = dragY + .10 * handoff + (!dragging && !options.reducedMotion ? (px-.5)*.05*handoff : 0);
+    group.rotation.x = dragX - .035 * handoff + (!dragging && !options.reducedMotion ? -(py-.5)*.04*handoff : 0);
     group.rotation.z = 0;
     renderer.render(scene,camera);
   }
   function tick(now: number) {
     raf = 0; if (disposed || !visible || document.hidden || options.reducedMotion) return;
     const dt = last ? Math.min((now-last)/1000,.05) : 0; last = now; time += dt;
-    if (!entranceFinished && model && reveal >= .8 && handoff >= 1) {
-      entranceElapsed = Math.min(entranceElapsed + dt, 3.2);
-      const progress = entranceElapsed / 3.2;
-      const eased = progress * progress * (3 - 2 * progress);
-      // One reverse revolution, ending in the same front-facing pose.
-      entranceAngle = -eased * Math.PI * 2;
-      if (progress === 1) { entranceAngle = 0; entranceFinished = true; }
-    }
     dustX+=(dustTargetX-dustX)*.025; dustY+=(dustTargetY-dustY)*.025;
     dustUniforms.uDustPointer.value.set(dustX,dustY);
     px += (tx-px)*.045; py += (ty-py)*.045; motion += ((Math.abs(tx-px)+Math.abs(ty-py))*3-motion)*.06;
@@ -276,16 +267,8 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
     tx=THREE.MathUtils.clamp((e.clientX-rect.left-cx)/size+.5,0,1); ty=THREE.MathUtils.clamp(.5-(e.clientY-rect.top-cy)/size,0,1);
   }
   function leave() { tx=.5; ty=.5; dustTargetX=.25; dustTargetY=.5; }
-  function takeControl() {
-    if (!entranceFinished) {
-      dragY += entranceAngle;
-      entranceAngle = 0;
-      entranceFinished = true;
-    }
-  }
   function dragStart(event: PointerEvent) {
     if (event.button !== 0 || dragging) return;
-    takeControl();
     dragging = true; activePointer = event.pointerId; lastX = event.clientX; lastY = event.clientY;
     dragArea.setPointerCapture(event.pointerId);
     dragArea.classList.add('is-dragging');
@@ -305,7 +288,6 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   }
   function rotateKey(event: KeyboardEvent) {
     if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home'].includes(event.key)) return;
-    takeControl();
     const step = Math.PI / 12;
     if (event.key === 'ArrowLeft') dragY -= step;
     else if (event.key === 'ArrowRight') dragY += step;

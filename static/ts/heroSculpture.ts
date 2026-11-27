@@ -27,7 +27,7 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   camera.position.z = 6;
   const group = new THREE.Group();
   scene.add(group);
-  const uniforms = { uTime: { value: 0 }, uReveal: { value: 0 }, uScroll: { value: 0 }, uPointer: { value: new THREE.Vector2(.5,.5) }, uMotion: { value: 0 }, uHandoff: { value: 1 } };
+  const uniforms = { uTime: { value: 0 }, uReveal: { value: 0 }, uScroll: { value: 0 }, uPointer: { value: new THREE.Vector2(.5,.5) }, uMotion: { value: 0 }, uHandoff: { value: 1 }, uResolution: { value: new THREE.Vector2(1,1) }, uMobile: { value: 0 } };
   const pmrem = new THREE.PMREMGenerator(renderer);
   const environment = pmrem.fromScene(new RoomEnvironment(), .08).texture;
   scene.environment = environment;
@@ -71,12 +71,129 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
     group.add(model);
     try { renderer.compile(scene, camera); render(); resolveReady(true); } catch { resolveReady(false); }
   }, undefined, () => { resolveReady(false); dragArea.remove(); hero.classList.remove('has-sculpture-control'); options.onFallback?.(); });
-  const haloGeometry=new THREE.PlaneGeometry(5,5);
-  const haloMaterial=new THREE.ShaderMaterial({uniforms, transparent:true, depthWrite:false,
-    vertexShader:`varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-    fragmentShader:`varying vec2 vUv; uniform float uReveal,uScroll; void main(){vec2 p=(vUv-.5)*2.; float r=length(p*vec2(1.,1.2)); float a=exp(-r*r*5.)*.19*smoothstep(0.,.8,uReveal)*(1.-uScroll); vec3 c=mix(vec3(.22,.025,.37),vec3(.005,.18,.29),smoothstep(-.5,.5,p.x)); gl_FragColor=vec4(c,a);}`});
-  const halo=new THREE.Mesh(haloGeometry,haloMaterial); halo.position.z=-.55; group.add(halo);
+  // A camera-facing atmospheric layer lives behind the emblem and never turns
+  // with it. Its light is masked away from the desktop copy and mobile header.
+  const haloGeometry = new THREE.PlaneGeometry(7.0, 7.0);
+  const haloMaterial = new THREE.ShaderMaterial({
+    uniforms, transparent: true, depthWrite: false, depthTest: false,
+    vertexShader: `varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader: `
+      precision highp float;
+      varying vec2 vUv;
+      uniform float uTime, uReveal, uScroll, uHandoff, uMobile;
+      uniform vec2 uResolution, uPointer;
+      float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+      float noise(vec2 p){
+        vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+        return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);
+      }
+      float fbm(vec2 p){return noise(p)*.57+noise(p*2.03+7.1)*.28+noise(p*4.1+14.7)*.15;}
+      void main(){
+        vec2 p=(vUv-.5)*2.0;
+        vec2 screen=gl_FragCoord.xy/uResolution;
+        float time=uTime*.035;
+        vec2 drift=vec2(time,-time*.35)+(uPointer-.5)*.025;
+        float haze=fbm(p*2.15+drift);
+        float wisps=fbm(p*3.0+vec2(haze*.65,-haze*.4)-drift*.7);
+        float envelope=exp(-dot(p*vec2(1.0,1.13),p*vec2(1.0,1.13))*2.0);
+        float mist=smoothstep(.28,.77,haze*.68+wisps*.32)*envelope;
+        vec3 color=mix(vec3(.40,.035,.64),vec3(.018,.29,.52),smoothstep(-.65,.7,p.x+p.y*.25));
+        color=mix(color,vec3(.48,.04,.34),smoothstep(.48,.85,wisps)*.23);
+        // Several broad, feathered light shafts rather than hard radial lines.
+        float beamAxis=p.x+p.y*.48+sin(time*.8)*.035;
+        float ray1=(beamAxis+.42)*4.4, ray2=(beamAxis-.08)*5.2, ray3=(beamAxis-.47)*4.0;
+        float shafts=exp(-ray1*ray1)*.24;
+        shafts+=exp(-ray2*ray2)*.22;
+        shafts+=exp(-ray3*ray3)*.13;
+        shafts*=envelope*(.62+.38*haze);
+        vec3 light=mix(vec3(.34,.12,.58),vec3(.035,.43,.58),smoothstep(-.7,.7,p.x));
+        // Keep color and opacity separate: multiplying by haze in both
+        // channels made the earlier atmosphere nearly invisible on black.
+        color=mix(color,light,clamp(shafts*1.1,0.0,.48));
+        float desktopGuard=smoothstep(.47,.66,screen.x);
+        float mobileGuard=1.0-smoothstep(.36,.75,screen.y);
+        float guard=mix(desktopGuard,mobileGuard,uMobile);
+        float edge=1.0-smoothstep(.45,1.0,length(p));
+        float amount=guard*edge*smoothstep(.05,.85,uReveal)*smoothstep(.12,.85,uHandoff)*(1.0-uScroll);
+        gl_FragColor=vec4(color,clamp((mist*.72+shafts*.72+envelope*.09)*amount,0.0,.58));
+      }`,
+  });
+  const halo = new THREE.Mesh(haloGeometry, haloMaterial);
+  halo.renderOrder = -1;
+  scene.add(halo);
 
+  // Sparse, layered dust in screen space: one draw call, no extra textures or
+  // simulation buffers. Jittered cells keep density even without rigid rows.
+  const dustCount = 833;
+  const dustPositions = new Float32Array(dustCount * 3);
+  const dustColors = new Float32Array(dustCount * 3);
+  const dustDetails = new Float32Array(dustCount * 3);
+  const dustPalette = [0x8b00ff, 0xef00cf, 0x0066ff, 0x00d9ff, 0xffc900].map(c => new THREE.Color(c));
+  let seed = 261107;
+  const random = (): number => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  const columns=34, rows=25;
+  for (let i=0; i<dustCount; i++) {
+    const cell=(i*367)%(columns*rows);
+    const x=(cell%columns+.08+random()*.84)/columns;
+    const y=(Math.floor(cell/columns)+.08+random()*.84)/rows;
+    dustPositions.set([x,y,0],i*3);
+    const c=dustPalette[i%11===0 ? 4 : i%4];
+    dustColors.set([c.r,c.g,c.b],i*3);
+    const depth=random();
+    dustDetails.set([depth,random()*6.283,random()],i*3);
+  }
+  const dustGeometry = new THREE.BufferGeometry();
+  dustGeometry.setAttribute('position',new THREE.BufferAttribute(dustPositions,3));
+  dustGeometry.setAttribute('aColor',new THREE.BufferAttribute(dustColors,3));
+  dustGeometry.setAttribute('aDetails',new THREE.BufferAttribute(dustDetails,3));
+  const dustUniforms = {
+    uTime: uniforms.uTime, uReveal: uniforms.uReveal, uScroll: uniforms.uScroll,
+    uHandoff: uniforms.uHandoff, uMobile: uniforms.uMobile,
+    uDustPointer: {value: new THREE.Vector2(.25,.5)},
+    uTextRect: {value: new THREE.Vector4(.12,.45,.20,.70)},
+    uPixelRatio: {value: 1},
+  };
+  const dustMaterial = new THREE.ShaderMaterial({
+    uniforms:dustUniforms, transparent:true, depthWrite:false, depthTest:false,
+    vertexShader:`
+      attribute vec3 aColor, aDetails;
+      uniform float uTime,uReveal,uScroll,uHandoff,uPixelRatio,uMobile;
+      uniform vec2 uDustPointer;
+      uniform vec4 uTextRect;
+      varying vec3 vColor; varying float vAlpha,vSoft;
+      void main(){
+        float depth=aDetails.x, phase=aDetails.y, variation=aDetails.z;
+        vec2 p=position.xy;
+        p.x=fract(p.x+uTime*(.0015+.0025*depth));
+        p+=vec2(sin(uTime*.11+phase),cos(uTime*.08+phase*1.3))*(.002+.004*depth);
+        p+=(uDustPointer-vec2(.25,.5))*(.003+.009*depth);
+        vec2 nearest=clamp(p,vec2(uTextRect.x,uTextRect.z),vec2(uTextRect.y,uTextRect.w));
+        float quiet=.78+.22*smoothstep(0.,.055,length(p-nearest));
+        float edge=smoothstep(.0,.04,p.x)*(1.-smoothstep(.96,1.,p.x))*smoothstep(0.,.035,p.y)*(1.-smoothstep(.96,1.,p.y));
+        float shimmer=.82+.18*sin(uTime*.3+phase);
+        vColor=aColor; vSoft=step(.68,variation);
+        vAlpha=(.78+.22*depth)*quiet*edge*shimmer*uReveal*smoothstep(.05,.8,uHandoff)*(1.-uScroll);
+        gl_Position=vec4(p*2.-1.,0.,1.);
+        gl_PointSize=(2.2+depth*2.0+vSoft*.9)*uPixelRatio*2.379718656;
+      }`,
+    fragmentShader:`
+      precision mediump float;
+      varying vec3 vColor; varying float vAlpha,vSoft;
+      void main(){
+        float d=length(gl_PointCoord-.5)*2.;
+        float sharp=1.-smoothstep(.3,.95,d);
+        float soft=exp(-d*d*3.6)*(1.-smoothstep(.85,1.,d));
+        // The hero vignette darkens this canvas by up to 78%; a bright
+        // pinpoint core retains colored edges after that compositing step.
+        float core=(1.-smoothstep(.0,.50,d))*(1.-vSoft*.65);
+        vec3 luminous=mix(vColor,vec3(1.0),.10+core*.20);
+        gl_FragColor=vec4(luminous,mix(sharp,soft,vSoft)*vAlpha);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const dust = new THREE.Points(dustGeometry,dustMaterial);
+  dust.frustumCulled=false; dust.renderOrder=-2; scene.add(dust);
+  let dustX=.25, dustY=.5, dustTargetX=.25, dustTargetY=.5;
   let disposed = false, visible = true, raf = 0, reveal = 0, scroll = 0, time = 0, last = 0;
   let px = .5, py = .5, tx = .5, ty = .5, motion = 0, baseScale = 1, baseY = 0, baseX = 0, startScale = 1, startX = 0, startY = 0;
   function resize() {
@@ -85,6 +202,17 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
     const mobile = w < 768;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.5));
     renderer.setSize(w,h,false); camera.aspect = w/h; camera.updateProjectionMatrix();
+    renderer.getDrawingBufferSize(uniforms.uResolution.value);
+    uniforms.uMobile.value = mobile ? 1 : 0;
+    dustUniforms.uPixelRatio.value = renderer.getPixelRatio();
+    const content=hero.querySelector<HTMLElement>('.hero__editorial');
+    if (content) {
+      const heroRect=hero.getBoundingClientRect(), textRect=content.getBoundingClientRect();
+      dustUniforms.uTextRect.value.set(
+        (textRect.left-heroRect.left)/w,(textRect.right-heroRect.left)/w,
+        1-(textRect.bottom-heroRect.top)/h,1-(textRect.top-heroRect.top)/h,
+      );
+    }
     // Position in viewport coordinates without affecting the editorial layout.
     const viewHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*camera.position.z;
     const viewWidth = viewHeight * camera.aspect;
@@ -112,6 +240,8 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
     group.scale.setScalar(scale * (1 + Math.sin(time*.42)*.008*handoff));
     group.position.x = THREE.MathUtils.lerp(startX, baseX, handoff);
     group.position.y = THREE.MathUtils.lerp(startY, baseY, handoff) + Math.sin(time*.35)*.025*baseScale*handoff;
+    halo.scale.setScalar(scale);
+    halo.position.set(group.position.x, group.position.y, -.65);
     uniforms.uHandoff.value = handoff;
     group.rotation.y = dragY + entranceAngle + .10 * handoff + (entranceFinished && !dragging ? (px-.5)*.05*handoff : 0);
     group.rotation.x = dragX - .035 * handoff + (entranceFinished && !dragging ? - (py-.5)*.04*handoff : 0);
@@ -125,20 +255,27 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
       entranceElapsed = Math.min(entranceElapsed + dt, 3.2);
       const progress = entranceElapsed / 3.2;
       const eased = progress * progress * (3 - 2 * progress);
-      // Both faces show the emblem, so one revolution produces two visible turns.
-      entranceAngle = eased * Math.PI * 2;
+      // One reverse revolution, ending in the same front-facing pose.
+      entranceAngle = -eased * Math.PI * 2;
       if (progress === 1) { entranceAngle = 0; entranceFinished = true; }
     }
+    dustX+=(dustTargetX-dustX)*.025; dustY+=(dustTargetY-dustY)*.025;
+    dustUniforms.uDustPointer.value.set(dustX,dustY);
     px += (tx-px)*.045; py += (ty-py)*.045; motion += ((Math.abs(tx-px)+Math.abs(ty-py))*3-motion)*.06;
     render(); raf = requestAnimationFrame(tick);
   }
   function start() { if (!raf && !disposed && visible && !document.hidden && !options.reducedMotion) { last=0; raf=requestAnimationFrame(tick); } }
   function pointer(e: PointerEvent) {
-    const rect=hero.getBoundingClientRect(); const cx=rect.width*(rect.width<768?.5:.755); const cy=rect.height*(rect.width<768?.68:.515);
+    const rect=hero.getBoundingClientRect();
+    if (!options.reducedMotion && rect.width && rect.height) {
+      dustTargetX=THREE.MathUtils.clamp((e.clientX-rect.left)/rect.width,0,1);
+      dustTargetY=THREE.MathUtils.clamp(1-(e.clientY-rect.top)/rect.height,0,1);
+    }
+    const cx=rect.width*(rect.width<768?.5:.755); const cy=rect.height*(rect.width<768?.68:.515);
     const size=rect.width<768?Math.min(rect.width*.84,rect.height*.43):Math.min(rect.width*.48,rect.height*.73);
     tx=THREE.MathUtils.clamp((e.clientX-rect.left-cx)/size+.5,0,1); ty=THREE.MathUtils.clamp(.5-(e.clientY-rect.top-cy)/size,0,1);
   }
-  function leave() { tx=.5; ty=.5; }
+  function leave() { tx=.5; ty=.5; dustTargetX=.25; dustTargetY=.5; }
   function takeControl() {
     if (!entranceFinished) {
       dragY += entranceAngle;
@@ -190,5 +327,5 @@ export function initHeroSculpture(canvas: HTMLCanvasElement, hero: HTMLElement, 
   observer.observe(hero); window.addEventListener('resize',resize,{passive:true}); hero.addEventListener('pointermove',pointer,{passive:true}); hero.addEventListener('pointerleave',leave); document.addEventListener('visibilitychange',visibility);
   if (options.reducedMotion) reveal=1;
   resize(); start();
-  return { ready, setHandoff(v) { handoff=THREE.MathUtils.clamp(v,0,1); render(); }, setReveal(v) { reveal=THREE.MathUtils.clamp(v,0,1); if(options.reducedMotion) render(); }, setScrollProgress(v) {scroll=THREE.MathUtils.clamp(v,0,1); if(options.reducedMotion) render();}, renderOnce: render, dispose() {disposed=true; cancelAnimationFrame(raf); observer.disconnect(); window.removeEventListener('resize',resize); hero.removeEventListener('pointermove',pointer); hero.removeEventListener('pointerleave',leave); document.removeEventListener('visibilitychange',visibility); dragArea.remove(); hero.classList.remove('has-sculpture-control'); model?.traverse(o => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); const mats=Array.isArray(o.material)?o.material:[o.material]; mats.forEach(m=>m.dispose()); } }); environment.dispose(); pmrem.dispose(); haloGeometry.dispose(); haloMaterial.dispose(); renderer.dispose();} };
+  return { ready, setHandoff(v) { handoff=THREE.MathUtils.clamp(v,0,1); render(); }, setReveal(v) { reveal=THREE.MathUtils.clamp(v,0,1); if(options.reducedMotion) render(); }, setScrollProgress(v) {scroll=THREE.MathUtils.clamp(v,0,1); if(options.reducedMotion) render();}, renderOnce: render, dispose() {disposed=true; cancelAnimationFrame(raf); observer.disconnect(); window.removeEventListener('resize',resize); hero.removeEventListener('pointermove',pointer); hero.removeEventListener('pointerleave',leave); document.removeEventListener('visibilitychange',visibility); dragArea.remove(); hero.classList.remove('has-sculpture-control'); model?.traverse(o => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); const mats=Array.isArray(o.material)?o.material:[o.material]; mats.forEach(m=>m.dispose()); } }); environment.dispose(); pmrem.dispose(); dustGeometry.dispose(); dustMaterial.dispose(); haloGeometry.dispose(); haloMaterial.dispose(); renderer.dispose();} };
 }

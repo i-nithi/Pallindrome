@@ -1304,3 +1304,46 @@ html.intro-active .intro-splash {
 .hero.has-sculpture-control .hero__title,
 .hero.has-sculpture-control .hero__copy,
 .hero.has-sculpture-control .hero__actions { pointer-events: auto; }
+
+/* Hero atmosphere: rendered behind the transparent WebGL canvas so it remains
+   visible even on devices where the optional shader is unavailable. */
+.hero__stage::before,
+.hero__stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.hero__stage::before {
+  background:
+    radial-gradient(ellipse 30% 42% at 78% 48%, rgba(42, 31, 156, .42), transparent 75%),
+    radial-gradient(ellipse 28% 35% at 65% 64%, rgba(132, 0, 157, .32), transparent 78%),
+    radial-gradient(ellipse 25% 38% at 91% 34%, rgba(0, 114, 173, .26), transparent 76%),
+    radial-gradient(ellipse 34% 45% at 79% 49%, rgba(55, 11, 101, .35), transparent 80%);
+  animation: hero-nebula-breathe 14s ease-in-out infinite alternate;
+}
+.hero__stage::after {
+  background: repeating-conic-gradient(from 225deg at 79% 47%, transparent 0deg 10deg, rgba(123, 55, 225, .13) 13deg, transparent 20deg 34deg, rgba(12, 124, 203, .10) 38deg, transparent 44deg 58deg);
+  -webkit-mask-image: radial-gradient(ellipse 42% 48% at 79% 48%, #000 3%, transparent 83%);
+  mask-image: radial-gradient(ellipse 42% 48% at 79% 48%, #000 3%, transparent 83%);
+  animation: hero-light-breathe 11s ease-in-out infinite alternate;
+}
+.hero__canvas { position: relative; z-index: 1; }
+.hero__vignette { z-index: 2; pointer-events: none; }
+@keyframes hero-nebula-breathe { from { opacity: .8; } to { opacity: 1; } }
+@keyframes hero-light-breathe { from { opacity: .55; } to { opacity: .9; } }
+@media (max-width: 767px) {
+  .hero__stage::before {
+    background:
+      radial-gradient(ellipse 48% 25% at 56% 68%, rgba(61, 32, 157, .38), transparent 78%),
+      radial-gradient(ellipse 37% 24% at 76% 70%, rgba(0, 120, 174, .22), transparent 78%),
+      radial-gradient(ellipse 35% 20% at 30% 72%, rgba(128, 0, 155, .23), transparent 78%);
+  }
+  .hero__stage::after {
+    -webkit-mask-image: radial-gradient(ellipse 48% 24% at 52% 69%, #000 3%, transparent 85%);
+    mask-image: radial-gradient(ellipse 48% 24% at 52% 69%, #000 3%, transparent 85%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__stage::before, .hero__stage::after { animation: none; }
+}

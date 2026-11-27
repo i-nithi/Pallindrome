@@ -697,12 +697,13 @@ function initProofOfWork(): void {
     // reveals the existing showcase as one full-width surface rises over the hero.
     const positionFrames = (position: number): void => {
       frames.forEach((frame, i) => {
-        const distance = Math.abs(i - position);
+        const delta = i - position;
+        const distance = Math.abs(delta);
         const neighboringVisibility = Math.max(0, 1 - distance * .55) * Math.min(1, Math.max(0, 2 - distance));
         gsap.set(frame, {
           xPercent: 0,
           yPercent: -50,
-          y: (i - position) * window.innerHeight * .38,
+          y: delta * window.innerHeight * (delta > 0 ? .29 : .38),
           scale: Math.max(.42, 1 - distance * .52),
           opacity: neighboringVisibility,
           zIndex: Math.round(10 - distance * 5),

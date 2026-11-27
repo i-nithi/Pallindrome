@@ -770,6 +770,7 @@ function initEngineeringLab(): void {
   mm.add('(min-width: 901px) and (prefers-reduced-motion: no-preference)', () => {
     const secondRoom = lab.querySelectorAll<HTMLElement>('.lab-panel--dsa .lab-panel__copy, .lab-panel--morena .lab-panel__copy');
     const scenes = lab.querySelectorAll<HTMLElement>('.lab-panel--mfalmion .lab-scene, .lab-panel--dsa .lab-scene, .lab-panel--morena .lab-scene');
+    const introWords = lab.querySelectorAll<HTMLElement>('.lab-panel--intro .lab-intro__word');
     const indicator = lab.querySelector<HTMLElement>('.lab-progress > span:first-child');
     const timeline = gsap.timeline({
       defaults: {ease: 'none'},
@@ -790,6 +791,9 @@ function initEngineeringLab(): void {
     });
     timeline.to(track, {x: () => -window.innerWidth, duration: 1}, 0);
     timeline.fromTo(scenes, {x: -24}, {x: 24, duration: 1}, 0);
+    if (introWords[0]) timeline.to(introWords[0], {x: -18, duration: 1}, 0);
+    if (introWords[1]) timeline.to(introWords[1], {x: 20, scaleX: 1.025, duration: 1}, 0);
+    if (introWords[2]) timeline.to(introWords[2], {x: 8, duration: 1}, 0);
     timeline.fromTo(secondRoom, {y: 32, clipPath: 'inset(0 0 100% 0)'}, {
       y: 0, clipPath: 'inset(0 0 0% 0)', duration: .28, stagger: .08,
     }, .46);
@@ -814,10 +818,24 @@ function initEngineeringLab(): void {
       magnetic.forEach(({link, move, leave}) => {link.removeEventListener('pointermove', move); link.removeEventListener('pointerleave', leave);});
       timeline.scrollTrigger?.kill();
       timeline.kill();
-      gsap.set([track, ...scenes, ...secondRoom, ...links], {clearProps: 'transform,clipPath'});
+      gsap.set([track, ...scenes, ...secondRoom, ...introWords, ...links], {clearProps: 'transform,clipPath'});
       progress.style.removeProperty('transform');
       if (indicator) indicator.textContent = '01 / 02';
     };
+  });
+  mm.add('(prefers-reduced-motion: no-preference)', () => {
+    const intro = lab.querySelector<HTMLElement>('.lab-panel--intro');
+    if (!intro) return;
+    const words = intro.querySelectorAll<HTMLElement>('.lab-intro__word');
+    const supporting = intro.querySelectorAll<HTMLElement>('.lab-intro__eyebrow, .lab-intro__paragraph, .lab-intro__explore');
+    const dot = intro.querySelector<HTMLElement>('.lab-intro__dot');
+    const entrance = gsap.timeline({
+      scrollTrigger: {trigger: intro, start: 'top 78%', toggleActions: 'play none none reverse'},
+    });
+    entrance.fromTo(words, {yPercent: 110}, {yPercent: 0, duration: .9, stagger: .12, ease: 'power3.out'}, 0);
+    entrance.fromTo(supporting, {y: 16, opacity: 0}, {y: 0, opacity: 1, duration: .7, stagger: .07, ease: 'power2.out'}, .16);
+    if (dot) entrance.fromTo(dot, {scale: .3, y: -18}, {scale: 1, y: 0, duration: .7, ease: 'elastic.out(1,.55)'}, .45);
+    return () => {entrance.scrollTrigger?.kill(); entrance.kill(); gsap.set([...words, ...supporting, ...(dot ? [dot] : [])], {clearProps: 'transform,opacity'});};
   });
 }
 document.addEventListener('DOMContentLoaded', initEngineeringLab);

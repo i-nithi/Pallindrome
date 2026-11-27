@@ -4,8 +4,6 @@
 .lab--exhibition .lab-track{display:flex;width:200vw;height:100%;will-change:transform}
 .lab--exhibition .lab-panel{position:relative;flex:0 0 50vw;width:50vw;height:100%;min-width:0;overflow:hidden;isolation:isolate}
 .lab--exhibition .lab-panel::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
-.lab--exhibition .lab-panel--intro{background:#07070a}
-.lab--exhibition .lab-panel--intro::before{background:radial-gradient(ellipse at 85% 36%,rgba(86,40,154,.16),transparent 45%),linear-gradient(110deg,#050507,#0d0b14)}
 .lab--exhibition .lab-panel--mfalmion{background:#140a2a}
 .lab--exhibition .lab-panel--mfalmion::before{background:radial-gradient(ellipse at 47% 30%,rgba(127,67,225,.35),transparent 46%),radial-gradient(ellipse at 94% 88%,rgba(175,43,195,.12),transparent 46%),linear-gradient(130deg,#180c32,#10091e)}
 .lab--exhibition .lab-panel--dsa{background:#051424}
@@ -24,18 +22,6 @@
 .lab--exhibition .lab-panel__copy a:hover{color:#ffc900;border-color:#ffc900}
 .lab--exhibition .lab-panel__copy a svg{width:16px;height:16px}
 .lab--exhibition .lab-panel__copy a span{margin-left:10px}
-.lab--exhibition .lab-intro__content{position:absolute;z-index:2;left:8%;right:8%;top:50%;transform:translateY(-54%)}
-.lab--exhibition .lab-intro__content h2{font:800 clamp(4.8rem,8.5vw,10rem)/.82 var(--font-hero);letter-spacing:-.08em;margin:26px 0 32px}
-.lab--exhibition .lab-intro__content h2 span{color:#ffc900}
-.lab--exhibition .lab-intro__content p{max-width:430px;margin:0;color:#b9b7c2;line-height:1.65;font-size:clamp(.95rem,1.25vw,1.18rem)}
-.lab--exhibition .lab-intro__explore{position:absolute;left:8%;bottom:9vh;display:flex;gap:15px;align-items:center;font:10px var(--font-mono);letter-spacing:.2em;color:#c9c5d1}
-.lab--exhibition .lab-intro__explore i{display:block;width:72px;height:1px;background:linear-gradient(90deg,#8b00ff,#00d9ff);transform-origin:left;animation:lab-explore 2.4s ease-in-out infinite}
-.lab--exhibition .lab-intro__explore span:last-child{color:#ffc900;font-size:17px}
-.lab--exhibition .lab-intro__orbital{position:absolute;right:-14%;top:8%;width:72%;aspect-ratio:1;border-radius:50%;border:1px solid rgba(132,85,195,.11);transform:rotate(-25deg)}
-.lab--exhibition .lab-intro__orbital::before,.lab--exhibition .lab-intro__orbital::after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(132,85,195,.09);inset:12%}
-.lab--exhibition .lab-intro__orbital::after{inset:28%}
-.lab--exhibition .lab-intro__orbital i{position:absolute;width:5px;height:5px;border-radius:50%;background:#9968ff;box-shadow:0 0 15px #8b00ff;left:12%;top:23%}
-.lab--exhibition .lab-intro__orbital i:nth-child(2){background:#00d9ff;left:72%;top:72%}.lab--exhibition .lab-intro__orbital i:nth-child(3){background:#ffc900;left:53%;top:42%;width:3px;height:3px}
 .lab--exhibition .lab-scene{position:absolute;left:0;right:0;top:6%;height:52%;pointer-events:none}
 .lab--exhibition .lab-chess-halo{position:absolute;width:48%;aspect-ratio:1;left:23%;top:9%;border-radius:50%;background:radial-gradient(circle,rgba(160,77,255,.24),transparent 67%);filter:blur(20px)}
 .lab--exhibition .lab-chessboard{position:absolute;left:7%;top:16%;width:clamp(240px,27vw,450px);aspect-ratio:1;background:repeating-conic-gradient(#594181 0 25%,#1b1238 0 50%) 0 0/25% 25%;box-shadow:25px 38px 55px #0008,0 0 0 1px #b396dd7a;transform:perspective(850px) rotateX(56deg) rotateZ(-28deg);transform-style:preserve-3d;animation:lab-board-float 7s ease-in-out infinite}
@@ -67,3 +53,29 @@
 .lab--exhibition .lab-terminal-workflow i:nth-of-type(2){animation-delay:.7s}
 @keyframes lab-workflow{50%{transform:scaleX(.5);opacity:.45}}
 @media(max-width:600px){.lab--exhibition .lab-terminal-workflow{font-size:7px;gap:6px;bottom:12px}}
+/* Intro panel: typography carries the entire visual hierarchy. */
+.lab--exhibition .lab-panel--intro{background:#0b0b0d}
+.lab--exhibition .lab-panel--intro::before{background:radial-gradient(ellipse at 92% 72%,rgba(130,86,216,.10),transparent 48%),linear-gradient(112deg,#0b0b0d 40%,#10101a)}
+.lab--exhibition .lab-panel--intro::after{content:"";position:absolute;z-index:0;left:7%;top:10%;bottom:10%;width:1px;background:linear-gradient(180deg,transparent,rgba(166,128,243,.25) 28%,rgba(86,120,246,.2) 72%,transparent);pointer-events:none}
+.lab--exhibition .lab-panel--intro .lab-intro__content{position:absolute;z-index:2;left:8%;right:2%;top:clamp(108px,14vh,155px);transform:none}
+.lab--exhibition .lab-panel--intro .lab-intro__eyebrow{display:flex;align-items:center;gap:14px;color:#eabafa;font:500 10px/1.5 var(--font-mono);letter-spacing:.2em}
+.lab--exhibition .lab-panel--intro .lab-intro__eyebrow::before{content:"";width:25px;height:1px;background:#ffd000}
+.lab--exhibition .lab-panel--intro h2{margin:28px 0 29px;font-family:var(--font-hero);font-size:clamp(6.3rem,10.5vw,10.8rem);font-weight:800;line-height:.84;letter-spacing:.005em;text-transform:uppercase}
+.lab--exhibition .lab-panel--intro .lab-intro__line{display:block;width:max-content;max-width:100%;overflow:hidden;padding:0 12px 13px 0}
+.lab--exhibition .lab-panel--intro .lab-intro__word{display:block;width:max-content;will-change:transform}
+.lab--exhibition .lab-panel--intro .lab-intro__line--inside .lab-intro__word{color:#f5f5f7}
+.lab--exhibition .lab-panel--intro .lab-intro__line--the{margin-left:clamp(65px,10vw,150px)}
+.lab--exhibition .lab-panel--intro .lab-intro__line--the .lab-intro__word{color:rgba(234,186,250,.07);-webkit-text-stroke:1.5px #eabafa;text-stroke:1.5px #eabafa}
+.lab--exhibition .lab-panel--intro .lab-intro__line--lab{margin-left:clamp(8px,2vw,28px)}
+.lab--exhibition .lab-panel--intro .lab-intro__lab-fill{display:inline-block;color:#f5f5f7;background:linear-gradient(105deg,#f5f5f7 15%,#eabafa 54%,#f5f5f7 84%);background-size:200% 100%;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:lab-intro-ink 9s ease-in-out infinite alternate}
+.lab--exhibition .lab-panel--intro .lab-intro__dot{display:inline-block;color:#ffd000;-webkit-text-fill-color:#ffd000;-webkit-text-stroke:0;transform-origin:50% 80%}
+.lab--exhibition .lab-panel--intro .lab-intro__paragraph{max-width:390px;margin:19px 0 0 clamp(35px,8vw,116px);padding:17px 0 0;border:0;border-top:1px solid rgba(234,186,250,.24);display:block}
+.lab--exhibition .lab-panel--intro .lab-intro__paragraph p{max-width:390px;margin:0;color:#c7c4cf;font-size:clamp(.9rem,1.1vw,1.05rem);line-height:1.62}
+.lab--exhibition .lab-panel--intro .lab-intro__explore{position:absolute;z-index:2;left:8%;bottom:8%;display:flex;gap:14px;align-items:center;color:#e1dce6;font:9px var(--font-mono);letter-spacing:.18em}
+.lab--exhibition .lab-panel--intro .lab-intro__explore i{width:clamp(80px,10vw,135px);height:1px;background:linear-gradient(90deg,#a680f3,#5678f6);transform-origin:left;animation:lab-explore 2.4s ease-in-out infinite}
+.lab--exhibition .lab-panel--intro .lab-intro__explore span:last-child{color:#ffd000;font-size:16px}
+@keyframes lab-intro-ink{from{background-position:100% 50%}to{background-position:0% 50%}}
+@media(max-width:1200px){.lab--exhibition .lab-panel--intro h2{font-size:clamp(6rem,9.9vw,8.5rem)}.lab--exhibition .lab-panel--intro .lab-intro__paragraph{margin-left:clamp(40px,8vw,90px)}}
+@media(max-width:900px){.lab--exhibition .lab-panel--intro h2{font-size:clamp(6rem,12vw,9rem)}}
+@media(max-width:600px){.lab--exhibition .lab-panel--intro .lab-intro__content{top:clamp(112px,15vh,140px)}.lab--exhibition .lab-panel--intro h2{font-size:clamp(4.7rem,23vw,6.8rem);margin:26px 0 26px}.lab--exhibition .lab-panel--intro .lab-intro__line{padding-bottom:10px}.lab--exhibition .lab-panel--intro .lab-intro__line--the{margin-left:19vw}.lab--exhibition .lab-panel--intro .lab-intro__line--lab{margin-left:2vw}.lab--exhibition .lab-panel--intro .lab-intro__paragraph{max-width:305px;margin:20px 0 0 9vw;padding-top:15px}.lab--exhibition .lab-panel--intro .lab-intro__paragraph p{font-size:.94rem}.lab--exhibition .lab-panel--intro .lab-intro__explore{bottom:7%;font-size:8px}.lab--exhibition .lab-panel--intro .lab-intro__explore i{width:55px}}
+@media(prefers-reduced-motion:reduce){.lab--exhibition .lab-panel--intro .lab-intro__lab-fill{animation:none;background-position:50% 50%}}
